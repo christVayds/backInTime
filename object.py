@@ -18,7 +18,6 @@ class Object(pygame.sprite.Sprite):
         self.e_front = []
 
         self.rect = pygame.Rect((x, y), (self.width, self.height)) # oject rect
-        self.collision = pygame.Rect((x, y), (self.width, self.height)) # object collision rect
         self.image = pygame.Surface((self.width, self.height)) # object surface
 
         # non animated object/image

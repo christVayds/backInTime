@@ -66,11 +66,20 @@
         {"name": "base", "type": "navigation", "rect": "(50, 400, 75, 50)", "distination": "base_map3"}
     ],
 
+    "mainMenu": [
+        {"name": "title_4", "type": "animated", "rect": "(50, 25, 320, 40)"},
+        {"name": "selectplayer", "type": "animated", "rect": "(425, 50, 192, 24)"},
+        {"name": "play", "type": "selector", "rect": "(137, 100, 96, 24)", "selected": 0},
+        {"name": "credits", "type": "selector", "rect": "(137, 150, 96, 24)", "selected": 1},
+        {"name": "setting", "type": "selector", "rect": "(137, 200, 96, 24)", "selected": 1},
+        {"name": "exit", "type": "selector", "rect": "(137, 250, 96, 24)", "selected": 1},
+
+        {"name": "s_johny", "type": "selector_player", "rect": "(475, 100, 96, 120)"}
+    ],
+
     "Enemies_m2": [
         {"name": "goblin", "rect": "(200, 200, 50, 50)", "comment": "enemies for map 2"},
         {"name": "goblin", "rect": "(300, 150, 50, 50)"},
-        {"name": "goblin", "rect": "(350, 100, 50, 50)"},
-        {"name": "goblin", "rect": "(450, 150, 50, 50)"},
-        {"name": "goblin", "rect": "(500, 100, 50, 50)"}
+        {"name": "goblin", "rect": "(350, 100, 50, 50)"}
     ]
 }
