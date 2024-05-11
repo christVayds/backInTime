@@ -248,7 +248,14 @@ class Player(pygame.sprite.Sprite):
     # animate the fight
     def handleFight(self, enemies):
         # use space bar to fight
-        pass
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_SPACE]:
+            for enemy in enemies:
+                if pygame.sprite.collide_mask(self, enemy):
+                    enemy.attacked = True
+                    enemy.fly = 5
+                    enemy.life -= 20
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -264,6 +271,9 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.width, self.height))
 
         self.speed = random.choice([2.5, 3, 3.5, 4])
+        self.attacked = False
+        self.fly = 0
+        self.life = 100
 
         # facing
         self.left = True
@@ -283,6 +293,7 @@ class Enemy(pygame.sprite.Sprite):
     def draw(self, screen, objects):
 
         # handle collision
+        self.hit()
         self.handleCollision(objects)
         
         if (self.walk + 1) >= 21:
@@ -307,10 +318,12 @@ class Enemy(pygame.sprite.Sprite):
 
     # enemy x and y move directions
     def move_x(self, direction):
-        self.rect.x += direction
+        if not(self.attacked):
+            self.rect.x += direction
 
     def move_y(self, direction):
-        self.rect.y += direction
+        if not(self.attacked):
+            self.rect.y += direction
 
     # enemy follow player until player's life is 0
     def follow(self, player):
@@ -388,3 +401,14 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.top = object.rect.bottom
                     elif self.down:
                         self.rect.bottom = object.rect.top
+                        
+    def hit(self):
+        if self.attacked:
+            if self.fly > 0:
+                if self.left or self.up:
+                    self.rect.x += 5
+                elif self.right or self.down:
+                    self.rect.x -= 5
+                self.fly -= 1
+            else:
+                self.attacked = False

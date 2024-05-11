@@ -33,6 +33,7 @@ from Maps import Map_3
 
 # initialize pygame
 pygame.init()
+pygame.mixer.init()
 
 # screen
 windowSize = {'width': 700, 'height': 500} # size of the display
@@ -43,11 +44,15 @@ pygame.display.set_caption('Back In Time')
 clock = pygame.time.Clock()
 fps = 30 # 30 frames per second
 
+# audios / sfx / bg musics
+bg1 = pygame.mixer.music.load('audio/bg1.mp3') # audio
+pygame.mixer.music.play(-1)
+
 # TImer
 timer = Timer(fps)
 
 # Program flow
-flow = ['intro', 'main-menu', 'in-game', 'outro']
+flow = ['intro', 'main-menu', 'in-game', 'outro', 'exit']
 current = flow[0]
 
 # loading and checking resources
@@ -79,20 +84,25 @@ readData.read() # read all data
 readData.strToTuple('Base') # make all string tuple in Map1 to tuple
 readData.strToTuple('Map2')
 readData.strToTuple('Map3')
-readData.strToTuple('Enemies_m2')
+readData.strToTuple('Enemies_m2') # read the tuple(positions) of the enemies
+readData.strToTuple('mainMenu')
 
 # CREATIONS
 
 # for loading screen / intro
 title = [
-    Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_2'),
+    Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_3'),
     Object((windowSize['width'] - 192) / 2, windowSize['height'] - 150, 192, 48, 'other', 'credits')
 ]
 
-######## MAPS #########
+######## CREATE MAIN MENU #########
+create_menu = Create(window, player, readData.data['mainMenu'])
+create_menu.create_UI()
+
+######## CREATE MAPS #########
 
 # create objects for blocks and other objects - Map 1 / base
-create_base = Create(window, player, readData.data['Base']) 
+create_base = Create(window, player, readData.data['Base'])
 create_base.create()
 
 # create objects for blocks and other objects - Map 2
@@ -106,7 +116,7 @@ create_map3.create()
 # append Maps to player's map list of mapObjects
 # player.MapObjects = [create_base.mapObject, create_map2.mapObject]
 
-######## ENEMIES #########
+######## CREATE ENEMIES #########
 
 # enemies for map 2
 enemies_map2 = Create(window, player, readData.data['Enemies_m2'])
@@ -166,6 +176,7 @@ def draw_map2():
     # draw player
     player.draw(window, create_map2.listofObjects[1:])
     player.navigate()
+    player.handleFight(enemies_map2.listEnemies)
 
     for guis in listGUIs:
         guis.draw(window)
@@ -192,6 +203,23 @@ def draw_map3():
 
     pygame.display.flip()
 
+# main menu of the game
+def mainMenu():
+    global current
+
+    window.fill((10, 10, 10))
+
+    create_menu.draw_ui()
+    selected = create_menu.Select()
+
+    if selected == 0:
+        player.location = 'base'
+        current = flow[2]
+    elif selected == 3:
+        current = flow[-1]
+
+    pygame.display.flip()
+
 # opening scene function / credits and loading
 def Opening():
     global current, title
@@ -210,7 +238,7 @@ def Opening():
         if check:
             if timer.coolDown(5):
                 player.location = 'base'
-                current = flow[2]
+                current = flow[1]
                 del title # remove or delete all loaded images
 
     pygame.display.flip()
@@ -236,6 +264,8 @@ def main():
         # intro
         if current == flow[0]:
             Opening()
+        elif current == flow[1]:
+            mainMenu()
         # in-game
         elif current == flow[2]:
         # draw the display
@@ -245,6 +275,8 @@ def main():
                 draw_map2()
             elif player.location == 'map3': # not yet
                 draw_map3()
+        elif current == flow[-1]:
+            run = False
 
         # for testing
         chechFPS(round(clock.get_fps(), 2))
