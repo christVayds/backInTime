@@ -51,9 +51,9 @@ pygame.mixer.music.play(-1)
 # TImer
 timer = Timer(fps)
 
-# Program flow
-flow = ['intro', 'main-menu', 'in-game', 'outro', 'exit']
-current = flow[0]
+# Program pages
+pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'outro', 'exit']
+currentPage = pages[0]
 
 # loading and checking resources
 load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 500, 15)
@@ -86,6 +86,8 @@ readData.strToTuple('Map2')
 readData.strToTuple('Map3')
 readData.strToTuple('Enemies_m2') # read the tuple(positions) of the enemies
 readData.strToTuple('mainMenu')
+readData.strToTuple('settings')
+readData.strToTuple('credits')
 
 # CREATIONS
 
@@ -98,6 +100,14 @@ title = [
 ######## CREATE MAIN MENU #########
 create_menu = Create(window, player, readData.data['mainMenu'])
 create_menu.create_UI()
+
+######## CREATE SETTINGS #########
+create_settings = Create(window, player, readData.data['settings'])
+create_settings.create_UI()
+
+######## CREATE SETTINGS #########
+create_credits = Create(window, player, readData.data['credits'])
+create_credits.create_UI()
 
 ######## CREATE MAPS #########
 
@@ -205,24 +215,63 @@ def draw_map3():
 
 # main menu of the game
 def mainMenu():
-    global current
+    global currentPage
 
     window.fill((10, 10, 10))
 
     create_menu.draw_ui()
     selected = create_menu.Select()
 
-    if selected == 0:
+    if selected == 0: # navigate to the game
         player.location = 'base'
-        current = flow[2]
-    elif selected == 3:
-        current = flow[-1]
+        currentPage = pages[5]
+    elif selected == 1: # credits
+        currentPage = pages[3]
+    elif selected == 2: # settings
+        currentPage = pages[2]
+    elif selected == 3: # exit game
+        currentPage = pages[-1]
+
+    pygame.display.flip()
+
+# settings
+def settings():
+    global currentPage
+
+    window.fill((10, 10, 10))
+
+    create_settings.draw_ui()
+    selected = create_settings.Select()
+
+    if selected == 2: # if save is selected
+        currentPage = pages[1] # back to main menu
+
+    pygame.display.flip()
+
+# display credits
+def credits():
+    global currentPage
+    window.fill((10, 10, 10))
+
+    create_credits.draw_ui()
+
+    keys = pygame.key.get_just_pressed()
+
+    if keys[pygame.K_SPACE]:
+        currentPage = pages[1]
+
+    pygame.display.flip()
+
+# display selecting players / characters
+def selectPlayer():
+    global currentPage
+    window.fill((10, 10, 10))
 
     pygame.display.flip()
 
 # opening scene function / credits and loading
 def Opening():
-    global current, title
+    global currentPage, title
 
     window.fill((10, 10, 10))
 
@@ -238,7 +287,7 @@ def Opening():
         if check:
             if timer.coolDown(5):
                 player.location = 'base'
-                current = flow[1]
+                currentPage = pages[1] # navigate to main menu
                 del title # remove or delete all loaded images
 
     pygame.display.flip()
@@ -262,20 +311,26 @@ def main():
 
         # draw the display
         # intro
-        if current == flow[0]:
-            Opening()
-        elif current == flow[1]:
-            mainMenu()
+        if currentPage == pages[0]:
+            Opening() # opening screen / loading and checking all resources
+        elif currentPage == pages[1]:
+            mainMenu() # main menu
+        elif currentPage == pages[2]: # settings
+            settings()
+        elif currentPage == pages[3]: # show credits
+            credits()
+        elif currentPage == pages[4]: # select player or characters
+            selectPlayer()
         # in-game
-        elif current == flow[2]:
+        elif currentPage == pages[5]: # go to game screen
         # draw the display
-            if player.location == 'base':
+            if player.location == 'base': # map 1
                 draw_base()
-            elif player.location == 'map2':
+            elif player.location == 'map2': # map 2
                 draw_map2()
-            elif player.location == 'map3': # not yet
+            elif player.location == 'map3': # map 3 - not yet done
                 draw_map3()
-        elif current == flow[-1]:
+        elif currentPage == pages[-1]: # exit game
             run = False
 
         # for testing

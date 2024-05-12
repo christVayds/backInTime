@@ -67,14 +67,34 @@
     ],
 
     "mainMenu": [
-        {"name": "title_4", "type": "animated", "rect": "(50, 25, 320, 40)"},
-        {"name": "selectplayer", "type": "animated", "rect": "(425, 50, 192, 24)"},
-        {"name": "play", "type": "selector", "rect": "(137, 100, 96, 24)", "selected": 0},
-        {"name": "credits", "type": "selector", "rect": "(137, 150, 96, 24)", "selected": 1},
-        {"name": "setting", "type": "selector", "rect": "(137, 200, 96, 24)", "selected": 1},
-        {"name": "exit", "type": "selector", "rect": "(137, 250, 96, 24)", "selected": 1},
+        {"name": "title_4", "type": "animated", "rect": "(192, 100, 320, 40)"},
+        {"name": "play", "type": "selector", "rect": "(302, 180, 96, 24)", "selected": 0},
+        {"name": "credits", "type": "selector", "rect": "(302, 230, 96, 24)", "selected": 1},
+        {"name": "setting", "type": "selector", "rect": "(302, 280, 96, 24)", "selected": 1},
+        {"name": "exit", "type": "selector", "rect": "(302, 330, 96, 24)", "selected": 1}
+    ],
 
-        {"name": "s_johny", "type": "selector_player", "rect": "(475, 100, 96, 120)"}
+    "settings": [
+        {"name": "settings_text", "type": "other", "rect": "(302, 10, 96, 24)"},
+        {"name": "music", "type": "selector", "rect": "(25, 100, 96, 24)", "selected": 0},
+        {"name": "sounds", "type": "selector", "rect": "(25, 150, 96, 24)", "selected": 1},
+        {"name": "save", "type": "selector", "rect": "(25, 200, 96, 24)", "selected": 1}
+    ],
+
+    "credits": [
+        {"name": "credit_text", "type": "other", "rect": "(302, 10, 96, 24)"},
+        {"name": "space_exit", "type": "other", "rect": "(286, 470, 128, 16)"},
+        {"name": "christian_v", "type": "other", "rect": "(25, 100, 186, 24)"},
+        {"name": "aeron_s", "type": "other", "rect": "(25, 130, 186, 24)"},
+        {"name": "ethan_l", "type": "other", "rect": "(25, 160, 186, 24)"},
+        {"name": "prog_text", "type": "other", "rect": "(360, 100, 186, 24)"},
+        {"name": "artist_text", "type": "other", "rect": "(550, 100, 186, 24)"},
+        {"name": "prog_text", "type": "other", "rect": "(360, 130, 186, 24)"},
+        {"name": "artist_text", "type": "other", "rect": "(550, 130, 186, 24)"},
+        {"name": "artist_text", "type": "other", "rect": "(550, 160, 186, 24)"},
+
+        {"name": "credits_1", "type": "other", "rect": "(25, 200, 256, 256)"},
+        {"name": "credits_2", "type": "other", "rect": "(419, 200, 256, 256)"}
     ],
 
     "Enemies_m2": [
