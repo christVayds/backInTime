@@ -2,6 +2,7 @@ from object import Object
 from character import Enemy
 from UI import UI
 import pygame
+
 class Create:
 
     def __init__(self, screen, player, list_obj):
@@ -31,6 +32,12 @@ class Create:
             if obj != self.listofObjects[0]:
                 obj.draw(self.screen)
 
+    def pauseGame(self):
+         keys = pygame.key.get_just_pressed()
+
+         if keys[pygame.K_ESCAPE]:
+             return True
+
     #  for UI
     def create_UI(self):
         for obj in self.list_obj:
@@ -45,12 +52,12 @@ class Create:
             uis.draw(self.screen)
         # self.Select()
 
-    def Select(self):
+    def Select(self): # select from the main menu only
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_TAB] or keys[pygame.K_DOWN]:
             self.selected += 1
-            if self.selected > 3:
+            if self.selected > (len(self.selectors) - 1):
                 self.selected = 0
 
             for ui in self.selectors:
@@ -60,7 +67,7 @@ class Create:
         elif keys[pygame.K_UP]:
             self.selected -= 1
             if self.selected < 0:
-                self.selected = 3
+                self.selected = (len(self.selectors) - 1)
 
             for ui in self.selectors:
                 ui.selected = 1
