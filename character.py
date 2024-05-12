@@ -189,7 +189,7 @@ class Player(pygame.sprite.Sprite):
                             self.rect.right = obj.rect.left
 
                     elif self.up and obj.front:
-                        if self.rect.top < obj.rect.bottom - 40:
+                        if self.rect.top <= obj.rect.bottom - 40:
                             self.rect.top = obj.rect.bottom - 40
                     elif self.down and not(obj.front):
                         self.rect.bottom = obj.rect.top

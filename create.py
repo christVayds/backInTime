@@ -32,6 +32,12 @@ class Create:
             if obj != self.listofObjects[0]:
                 obj.draw(self.screen)
 
+    def pauseGame(self):
+         keys = pygame.key.get_just_pressed()
+
+         if keys[pygame.K_ESCAPE]:
+             return True
+
     #  for UI
     def create_UI(self):
         for obj in self.list_obj:

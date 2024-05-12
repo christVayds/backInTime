@@ -52,7 +52,7 @@ pygame.mixer.music.play(-1)
 timer = Timer(fps)
 
 # Program pages
-pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'outro', 'exit']
+pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'pause-game', 'outro', 'exit']
 currentPage = pages[0]
 
 # loading and checking resources
@@ -88,6 +88,7 @@ readData.strToTuple('Enemies_m2') # read the tuple(positions) of the enemies
 readData.strToTuple('mainMenu')
 readData.strToTuple('settings')
 readData.strToTuple('credits')
+readData.strToTuple('pauseGame')
 
 # CREATIONS
 
@@ -105,9 +106,13 @@ create_menu.create_UI()
 create_settings = Create(window, player, readData.data['settings'])
 create_settings.create_UI()
 
-######## CREATE SETTINGS #########
+######## CREATE CREDITS #########
 create_credits = Create(window, player, readData.data['credits'])
 create_credits.create_UI()
+
+######## CREATE PAUSE #########
+create_pause = Create(window, player, readData.data['pauseGame'])
+create_pause.create_UI()
 
 ######## CREATE MAPS #########
 
@@ -146,6 +151,7 @@ allObjects3 = create_map3.listofObjects+[map_3]
 
 # draw base map function
 def draw_base():
+    global currentPage
 
     window.fill((10, 10, 10))
 
@@ -157,6 +163,7 @@ def draw_base():
 
     # draw object
     create_base.draw()
+    pause = create_base.pauseGame() # if player click esc - pause
 
     # draw player
     player.draw(window, create_base.listofObjects[1:])
@@ -165,10 +172,15 @@ def draw_base():
     for guis in listGUIs:
         guis.draw(window)
 
+    # temporary
+    if pause:
+        currentPage = pages[6] # game menu / pause
+
     pygame.display.flip()
 
 # draw MAP 2 funtion
 def draw_map2():
+    global currentPage
     window.fill((10, 10, 10))
 
     # camera for map 2
@@ -179,6 +191,7 @@ def draw_map2():
 
     # draw objects
     create_map2.draw()
+    pause = create_map2.pauseGame()
 
     # enemies
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
@@ -191,15 +204,21 @@ def draw_map2():
     for guis in listGUIs:
         guis.draw(window)
 
+    # temporary
+    if pause:
+        currentPage = pages[6] # game menu / pause
+
     pygame.display.flip()
 
 # not yet done
 def draw_map3(): 
+    global currentPage
     window.fill((10, 10, 10))
 
     map_3.drawMap(window)
 
     create_map3.draw()
+    pause = create_map3.pauseGame()
 
     # draw player in map3
     player.draw(window, create_map3.listofObjects[1:])
@@ -210,6 +229,25 @@ def draw_map3():
 
     for gui in listGUIs:
         gui.draw(window)
+
+    # temporary
+    if pause:
+        currentPage = pages[6] # game menu / pause
+
+    pygame.display.flip()
+
+# pause the game
+def PauseGame():
+    global currentPage
+    window.fill((10, 10, 10))
+
+    create_pause.draw_ui()
+
+    keys = pygame.key.get_just_pressed()
+
+    # temporary
+    if keys[pygame.K_ESCAPE]:
+        currentPage = pages[5]
 
     pygame.display.flip()
 
@@ -330,6 +368,8 @@ def main():
                 draw_map2()
             elif player.location == 'map3': # map 3 - not yet done
                 draw_map3()
+        elif currentPage == pages[6]:
+            PauseGame()
         elif currentPage == pages[-1]: # exit game
             run = False
 
