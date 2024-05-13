@@ -45,7 +45,7 @@ clock = pygame.time.Clock()
 fps = 30 # 30 frames per second
 
 # audios / sfx / bg musics
-bg1 = pygame.mixer.music.load('audio/bg1.mp3') # audio
+bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
 pygame.mixer.music.play(-1)
 
 # TImer
@@ -89,6 +89,7 @@ readData.strToTuple('mainMenu')
 readData.strToTuple('settings')
 readData.strToTuple('credits')
 readData.strToTuple('pauseGame')
+readData.strToTuple('SelectPlayer')
 
 # CREATIONS
 
@@ -114,6 +115,10 @@ create_credits.create_UI()
 create_pause = Create(window, player, readData.data['pauseGame'])
 create_pause.create_UI()
 
+######## CREATE SELECT PLAYER #########
+create_selectPlayer = Create(window, player, readData.data['SelectPlayer'])
+create_selectPlayer.create_UI()
+
 ######## CREATE MAPS #########
 
 # create objects for blocks and other objects - Map 1 / base
@@ -127,9 +132,6 @@ create_map2.create()
 # create objects for blocks and other objects - Map 3
 create_map3 = Create(window, player, readData.data['Map3'])
 create_map3.create()
-
-# append Maps to player's map list of mapObjects
-# player.MapObjects = [create_base.mapObject, create_map2.mapObject]
 
 ######## CREATE ENEMIES #########
 
@@ -242,12 +244,18 @@ def PauseGame():
     window.fill((10, 10, 10))
 
     create_pause.draw_ui()
+    selected = create_pause.Select()
 
     keys = pygame.key.get_just_pressed()
 
     # temporary
     if keys[pygame.K_ESCAPE]:
         currentPage = pages[5]
+    
+    if selected == 0:
+        currentPage = pages[5] # back to game
+    elif selected == 1:
+        currentPage = pages[1] # navigate to main menu
 
     pygame.display.flip()
 
@@ -260,9 +268,11 @@ def mainMenu():
     create_menu.draw_ui()
     selected = create_menu.Select()
 
-    if selected == 0: # navigate to the game
-        player.location = 'base'
-        currentPage = pages[5]
+    if selected == 0: # navigate to Select player 
+        if player.name != "":
+            currentPage = pages[5]
+        else:
+            currentPage = pages[4]
     elif selected == 1: # credits
         currentPage = pages[3]
     elif selected == 2: # settings
@@ -295,7 +305,7 @@ def credits():
 
     keys = pygame.key.get_just_pressed()
 
-    if keys[pygame.K_SPACE]:
+    if keys[pygame.K_SPACE] or keys[pygame.K_ESCAPE]:
         currentPage = pages[1]
 
     pygame.display.flip()
@@ -304,6 +314,27 @@ def credits():
 def selectPlayer():
     global currentPage
     window.fill((10, 10, 10))
+
+    create_selectPlayer.draw_ui()
+    character = create_selectPlayer.Select()
+
+    keys = pygame.key.get_just_pressed()
+
+    if keys[pygame.K_SPACE]:
+        player.location = 'base'
+        if character == 0:
+            player.name = 'Johny'
+        elif character == 1:
+            player.name = 'Ricky'
+        elif character == 2:
+            player.name = 'JP'
+        elif character == 3:
+            player.name = 'Jayson'
+        else:
+            raise Exception('Player not found')
+        currentPage = pages[5] # navigate to game page
+    elif keys[pygame.K_ESCAPE]: 
+        currentPage = pages[1] # back to main menu
 
     pygame.display.flip()
 
@@ -316,7 +347,6 @@ def Opening():
     # draw animated title
     for ttle in title:
         ttle.draw(window)
-    # title[0].draw(window)
 
     # slow down the loading animation
     load.draw(window)

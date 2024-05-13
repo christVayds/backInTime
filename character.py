@@ -1,8 +1,6 @@
 import pygame
 import random
 
-import pygame.locals # sino naglagay nyan? hahah
-
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y, width, height, name=''):
@@ -11,9 +9,12 @@ class Player(pygame.sprite.Sprite):
         self.height = height
         self.name = name
 
+        # Fonts
+        self.font = pygame.font.SysFont('comicsansms', 20)
+
         # player life
         self.defaultLife = 100
-        self.life = self.defaultLife
+        self.life = 50
 
         # speed
         self.speed = 7
@@ -100,6 +101,12 @@ class Player(pygame.sprite.Sprite):
         
         # player rect
         # pygame.draw.rect(screen, (255,255,10), self.rect, 1)
+        self.barLife(screen)
+
+    def barLife(self, screen):
+        # player's life bar
+        pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 10, self.width, 5))
+        pygame.draw.rect(screen, (225, 252, 68), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / self.defaultLife) * self.width, 5))
 
     
     def Facing(self, screen):
@@ -131,7 +138,7 @@ class Player(pygame.sprite.Sprite):
 
         for image in images:
             for count in range(7):
-                img = f'characters/char1/{image}{count}.png'
+                img = f'characters/johny/{image}{count}.png'
                 img = pygame.image.load(img)
                 img = pygame.transform.scale(img, (self.width, self.height))
                 if image == 'D_Walk_':
@@ -240,7 +247,7 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE]:
             for item in obj.loaded:
                 self.inventories.append(item)
-                print(f'you get {obj.name}')
+                print(f'inventory: {self.inventories}')
                 obj.loaded = []
 
             # print(self.inventories, len(self.inventories))
@@ -315,6 +322,12 @@ class Enemy(pygame.sprite.Sprite):
                     screen.blit(self.e_right[0], self.rect.x, self.rect.y)
 
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
+
+        self.barLife(screen)
+
+    def barLife(self, screen):
+        pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 10, self.width, 5))
+        pygame.draw.rect(screen, (252, 78, 15), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / 100) * self.width, 5))
 
     # enemy x and y move directions
     def move_x(self, direction):
