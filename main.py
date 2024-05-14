@@ -46,7 +46,10 @@ fps = 30 # 30 frames per second
 
 # audios / sfx / bg musics
 bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
-pygame.mixer.music.play(-1)
+pygame.mixer.music.play(-1) # play bg music in loop
+
+select = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
+selected = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
 
 # TImer
 timer = Timer(fps)
@@ -306,6 +309,7 @@ def credits():
     keys = pygame.key.get_just_pressed()
 
     if keys[pygame.K_SPACE] or keys[pygame.K_ESCAPE]:
+        selected.play() # play audio selected
         currentPage = pages[1]
 
     pygame.display.flip()
@@ -333,7 +337,8 @@ def selectPlayer():
         else:
             raise Exception('Player not found')
         currentPage = pages[5] # navigate to game page
-    elif keys[pygame.K_ESCAPE]: 
+    elif keys[pygame.K_ESCAPE]:
+        selected.play() # play audio selected
         currentPage = pages[1] # back to main menu
 
     pygame.display.flip()

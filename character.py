@@ -15,6 +15,7 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
+        self.power = 5
 
         # speed
         self.speed = 7
@@ -261,8 +262,7 @@ class Player(pygame.sprite.Sprite):
             for enemy in enemies:
                 if pygame.sprite.collide_mask(self, enemy):
                     enemy.attacked = True
-                    enemy.fly = 5
-                    enemy.life -= 20
+                    enemy.life -= self.power
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -278,8 +278,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.width, self.height))
 
         self.speed = random.choice([2.5, 3, 3.5, 4])
-        self.attacked = False
-        self.fly = 0
+        self.attacked = False # attacjed by the player
         self.life = 100
 
         # facing
@@ -416,12 +415,4 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.bottom = object.rect.top
                         
     def hit(self):
-        if self.attacked:
-            if self.fly > 0:
-                if self.left or self.up:
-                    self.rect.x += 5
-                elif self.right or self.down:
-                    self.rect.x -= 5
-                self.fly -= 1
-            else:
-                self.attacked = False
+        pass # change the color of the enemy if hit
