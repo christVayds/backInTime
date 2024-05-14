@@ -48,14 +48,14 @@ fps = 30 # 30 frames per second
 bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
 pygame.mixer.music.play(-1) # play bg music in loop
 
-select = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
-selected = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
+select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
+selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
 
 # TImer
 timer = Timer(fps)
 
 # Program pages
-pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'pause-game', 'outro', 'exit']
+pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'pause-game', 'outro', 'exit', 'error_message']
 currentPage = pages[0]
 
 # loading and checking resources
@@ -251,8 +251,8 @@ def PauseGame():
 
     keys = pygame.key.get_just_pressed()
 
-    # temporary
-    if keys[pygame.K_ESCAPE]:
+    if keys[pygame.K_ESCAPE]: # back to game
+        selected_item.play()
         currentPage = pages[5]
     
     if selected == 0:
@@ -296,6 +296,7 @@ def settings():
 
     if selected == 2: # if save is selected
         currentPage = pages[1] # back to main menu
+        selected = 0
 
     pygame.display.flip()
 
@@ -309,7 +310,7 @@ def credits():
     keys = pygame.key.get_just_pressed()
 
     if keys[pygame.K_SPACE] or keys[pygame.K_ESCAPE]:
-        selected.play() # play audio selected
+        selected_item.play() # play audio selected
         currentPage = pages[1]
 
     pygame.display.flip()
@@ -327,18 +328,20 @@ def selectPlayer():
     if keys[pygame.K_SPACE]:
         player.location = 'base'
         if character == 0:
-            player.name = 'Johny'
+            player.name = 'johny'
         elif character == 1:
-            player.name = 'Ricky'
+            player.name = 'jicky'
         elif character == 2:
-            player.name = 'JP'
+            player.name = 'jp'
         elif character == 3:
-            player.name = 'Jayson'
+            player.name = 'jayson'
         else:
             raise Exception('Player not found')
+        player.loadImages()
+        player.flipImage()
         currentPage = pages[5] # navigate to game page
     elif keys[pygame.K_ESCAPE]:
-        selected.play() # play audio selected
+        selected_item.play() # play audio selected
         currentPage = pages[1] # back to main menu
 
     pygame.display.flip()

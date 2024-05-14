@@ -1,6 +1,8 @@
 import pygame
 import random
 
+import pygame.locals
+
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y, width, height, name=''):
@@ -37,8 +39,9 @@ class Player(pygame.sprite.Sprite):
         self.c_up = []
         self.c_down = []
         # load all images of a characters
-        self.loadImages()
-        self.flipImage() # flip image
+        if self.name != '':
+            self.loadImages()
+            self.flipImage() # flip image
 
         # inventories / items list
         self.inventories = []
@@ -139,7 +142,7 @@ class Player(pygame.sprite.Sprite):
 
         for image in images:
             for count in range(7):
-                img = f'characters/johny/{image}{count}.png'
+                img = f'characters/{self.name}/{image}{count}.png'
                 img = pygame.image.load(img)
                 img = pygame.transform.scale(img, (self.width, self.height))
                 if image == 'D_Walk_':
@@ -416,3 +419,50 @@ class Enemy(pygame.sprite.Sprite):
                         
     def hit(self):
         pass # change the color of the enemy if hit
+
+class NPC(pygame.sprite.Sprite):
+
+    def __init__(self, x, y, width, height, name=''):
+        super().__init__()
+        self.width = width
+        self.height = height
+        self.name = name
+
+        self.rect = pygame.Rect(x, y, self.width, self.height)
+        self.image = pygame.Surface((self.width, self.height))
+
+        self.c_left = []
+        self.c_right = []
+        self.c_up = []
+        self.c_down = []
+        if self.name != '':
+            self.loadImages()
+            self.flip()
+
+    def draw(self, screen):
+        if self.name != '':
+            screen.blit(self.c_down[0], self.rect)
+        else:
+            pygame.draw.rect(screen, (255,255,255), self.rect)
+
+    def loadImages(self):
+        sides = ['D_Walk_', 'S_Walk_', 'U_Walk_']
+
+        for side in sides:
+            for i in range(7):
+                image = f'characters/NPC/{self.name}/{side}{i}.png'
+                image = pygame.image.load(image)
+                image = pygame.transform.scale(image, (self.width, self.height))
+                if side == sides[0]:
+                    self.c_down.append(image)
+                elif side == sides[1]:
+                    self.c_left.append(image)
+                elif side == sides[2]:
+                    self.c_up.append(image)
+                else:
+                    print('not found')
+
+    def flip(self):
+        for image in self.c_left:
+            c_right = pygame.transform.flip(image, True, False)
+            self.c_right.append(c_right)
