@@ -235,6 +235,11 @@ class Player(pygame.sprite.Sprite):
                 self.location = obj.name
                 self.nav = True
 
+            elif obj.name == 'map4':
+                self.respawn = self.location
+                self.location = obj.name
+                self.nav = True
+
             self.walk = 0
 
     def navigate(self):

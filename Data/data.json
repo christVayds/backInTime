@@ -55,6 +55,7 @@
         {"name": "machine_1", "type": "animated", "rect": "(610, 25, 84, 120)", "comment": "animated"},
 
         {"name": "base", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "base_map2"},
+        {"name": "map4", "type": "navigation", "rect": "(425, 450, 75, 50)", "distination": "map4_map2"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(0, 50, 25, 150)"},
         {"name": "hidden", "type": "hidden2", "rect": "(400, 200, 300, 25)"},
@@ -68,6 +69,10 @@
         {"name": "teleportation_cables", "type": "animated", "rect": "(475, 25, 115, 74)"},
         {"name": "power_generator_1", "type": "animated", "rect": "(590, 25, 85, 74)"},
         {"name": "teleport_machine", "type": "animated", "rect": "(525, 100, 96, 96)"}
+    ],
+
+    "Map4": [
+        {"name": "map2", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "map2_map4"}
     ],
 
     "mainMenu": [

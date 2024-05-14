@@ -26,10 +26,7 @@ from loading import Loading
 from timer import Timer
 
 # IMPORT MAPS
-# from Maps.map1 import TileMap as Map1 
-from Maps import baseMap # MAP1 / BASE
-from Maps import Map_2
-from Maps import Map_3
+from Maps import baseMap, Map_2, Map_3, Map_4
 
 # initialize pygame
 pygame.init()
@@ -65,6 +62,7 @@ load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 50
 base = baseMap.TileMap(25, 0, 0)
 map_2 = Map_2.TileMap(25, 0, 0)
 map_3 = Map_3.TileMap(25, 0, 0)
+map_4 = Map_4.TileMap(25, 0, 0)
 
 # GUIs (not yet draw)
 itemsGUI = UI((windowSize['width'] - 244) / 2, (windowSize['height'] - 70), 244, 60, 'itemsbar_6')
@@ -84,9 +82,11 @@ player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) /
 # read object data from json file data
 readData = Read('Data/data.json')
 readData.read() # read all data
+
 readData.strToTuple('Base') # make all string tuple in Map1 to tuple
 readData.strToTuple('Map2')
 readData.strToTuple('Map3')
+readData.strToTuple('Map4')
 readData.strToTuple('Enemies_m2') # read the tuple(positions) of the enemies
 readData.strToTuple('mainMenu')
 readData.strToTuple('settings')
@@ -136,6 +136,9 @@ create_map2.create()
 create_map3 = Create(window, player, readData.data['Map3'])
 create_map3.create()
 
+create_map4 = Create(window, player, readData.data['Map4'])
+create_map4.create()
+
 ######## CREATE ENEMIES #########
 
 # enemies for map 2
@@ -149,6 +152,7 @@ camera = Camera(player, windowSize)
 allObjects1 = create_base.listofObjects+[base]
 allObjects2 = create_map2.listofObjects+[map_2]+enemies_map2.listEnemies
 allObjects3 = create_map3.listofObjects+[map_3]
+allObjects4 = create_map4.listofObjects+[map_4]
 
 # create.listofObjects is a list of all objecst
 # listenemies is a list of all enemies
@@ -238,6 +242,31 @@ def draw_map3():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
+
+    pygame.display.flip()
+
+def draw_map4():
+    global currentPage
+
+    window.fill((10, 10, 10))
+
+    # draw the map
+    map_4.drawMap(window)
+
+    create_map4.draw()
+    pause = create_map4.pauseGame()
+
+    player.draw(window, create_map4.listofObjects[1:])
+    player.navigate()
+
+
+    camera.move(allObjects4)
+
+    for gui in listGUIs:
+        gui.draw(window)
+
+    if pause:
+        currentPage = pages[6]
 
     pygame.display.flip()
 
@@ -406,6 +435,8 @@ def main():
                 draw_map2()
             elif player.location == 'map3': # map 3 - not yet done
                 draw_map3()
+            elif player.location == 'map4':
+                draw_map4()
         elif currentPage == pages[6]:
             PauseGame()
         elif currentPage == pages[-1]: # exit game
