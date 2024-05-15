@@ -206,9 +206,9 @@ def draw_map2():
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
 
     # draw player
+    player.handleFight(enemies_map2.listEnemies, window)
     player.draw(window, create_map2.listofObjects[1:])
     player.navigate()
-    player.handleFight(enemies_map2.listEnemies)
 
     for guis in listGUIs:
         guis.draw(window)

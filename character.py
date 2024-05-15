@@ -12,12 +12,16 @@ class Player(pygame.sprite.Sprite):
         self.name = name
 
         # Fonts
-        self.font = pygame.font.SysFont('comicsansms', 20)
+        self.font = pygame.font.SysFont('consolas', 15)
 
         # player life
         self.defaultLife = 100
         self.life = 50
         self.power = 5
+        self.weapons = ['sword']
+        self.equiped = self.weapons[0]
+        self.attack = False
+        self.attacking = 3
 
         # speed
         self.speed = 7
@@ -38,10 +42,12 @@ class Player(pygame.sprite.Sprite):
         self.c_right = []
         self.c_up = []
         self.c_down = []
-        # load all images of a characters
-        if self.name != '':
-            self.loadImages()
-            self.flipImage() # flip image
+        self.sword = [
+            pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)),
+            pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)), True, True),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)), True, True)
+        ]
 
         # inventories / items list
         self.inventories = []
@@ -58,6 +64,8 @@ class Player(pygame.sprite.Sprite):
 
         # handle collision
         self.handleCollision(allObj)
+        self.displayName = self.font.render(self.name.title(), True, (0,0,0)) # temporary 
+        screen.blit(self.displayName, (self.rect.x, self.rect.y - (self.width / 2), self.displayName.get_width(), self.displayName.get_height()))
 
         # get key events
         keys = pygame.key.get_pressed()
@@ -109,8 +117,8 @@ class Player(pygame.sprite.Sprite):
 
     def barLife(self, screen):
         # player's life bar
-        pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 10, self.width, 5))
-        pygame.draw.rect(screen, (225, 252, 68), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / self.defaultLife) * self.width, 5))
+        pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 15, self.width, 5))
+        pygame.draw.rect(screen, (225, 252, 68), (self.rect.x, self.rect.y - (self.height / 2) + 15, (self.life / self.defaultLife) * self.width, 5))
 
     
     def Facing(self, screen):
@@ -224,7 +232,7 @@ class Player(pygame.sprite.Sprite):
                 self.nav = True
 
             elif obj.name == 'map2':
-                self.right, self.left, self.up, self.down, = True, False, False, False
+                self.right, self.left, self.up, self.down, = False, False, True, False
                 self.respawn = self.location
                 self.location = obj.name
                 self.nav = True
@@ -236,6 +244,7 @@ class Player(pygame.sprite.Sprite):
                 self.nav = True
 
             elif obj.name == 'map4':
+                self.right, self.left, self.up, self.down, = False, False, False, True
                 self.respawn = self.location
                 self.location = obj.name
                 self.nav = True
@@ -262,15 +271,48 @@ class Player(pygame.sprite.Sprite):
             # print(self.inventories, len(self.inventories))
 
     # animate the fight
-    def handleFight(self, enemies):
+    def handleFight(self, enemies, screen):
         # use space bar to fight
         keys = pygame.key.get_just_pressed()
+        if self.equiped == self.weapons[0]:
+            self.Sword(screen)
 
         if keys[pygame.K_SPACE]:
+            self.attack = True
             for enemy in enemies:
                 if pygame.sprite.collide_mask(self, enemy):
-                    enemy.attacked = True
-                    enemy.life -= self.power
+                    if self.left and self.rect.x > enemy.rect.x:
+                        enemy.attacked = True
+                        enemy.life -= self.power
+                        enemy.push = 10
+                    elif self.right and self.rect.x < enemy.rect.x:
+                        enemy.attacked = True
+                        enemy.life -= self.power
+                        enemy.push = 10
+                    elif self.down and self.rect.y < enemy.rect.y:
+                        enemy.attacked = True
+                        enemy.life -= self.power
+                        enemy.push = 10
+                    elif self.up and self.rect.y > enemy.rect.y:
+                        enemy.attacked = True
+                        enemy.life -= self.power
+                        enemy.push = 10
+
+    def Sword(self, screen):
+        if self.attack:
+            if self.attacking > 0:
+                if self.up:
+                    screen.blit(self.sword[0], (self.rect.x, self.rect.y-50))
+                elif self.down:
+                    screen.blit(self.sword[2], (self.rect.x, self.rect.y+50))
+                elif self.right:
+                    screen.blit(self.sword[1], (self.rect.x+50, self.rect.y))
+                elif self.left:
+                    screen.blit(self.sword[3], (self.rect.x-50, self.rect.y))
+                self.attacking -= 1
+            else:
+                self.attacking = 3
+                self.attack = False
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -285,9 +327,10 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = pygame.Rect((x, y), (self.width, self.height))
         self.image = pygame.Surface((self.width, self.height))
 
-        self.speed = random.choice([2.5, 3, 3.5, 4])
-        self.attacked = False # attacjed by the player
+        self.speed = random.choice([2.5, 3, 3.5])
+        self.attacked = False # attacked by the player
         self.life = 100
+        self.push = 5
 
         # facing
         self.left = True
@@ -338,12 +381,10 @@ class Enemy(pygame.sprite.Sprite):
 
     # enemy x and y move directions
     def move_x(self, direction):
-        if not(self.attacked):
-            self.rect.x += direction
+        self.rect.x += direction
 
     def move_y(self, direction):
-        if not(self.attacked):
-            self.rect.y += direction
+        self.rect.y += direction
 
     # enemy follow player until player's life is 0
     def follow(self, player):
@@ -423,7 +464,21 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.bottom = object.rect.top
                         
     def hit(self):
-        pass # change the color of the enemy if hit
+        if self.attacked:
+            if self.push > 0:
+                if self.down:
+                    self.up = True
+                    self.move_y(-5)
+                elif self.up:
+                    self.down = True
+                    self.move_y(+5)
+                elif self.right:
+                    self.left = True
+                    self.move_x(+5)
+                elif self.left:
+                    self.right = True
+                    self.move_y(-5)
+                self.push -= 1
 
 class NPC(pygame.sprite.Sprite):
 

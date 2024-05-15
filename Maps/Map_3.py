@@ -8,22 +8,23 @@ class TileMap():
         self.x = x
         self.y = y
         self.name = 'Map3'
-        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/border_1.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/wall_4.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/wall_3.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/wall_1.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/floor_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/border_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/wall_4.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/wall_3.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/wall_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/tile_2.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/floor_1.png"), (self.tilesize, self.tilesize)))
         self.array = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,5,5,5,5,5,5,5,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -31,8 +32,8 @@ class TileMap():
 [1,1,4,4,4,1,1,1,1,4,4,4,1,1,1,1,1,1,1,1,1,1,4,4,4,4,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 [0,1,4,4,4,1,0,0,1,4,4,4,1,2,2,2,2,2,2,2,1,2,4,4,4,4,4,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
 [0,1,4,4,4,1,0,0,1,4,4,4,1,3,3,3,3,3,3,3,1,3,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,1],
-[0,1,1,1,1,1,0,0,1,4,4,4,1,5,5,5,5,5,5,5,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
-[0,0,0,0,0,0,0,0,1,4,4,4,1,5,5,5,5,5,5,5,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+[0,1,1,1,1,1,1,1,1,4,4,4,1,6,6,6,6,6,6,6,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+[0,0,0,0,0,0,0,0,1,4,4,4,1,6,6,6,6,6,6,6,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
 [0,0,0,0,0,0,0,0,1,4,4,4,1,1,1,1,1,1,1,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
 [0,0,0,0,0,0,0,0,1,4,4,4,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
 [0,0,0,0,0,0,0,0,1,4,4,4,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
@@ -49,8 +50,8 @@ class TileMap():
                     if tile > 0:
                         surface.blit(self.images[tile - 1], (self.x + j * self.tilesize, self.y + i * self.tilesize))
 
-    def move_x(self, direction):
-        self.x += direction
-
-    def move_y(self, direction):
-        self.y += direction
+    def move_x(self, directions):
+         self.x += directions
+    
+    def move_y(self, directions):
+         self.y += directions

@@ -29,7 +29,7 @@ class Camera:
                     else:
                         obj.move_y(self.toFocus.speed)
         elif self.toFocus.down:
-            if self.toFocus.rect.y >= ((self.screen['height'] - self.toFocus.height) / 2):
+            if self.toFocus.rect.y > ((self.screen['height'] - self.toFocus.height) / 2):
                 for obj in otherObjects:
                     if obj.name == 'goblin':
                         obj.rect.y += self.toFocus.speed * -1

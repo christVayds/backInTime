@@ -50,11 +50,10 @@
         {"name": "table_2", "type": "other2", "rect": "(325, 350, 100, 100)"},
         {"name": "table_3", "type": "other2", "rect": "(200, 350, 100, 100)"},
         {"name": "table_4", "type": "other2", "rect": "(25, 200, 60, 252)"},
-        {"name": "lazer_2", "type": "other", "rect": "(90, 405, 96, 48)"},
 
         {"name": "machine_1", "type": "animated", "rect": "(610, 25, 84, 120)", "comment": "animated"},
 
-        {"name": "base", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "base_map2"},
+        {"name": "base", "type": "navigation", "rect": "(100, 450, 100, 75)", "distination": "base_map2"},
         {"name": "map4", "type": "navigation", "rect": "(425, 450, 75, 50)", "distination": "map4_map2"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(0, 50, 25, 150)"},
@@ -123,8 +122,7 @@
     ],
 
     "Enemies_m2": [
-        {"name": "goblin", "rect": "(200, 200, 50, 50)", "comment": "enemies for map 2"},
-        {"name": "goblin", "rect": "(300, 150, 50, 50)"},
-        {"name": "goblin", "rect": "(350, 100, 50, 50)"}
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5"},
+        {"name": "goblin", "rect": "(350, 100, 50, 50)", "speed": "3"}
     ]
 }

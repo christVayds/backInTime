@@ -1,2 +1,1 @@
 pip install pygame
-pip install cython

@@ -88,6 +88,7 @@ class Create:
     def create_enemies(self):
         for enemy in self.list_obj:
             enmy = Enemy(enemy['rect'][0], enemy['rect'][1], enemy['rect'][2], enemy['rect'][3], enemy['name'])
+            enmy.speed = float(enemy['speed'])
             self.listEnemies.append(enmy)
 
     def draw_enemy(self, objects):
