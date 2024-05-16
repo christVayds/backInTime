@@ -2,7 +2,7 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 ext_modules = [
-    Extension('main', ['python_cython/main.pyx'])
+    Extension('main_cython', ['python_cython/main.pyx'])
 ]
 
 setup(

@@ -33,8 +33,6 @@ from src.music import Music
 pygame.init()
 pygame.mixer.init()
 
-print('yeah')
-
 # screen
 windowSize = {'width': 700, 'height': 500} # size of the display
 window = pygame.display.set_mode((windowSize['width'], windowSize['height']))
