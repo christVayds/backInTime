@@ -1,6 +1,6 @@
-from object import Object
-from character import Enemy
-from UI import UI
+from src.object import Object
+from src.character import Enemy
+from src.UI import UI
 import pygame
 
 class Create:
@@ -17,6 +17,10 @@ class Create:
         self.selected = 0
         self.selectors = []
         self.listUIs = []
+
+        #audios / sfx for selecting items
+        self.selectItems = pygame.mixer.Sound('audio/select.wav')
+        self.seletedItems = pygame.mixer.Sound('audio/selected.wav')
 
     def create(self):
         for obj in self.list_obj:
@@ -36,6 +40,7 @@ class Create:
          keys = pygame.key.get_just_pressed()
 
          if keys[pygame.K_ESCAPE]:
+             self.selectItems.play()
              return True
 
     #  for UI
@@ -56,6 +61,7 @@ class Create:
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_TAB] or keys[pygame.K_DOWN]:
+            self.selectItems.play()
             self.selected += 1
             if self.selected > (len(self.selectors) - 1):
                 self.selected = 0
@@ -65,6 +71,7 @@ class Create:
             self.selectors[self.selected].selected = 0
 
         elif keys[pygame.K_UP]:
+            self.selectItems.play()
             self.selected -= 1
             if self.selected < 0:
                 self.selected = (len(self.selectors) - 1)
@@ -74,12 +81,14 @@ class Create:
             self.selectors[self.selected].selected = 0
         
         elif keys[pygame.K_SPACE]:
+            self.seletedItems.play()
             return self.selected
 
     # for enemies
     def create_enemies(self):
         for enemy in self.list_obj:
             enmy = Enemy(enemy['rect'][0], enemy['rect'][1], enemy['rect'][2], enemy['rect'][3], enemy['name'])
+            enmy.speed = float(enemy['speed'])
             self.listEnemies.append(enmy)
 
     def draw_enemy(self, objects):

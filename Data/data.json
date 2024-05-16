@@ -19,7 +19,7 @@
         {"name": "timeline_1", "type": "animated", "rect": "(375, 335, 130, 64)"},
 
         {"name": "map2", "type": "navigation", "rect": "(700, 225, 50, 75)", "distination": "map2_base"},
-        {"name": "map3", "type": "navigation", "rect": "(300, 425, 75, 75)", "distination": "map3_base"},
+        {"name": "map3", "type": "navigation", "rect": "(300, 375, 75, 75)", "distination": "map3_base"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(0, 0, 25, 400)", "comment": "left side"},
         {"name": "hidden", "type": "hidden2", "rect": "(675, 0, 25, 175)", "comment": "right side"},
@@ -50,11 +50,11 @@
         {"name": "table_2", "type": "other2", "rect": "(325, 350, 100, 100)"},
         {"name": "table_3", "type": "other2", "rect": "(200, 350, 100, 100)"},
         {"name": "table_4", "type": "other2", "rect": "(25, 200, 60, 252)"},
-        {"name": "lazer_2", "type": "other", "rect": "(90, 405, 96, 48)"},
 
         {"name": "machine_1", "type": "animated", "rect": "(610, 25, 84, 120)", "comment": "animated"},
 
-        {"name": "base", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "base_map2"},
+        {"name": "base", "type": "navigation", "rect": "(100, 450, 100, 75)", "distination": "base_map2"},
+        {"name": "map4", "type": "navigation", "rect": "(425, 450, 75, 50)", "distination": "map4_map2"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(0, 50, 25, 150)"},
         {"name": "hidden", "type": "hidden2", "rect": "(400, 200, 300, 25)"},
@@ -64,7 +64,14 @@
     ],
 
     "Map3": [
-        {"name": "base", "type": "navigation", "rect": "(50, 400, 75, 50)", "distination": "base_map3"}
+        {"name": "base", "type": "navigation", "rect": "(50, 375, 75, 50)", "distination": "base_map3"},
+        {"name": "teleportation_cables", "type": "animated", "rect": "(475, 25, 115, 74)"},
+        {"name": "power_generator_1", "type": "animated", "rect": "(590, 25, 85, 74)"},
+        {"name": "teleport_machine", "type": "animated", "rect": "(525, 100, 96, 96)"}
+    ],
+
+    "Map4": [
+        {"name": "map2", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "map2_map4"}
     ],
 
     "mainMenu": [
@@ -98,13 +105,23 @@
         {"name": "credits_2", "type": "other", "rect": "(419, 200, 256, 256)"}
     ],
 
+    "SelectPlayer": [
+        {"name": "selectplayer", "type": "animated", "rect": "(254, 5, 192, 24)"},
+        {"name": "johny", "type": "selector", "rect": "(25, 50, 192, 192)", "selected": 0},
+        {"name": "ricky", "type": "selector", "rect": "(220, 50, 192, 192)", "selected": 1},
+        {"name": "jp", "type": "selector", "rect": "(415, 50, 192, 192)", "selected": 1},
+        {"name": "jayson", "type": "selector", "rect": "(25, 250, 192, 192)", "selected": 1},
+        {"name": "selected_player", "type": "animated", "rect": "(567, 480, 128, 16)"},
+        {"name": "selected_exit", "type": "animated", "rect": "(5, 480, 128, 16)"}
+    ],
+
     "pauseGame": [
-        {"name": "paused_text", "type": "other", "rect": "(254, 10, 192, 24)"}
+        {"name": "paused_text", "type": "other", "rect": "(254, 10, 192, 24)"},
+        {"name": "resume", "type": "selector", "rect": "(254, 100, 192, 24)", "selected": 0},
+        {"name": "exit2", "type": "selector", "rect": "(254, 150, 192, 24)", "selected": 1}
     ],
 
     "Enemies_m2": [
-        {"name": "goblin", "rect": "(200, 200, 50, 50)", "comment": "enemies for map 2"},
-        {"name": "goblin", "rect": "(300, 150, 50, 50)"},
-        {"name": "goblin", "rect": "(350, 100, 50, 50)"}
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5"}
     ]
 }
