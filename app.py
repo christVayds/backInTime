@@ -223,7 +223,7 @@ def draw_map2():
     pygame.display.flip()
 
 # not yet done
-def draw_map3(): 
+def draw_map3():
     global currentPage
     window.fill((10, 10, 10))
 

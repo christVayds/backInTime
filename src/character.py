@@ -330,6 +330,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attacked = False # attacked by the player
         self.life = 100
         self.push = 10
+        self.pushed = False
 
         # facing
         self.left = True
@@ -349,7 +350,8 @@ class Enemy(pygame.sprite.Sprite):
     def draw(self, screen, objects):
 
         # handle collision
-        # self.hit()
+        self.hit()
+        self.handlePushed()
         self.handleCollision(objects)
         
         if (self.walk + 1) >= 21:
@@ -387,7 +389,7 @@ class Enemy(pygame.sprite.Sprite):
 
     # enemy follow player until player's life is 0
     def follow(self, player):
-        if player.life > 0  :
+        if player.life > 0 and not(self.pushed):
             if self.rect.x > player.rect.x + 35:
                 self.left = True
                 self.right = False
@@ -463,18 +465,35 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.bottom = object.rect.top
                         
     def hit(self):
-        if self.attacked and self.push > 0:
+        if self.attacked:
             if self.down:
-                self.move_y(-10)
+                self.up = True
+                self.down = False
             elif self.up:
-                self.move_y(10)
+                self.up = False
+                self.down = True
             elif self.right:
-                self.move_x(-10)
+                self.right = False
+                self.left = True
             elif self.left:
-                self.move_x(10)
+                self.left = False
+                self.right = True
+            self.pushed = True
+        self.attacked = False
+
+    def handlePushed(self):
+        if self.pushed and self.push > 0:
+            if self.up:
+                self.move_y(-15)
+            elif self.down:
+                self.move_y(15)
+            elif self.left:
+                self.move_x(-15)
+            elif self.right:
+                self.move_x(15)
             self.push -= 1
         else:
-            self.attacked = False
+            self.pushed = False
 
 class NPC(pygame.sprite.Sprite):
 
