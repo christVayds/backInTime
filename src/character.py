@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
-        self.power = 5
+        self.power = 50
         self.weapons = ['sword']
         self.equiped = self.weapons[0]
         self.attack = False
@@ -45,8 +45,8 @@ class Player(pygame.sprite.Sprite):
         self.sword = [
             pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)),
             pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)),
-            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)), True, True),
-            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)), True, True)
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)), False, True),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)), True, False)
         ]
 
         # inventories / items list
@@ -72,7 +72,6 @@ class Player(pygame.sprite.Sprite):
 
         # left
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            # print('player.rect.x',self.rect.x)
             self.left = True
             self.right = False
             self.up = False
@@ -184,7 +183,7 @@ class Player(pygame.sprite.Sprite):
                     obj.front = False
 
             # if the player collide with the objects
-            if pygame.sprite.collide_mask(self, obj):
+            if pygame.sprite.collide_rect(self, obj):
                 if obj._type in ['hidden2', 'other2']: # no y-sorting objects
                     if self.left:
                         self.rect.left = obj.rect.right
@@ -274,13 +273,14 @@ class Player(pygame.sprite.Sprite):
     def handleFight(self, enemies, screen):
         # use space bar to fight
         keys = pygame.key.get_just_pressed()
+
         if self.equiped == self.weapons[0]:
             self.Sword(screen)
 
         if keys[pygame.K_SPACE]:
             self.attack = True
             for enemy in enemies:
-                if pygame.sprite.collide_mask(self, enemy):
+                if pygame.sprite.collide_rect(self, enemy):
                     if self.left and self.rect.x > enemy.rect.x:
                         enemy.attacked = True
                         enemy.life -= self.power
@@ -299,20 +299,19 @@ class Player(pygame.sprite.Sprite):
                         enemy.push = 10
 
     def Sword(self, screen):
-        if self.attack:
-            if self.attacking > 0:
-                if self.up:
-                    screen.blit(self.sword[0], (self.rect.x, self.rect.y-50))
-                elif self.down:
-                    screen.blit(self.sword[2], (self.rect.x, self.rect.y+50))
-                elif self.right:
-                    screen.blit(self.sword[1], (self.rect.x+50, self.rect.y))
-                elif self.left:
-                    screen.blit(self.sword[3], (self.rect.x-50, self.rect.y))
-                self.attacking -= 1
-            else:
-                self.attacking = 3
-                self.attack = False
+        if self.attack and self.attacking > 0:
+            if self.up:
+                screen.blit(self.sword[0], (self.rect.x, self.rect.y-25))
+            elif self.down:
+                screen.blit(self.sword[2], (self.rect.x, self.rect.y+15))
+            elif self.right:
+                screen.blit(self.sword[1], (self.rect.x, self.rect.y))
+            elif self.left:
+                screen.blit(self.sword[3], (self.rect.x-25, self.rect.y))
+            self.attacking -= 1
+        else:
+            self.attacking = 3
+            self.attack = False
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -330,7 +329,7 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = random.choice([2.5, 3, 3.5])
         self.attacked = False # attacked by the player
         self.life = 100
-        self.push = 5
+        self.push = 10
 
         # facing
         self.left = True
@@ -350,7 +349,7 @@ class Enemy(pygame.sprite.Sprite):
     def draw(self, screen, objects):
 
         # handle collision
-        self.hit()
+        # self.hit()
         self.handleCollision(objects)
         
         if (self.walk + 1) >= 21:
@@ -388,7 +387,7 @@ class Enemy(pygame.sprite.Sprite):
 
     # enemy follow player until player's life is 0
     def follow(self, player):
-        if player.life > 0:
+        if player.life > 0  :
             if self.rect.x > player.rect.x + 35:
                 self.left = True
                 self.right = False
@@ -439,7 +438,7 @@ class Enemy(pygame.sprite.Sprite):
                     elif self.rect.y <= object.rect.y:
                         if self in object.e_front:
                             object.e_front.remove(self)
-            if pygame.sprite.collide_mask(self, object):
+            if pygame.sprite.collide_rect(self, object):
                 if object._type not in ['hidden2', 'other2']:
                     if self.left:
                         if self.rect.y <= object.rect.y:
@@ -464,21 +463,18 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.bottom = object.rect.top
                         
     def hit(self):
-        if self.attacked:
-            if self.push > 0:
-                if self.down:
-                    self.up = True
-                    self.move_y(-5)
-                elif self.up:
-                    self.down = True
-                    self.move_y(+5)
-                elif self.right:
-                    self.left = True
-                    self.move_x(+5)
-                elif self.left:
-                    self.right = True
-                    self.move_y(-5)
-                self.push -= 1
+        if self.attacked and self.push > 0:
+            if self.down:
+                self.move_y(-10)
+            elif self.up:
+                self.move_y(10)
+            elif self.right:
+                self.move_x(-10)
+            elif self.left:
+                self.move_x(10)
+            self.push -= 1
+        else:
+            self.attacked = False
 
 class NPC(pygame.sprite.Sprite):
 

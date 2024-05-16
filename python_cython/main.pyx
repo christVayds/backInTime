@@ -16,71 +16,74 @@ Date started: April 16, 2024
 """
 
 import pygame
-from character import *
-from object import *
-from create import Create 
-from camera import Camera
+from src.character import *
+from src.object import *
+from src.create import Create
+from src.camera import Camera
 from Data.read import Read
-from UI import UI
-from loading import Loading
-from timer import Timer
+from src.UI import UI
+from src.loading import Loading
+from src.timer import Timer
 
 # IMPORT MAPS
 from Maps import baseMap, Map_2, Map_3, Map_4
+from src.music import Music
 
 # initialize pygame
 pygame.init()
 pygame.mixer.init()
 
 # screen
-windowSize = {'width': 700, 'height': 500} # size of the display
-window = pygame.display.set_mode((windowSize['width'], windowSize['height']))
+cdef windowSize = {'width': 700, 'height': 500} # size of the display
+cdef window = pygame.display.set_mode((windowSize['width'], windowSize['height']))
 pygame.display.set_caption('Back In Time')
 
 # clock and FPS - frame per second
-clock = pygame.time.Clock()
-fps = 30 # 30 frames per second
+cdef clock = pygame.time.Clock()
+cdef int fps = 30 # 30 frames per second
 
 # audios / sfx / bg musics
-bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
-pygame.mixer.music.play(-1) # play bg music in loop
+# bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
+# pygame.mixer.music.play(-1) # play bg music in loop
 
-select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
-selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
+cdef music = Music()
+
+cdef select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
+cdef selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
 
 # TImer
-timer = Timer(fps)
+cdef timer = Timer(fps)
 
 # Program pages
-pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'pause-game', 'outro', 'exit', 'error_message']
-currentPage = pages[0]
+cdef pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'pause-game', 'outro', 'exit', 'error_message']
+cdef currentPage = pages[0]
 
 # loading and checking resources
-load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 500, 15)
+cdef load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 500, 15)
 
 # MAP
-base = baseMap.TileMap(25, 0, 0)
-map_2 = Map_2.TileMap(25, 0, 0)
-map_3 = Map_3.TileMap(25, 0, 0)
-map_4 = Map_4.TileMap(25, 0, 0)
+cdef base = baseMap.TileMap(25, 0, 0)
+cdef map_2 = Map_2.TileMap(25, 0, 0)
+cdef map_3 = Map_3.TileMap(25, 0, 0)
+cdef map_4 = Map_4.TileMap(25, 0, 0)
 
 # GUIs (not yet draw)
-itemsGUI = UI((windowSize['width'] - 244) / 2, (windowSize['height'] - 70), 244, 60, 'itemsbar_6')
+cdef itemsGUI = UI((windowSize['width'] - 244) / 2, (windowSize['height'] - 70), 244, 60, 'itemsbar_6')
 
 # pause button
-pauseButton = UI((windowSize['width'] - 60), 10, 40, 40, 'pause_btn')
+cdef pauseButton = UI((windowSize['width'] - 60), 10, 40, 40, 'pause_btn')
 
 # player Icon and health bar
-playerIcon = UI(10, 10, 90, 90, 'player_frame2')
+cdef playerIcon = UI(10, 10, 90, 90, 'player_frame2')
 # healthbar = UI(100, 10, 128, 32, 'life_bar4') # uncomment this later
 
-listGUIs = [itemsGUI, pauseButton, playerIcon] # healthbar
+cdef listGUIs = [itemsGUI, pauseButton, playerIcon] # healthbar
 
 # PLAYER
-player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
+cdef player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
 
 # read object data from json file data
-readData = Read('Data/data.json')
+cdef readData = Read('Data/data.json')
 readData.read() # read all data
 
 readData.strToTuple('Base') # make all string tuple in Map1 to tuple
@@ -97,69 +100,69 @@ readData.strToTuple('SelectPlayer')
 # CREATIONS
 
 # for loading screen / intro
-title = [
+cdef title = [
     Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_3'),
     Object((windowSize['width'] - 192) / 2, windowSize['height'] - 150, 192, 48, 'other', 'credits')
 ]
 
 ######## CREATE MAIN MENU #########
-create_menu = Create(window, player, readData.data['mainMenu'])
+cdef create_menu = Create(window, player, readData.data['mainMenu'])
 create_menu.create_UI()
 
 ######## CREATE SETTINGS #########
-create_settings = Create(window, player, readData.data['settings'])
+cdef create_settings = Create(window, player, readData.data['settings'])
 create_settings.create_UI()
 
 ######## CREATE CREDITS #########
-create_credits = Create(window, player, readData.data['credits'])
+cdef create_credits = Create(window, player, readData.data['credits'])
 create_credits.create_UI()
 
 ######## CREATE PAUSE #########
-create_pause = Create(window, player, readData.data['pauseGame'])
+cdef create_pause = Create(window, player, readData.data['pauseGame'])
 create_pause.create_UI()
 
 ######## CREATE SELECT PLAYER #########
-create_selectPlayer = Create(window, player, readData.data['SelectPlayer'])
+cdef create_selectPlayer = Create(window, player, readData.data['SelectPlayer'])
 create_selectPlayer.create_UI()
 
 ######## CREATE MAPS #########
 
 # create objects for blocks and other objects - Map 1 / base
-create_base = Create(window, player, readData.data['Base'])
+cdef create_base = Create(window, player, readData.data['Base'])
 create_base.create()
 
 # create objects for blocks and other objects - Map 2
-create_map2 = Create(window, player, readData.data['Map2'])
+cdef create_map2 = Create(window, player, readData.data['Map2'])
 create_map2.create()
 
 # create objects for blocks and other objects - Map 3
-create_map3 = Create(window, player, readData.data['Map3'])
+cdef create_map3 = Create(window, player, readData.data['Map3'])
 create_map3.create()
 
-create_map4 = Create(window, player, readData.data['Map4'])
+cdef create_map4 = Create(window, player, readData.data['Map4'])
 create_map4.create()
 
 ######## CREATE ENEMIES #########
 
 # enemies for map 2
-enemies_map2 = Create(window, player, readData.data['Enemies_m2'])
+cdef enemies_map2 = Create(window, player, readData.data['Enemies_m2'])
 enemies_map2.create_enemies()
 
 # camera
-camera = Camera(player, windowSize)
+cdef camera = Camera(player, windowSize)
 
 # Listed all objects, maps and enemies for camera tracking
-allObjects1 = create_base.listofObjects+[base]
-allObjects2 = create_map2.listofObjects+[map_2]+enemies_map2.listEnemies
-allObjects3 = create_map3.listofObjects+[map_3]
-allObjects4 = create_map4.listofObjects+[map_4]
+cdef allObjects1 = create_base.listofObjects+[base]
+cdef allObjects2 = create_map2.listofObjects+[map_2]+enemies_map2.listEnemies
+cdef allObjects3 = create_map3.listofObjects+[map_3]
+cdef allObjects4 = create_map4.listofObjects+[map_4]
 
 # create.listofObjects is a list of all objecst
 # listenemies is a list of all enemies
 # listOfMap is a list of map tiles
 
 # draw base map function
-def draw_base():
+cdef void draw_base():
     global currentPage
 
     window.fill((10, 10, 10))
@@ -172,7 +175,7 @@ def draw_base():
 
     # draw object
     create_base.draw()
-    pause = create_base.pauseGame() # if player click esc - pause
+    cdef pause = create_base.pauseGame() # if player click esc - pause
 
     # draw player
     player.draw(window, create_base.listofObjects[1:])
@@ -188,7 +191,7 @@ def draw_base():
     pygame.display.flip()
 
 # draw MAP 2 funtion
-def draw_map2():
+cdef void draw_map2():
     global currentPage
     window.fill((10, 10, 10))
 
@@ -200,7 +203,7 @@ def draw_map2():
 
     # draw objects
     create_map2.draw()
-    pause = create_map2.pauseGame()
+    cdef pause = create_map2.pauseGame()
 
     # enemies
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
@@ -220,14 +223,14 @@ def draw_map2():
     pygame.display.flip()
 
 # not yet done
-def draw_map3(): 
+cdef void draw_map3(): 
     global currentPage
     window.fill((10, 10, 10))
 
     map_3.drawMap(window)
 
     create_map3.draw()
-    pause = create_map3.pauseGame()
+    cdef pause = create_map3.pauseGame()
 
     # draw player in map3
     player.draw(window, create_map3.listofObjects[1:])
@@ -245,7 +248,7 @@ def draw_map3():
 
     pygame.display.flip()
 
-def draw_map4():
+cdef void draw_map4():
     global currentPage
 
     window.fill((10, 10, 10))
@@ -271,14 +274,14 @@ def draw_map4():
     pygame.display.flip()
 
 # pause the game
-def PauseGame():
+cdef void PauseGame():
     global currentPage
     window.fill((10, 10, 10))
 
     create_pause.draw_ui()
-    selected = create_pause.Select()
+    cdef selected = create_pause.Select()
 
-    keys = pygame.key.get_just_pressed()
+    cdef keys = pygame.key.get_just_pressed()
 
     if keys[pygame.K_ESCAPE]: # back to game
         selected_item.play()
@@ -288,21 +291,25 @@ def PauseGame():
         currentPage = pages[5] # back to game
     elif selected == 1:
         currentPage = pages[1] # navigate to main menu
+        music.switch = True
+        music.toPlay = 1
 
     pygame.display.flip()
 
 # main menu of the game
-def mainMenu():
+cdef void mainMenu():
     global currentPage
 
     window.fill((10, 10, 10))
 
     create_menu.draw_ui()
-    selected = create_menu.Select()
+    cdef selected = create_menu.Select()
 
     if selected == 0: # navigate to Select player 
         if player.name != "":
             currentPage = pages[5]
+            music.switch = True
+            music.toPlay = 0
         else:
             currentPage = pages[4]
     elif selected == 1: # credits
@@ -315,13 +322,13 @@ def mainMenu():
     pygame.display.flip()
 
 # settings
-def settings():
+cdef void settings():
     global currentPage
 
     window.fill((10, 10, 10))
 
     create_settings.draw_ui()
-    selected = create_settings.Select()
+    cdef selected = create_settings.Select()
 
     if selected == 2: # if save is selected
         currentPage = pages[1] # back to main menu
@@ -330,13 +337,13 @@ def settings():
     pygame.display.flip()
 
 # display credits
-def credits():
+cdef void credits():
     global currentPage
     window.fill((10, 10, 10))
 
     create_credits.draw_ui()
 
-    keys = pygame.key.get_just_pressed()
+    cdef keys = pygame.key.get_just_pressed()
 
     if keys[pygame.K_SPACE] or keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
@@ -345,14 +352,14 @@ def credits():
     pygame.display.flip()
 
 # display selecting players / characters
-def selectPlayer():
+cdef void selectPlayer():
     global currentPage
     window.fill((10, 10, 10))
 
     create_selectPlayer.draw_ui()
-    character = create_selectPlayer.Select()
+    cdef character = create_selectPlayer.Select()
 
-    keys = pygame.key.get_just_pressed()
+    cdef keys = pygame.key.get_just_pressed()
 
     if keys[pygame.K_SPACE]:
         player.location = 'base'
@@ -368,6 +375,8 @@ def selectPlayer():
             raise Exception('Player not found')
         player.loadImages()
         player.flipImage()
+        music.switch = True
+        music.toPlay = 0
         currentPage = pages[5] # navigate to game page
     elif keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
@@ -376,7 +385,7 @@ def selectPlayer():
     pygame.display.flip()
 
 # opening scene function / credits and loading
-def Opening():
+cdef void Opening():
     global currentPage, title
 
     window.fill((10, 10, 10))
@@ -393,16 +402,18 @@ def Opening():
             if timer.coolDown(5):
                 player.location = 'base'
                 currentPage = pages[1] # navigate to main menu
-                del title # remove or delete all loaded images
+                music.switch = True
+                music.toPlay = 1
+                #del title # remove or delete all loaded images
 
     pygame.display.flip()
 
 # for testing
-fpsCollected = [] # collecting frames per second value
+cdef fpsCollected = [] # collecting frames per second value
 
 # main function
 def main():
-    run = True
+    cdef int run = 1
 
     while run:
 
@@ -412,7 +423,7 @@ def main():
         # check for events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                run = 0
 
         # draw the display
         # intro
@@ -444,6 +455,7 @@ def main():
 
         # for testing
         chechFPS(round(clock.get_fps(), 2))
+        music.switch_music()
 
     # quit program after the loop
     print('fps timeline:',fpsCollected)
@@ -453,7 +465,7 @@ def main():
 # function for testing
 
 # frame drops test
-def chechFPS(frames):
+cdef void chechFPS(frames):
     if frames not in fpsCollected and frames >= 1:
         fpsCollected.append(frames)
 

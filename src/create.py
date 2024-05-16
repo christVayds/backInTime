@@ -1,6 +1,6 @@
-from object import Object
-from character import Enemy
-from UI import UI
+from src.object import Object
+from src.character import Enemy
+from src.UI import UI
 import pygame
 
 class Create:
