@@ -1,3 +1,4 @@
-import main
+import main_cython
 
-main.main()
+if __name__=='__main__':
+    main_cython.main()

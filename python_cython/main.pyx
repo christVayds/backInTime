@@ -29,6 +29,8 @@ from src.timer import Timer
 from Maps import baseMap, Map_2, Map_3, Map_4
 from src.music import Music
 
+print("This is cythonized version (Optimized powered by C programming language)")
+
 # initialize pygame
 pygame.init()
 pygame.mixer.init()
@@ -43,11 +45,7 @@ cdef clock = pygame.time.Clock()
 cdef int fps = 30 # 30 frames per second
 
 # audios / sfx / bg musics
-# bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
-# pygame.mixer.music.play(-1) # play bg music in loop
-
 cdef music = Music()
-
 cdef select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
 cdef selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
 
@@ -451,7 +449,7 @@ def main():
         elif currentPage == pages[6]:
             PauseGame()
         elif currentPage == pages[-1]: # exit game
-            run = False
+            run = 0
 
         # for testing
         chechFPS(round(clock.get_fps(), 2))
@@ -468,7 +466,3 @@ def main():
 cdef void chechFPS(frames):
     if frames not in fpsCollected and frames >= 1:
         fpsCollected.append(frames)
-
-# main program
-if __name__=='__main__':
-    main()

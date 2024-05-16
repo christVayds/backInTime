@@ -1,0 +1,8 @@
+build the cython
+python setup.py build_ext --inplace
+
+run the vanilla python version of this game:
+    python app.py
+
+run the cythonized version of this game:
+    python run.py
