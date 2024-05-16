@@ -89,11 +89,14 @@ class Create:
         for enemy in self.list_obj:
             enmy = Enemy(enemy['rect'][0], enemy['rect'][1], enemy['rect'][2], enemy['rect'][3], enemy['name'])
             enmy.speed = float(enemy['speed'])
+            enmy.defaultLife = int(enemy['default_life'])
+            enmy.life = int(enemy['default_life'])
             self.listEnemies.append(enmy)
 
     def draw_enemy(self, objects):
         for enemy in self.listEnemies:
             if enemy.life <= 0:
-                self.listEnemies.remove(enemy)
+                if not(enemy.push):
+                    self.listEnemies.remove(enemy)
             enemy.draw(self.screen, objects)
             enemy.follow(self.player) # follow the player

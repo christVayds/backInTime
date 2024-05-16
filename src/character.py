@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
-        self.power = 50
+        self.power = 10
         self.weapons = ['sword']
         self.equiped = self.weapons[0]
         self.attack = False
@@ -301,9 +301,9 @@ class Player(pygame.sprite.Sprite):
     def Sword(self, screen):
         if self.attack and self.attacking > 0:
             if self.up:
-                screen.blit(self.sword[0], (self.rect.x, self.rect.y-25))
+                screen.blit(self.sword[0], (self.rect.x, self.rect.y))
             elif self.down:
-                screen.blit(self.sword[2], (self.rect.x, self.rect.y+15))
+                screen.blit(self.sword[2], (self.rect.x, self.rect.y))
             elif self.right:
                 screen.blit(self.sword[1], (self.rect.x, self.rect.y))
             elif self.left:
@@ -328,7 +328,8 @@ class Enemy(pygame.sprite.Sprite):
 
         self.speed = random.choice([2.5, 3, 3.5])
         self.attacked = False # attacked by the player
-        self.life = 100
+        self.defaultLife = 20
+        self.life = 0
         self.push = 10
         self.pushed = False
 
@@ -378,7 +379,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def barLife(self, screen):
         pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 10, self.width, 5))
-        pygame.draw.rect(screen, (252, 78, 15), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / 100) * self.width, 5))
+        pygame.draw.rect(screen, (252, 78, 15), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / self.defaultLife) * self.width, 5))
 
     # enemy x and y move directions
     def move_x(self, direction):

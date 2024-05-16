@@ -122,6 +122,24 @@
     ],
 
     "Enemies_m2": [
-        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5"}
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "5.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "4.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "5.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "3.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "7.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "10.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.0", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.2", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "7.7", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "7.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "5.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "10.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "10.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "3.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "9.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "6.5", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5", "default_life": "50"}
     ]
 }

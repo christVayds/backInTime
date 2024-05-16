@@ -16,18 +16,21 @@ Date started: April 16, 2024
 """
 
 import pygame
-from src.character import *
-from src.object import *
-from src.create import Create
-from src.camera import Camera
+from character_cython import *
+from object_cython import *
+from create_cython import *
+from camera_cython import Camera
 from Data.read import Read
-from src.UI import UI
-from src.loading import Loading
-from src.timer import Timer
+from ui_cython import UI
+from loading_cython import Loading
+from timer_cython import Timer
+from music_cython import Music
 
 # IMPORT MAPS
-from Maps import baseMap, Map_2, Map_3, Map_4
-from src.music import Music
+import base_cython
+import map2_cython
+import map3_cython
+import map4_cython
 
 print("This is cythonized version (Optimized powered by C programming language)")
 
@@ -60,10 +63,10 @@ cdef currentPage = pages[0]
 cdef load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 500, 15)
 
 # MAP
-cdef base = baseMap.TileMap(25, 0, 0)
-cdef map_2 = Map_2.TileMap(25, 0, 0)
-cdef map_3 = Map_3.TileMap(25, 0, 0)
-cdef map_4 = Map_4.TileMap(25, 0, 0)
+cdef base = base_cython.TileMap(25, 0, 0)
+cdef map_2 = map2_cython.TileMap(25, 0, 0)
+cdef map_3 = map3_cython.TileMap(25, 0, 0)
+cdef map_4 = map4_cython.TileMap(25, 0, 0)
 
 # GUIs (not yet draw)
 cdef itemsGUI = UI((windowSize['width'] - 244) / 2, (windowSize['height'] - 70), 244, 60, 'itemsbar_6')
@@ -150,10 +153,10 @@ enemies_map2.create_enemies()
 cdef camera = Camera(player, windowSize)
 
 # Listed all objects, maps and enemies for camera tracking
-cdef allObjects1 = create_base.listofObjects+[base]
-cdef allObjects2 = create_map2.listofObjects+[map_2]+enemies_map2.listEnemies
-cdef allObjects3 = create_map3.listofObjects+[map_3]
-cdef allObjects4 = create_map4.listofObjects+[map_4]
+cdef allObjects1 = create_base.allobjs()+[base]
+cdef allObjects2 = create_map2.allobjs()+[map_2]+enemies_map2.allenemies()
+cdef allObjects3 = create_map3.allobjs()+[map_3]
+cdef allObjects4 = create_map4.allobjs()+[map_4]
 
 # create.listofObjects is a list of all objecst
 # listenemies is a list of all enemies
@@ -176,7 +179,7 @@ cdef void draw_base():
     cdef pause = create_base.pauseGame() # if player click esc - pause
 
     # draw player
-    player.draw(window, create_base.listofObjects[1:])
+    player.draw(window, create_base.allobjs()[1:])
     player.navigate()
 
     for guis in listGUIs:
@@ -204,11 +207,11 @@ cdef void draw_map2():
     cdef pause = create_map2.pauseGame()
 
     # enemies
-    enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
+    enemies_map2.draw_enemy(create_map2.allobjs()[1:]) # uncomment later
 
     # draw player
-    player.handleFight(enemies_map2.listEnemies, window)
-    player.draw(window, create_map2.listofObjects[1:])
+    player.handleFight(enemies_map2.allenemies(), window)
+    player.draw(window, create_map2.allobjs()[1:])
     player.navigate()
 
     for guis in listGUIs:
@@ -231,7 +234,7 @@ cdef void draw_map3():
     cdef pause = create_map3.pauseGame()
 
     # draw player in map3
-    player.draw(window, create_map3.listofObjects[1:])
+    player.draw(window, create_map3.allobjs()[1:])
     player.navigate()
 
     # camera fot map 3
@@ -257,7 +260,7 @@ cdef void draw_map4():
     create_map4.draw()
     pause = create_map4.pauseGame()
 
-    player.draw(window, create_map4.listofObjects[1:])
+    player.draw(window, create_map4.allobjs()[1:])
     player.navigate()
 
 
