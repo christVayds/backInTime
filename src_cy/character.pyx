@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.attacking = 3
 
         # speed
-        self.speed = 7
+        self.speed = 10
         self.walk = 0
 
         # rect and surface

@@ -2742,7 +2742,6 @@ typedef struct {
   PyObject *__pyx_int_2;
   PyObject *__pyx_int_3;
   PyObject *__pyx_int_5;
-  PyObject *__pyx_int_7;
   PyObject *__pyx_int_10;
   PyObject *__pyx_int_15;
   PyObject *__pyx_int_20;
@@ -3067,7 +3066,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_int_2);
   Py_CLEAR(clear_module_state->__pyx_int_3);
   Py_CLEAR(clear_module_state->__pyx_int_5);
-  Py_CLEAR(clear_module_state->__pyx_int_7);
   Py_CLEAR(clear_module_state->__pyx_int_10);
   Py_CLEAR(clear_module_state->__pyx_int_15);
   Py_CLEAR(clear_module_state->__pyx_int_20);
@@ -3370,7 +3368,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_int_2);
   Py_VISIT(traverse_module_state->__pyx_int_3);
   Py_VISIT(traverse_module_state->__pyx_int_5);
-  Py_VISIT(traverse_module_state->__pyx_int_7);
   Py_VISIT(traverse_module_state->__pyx_int_10);
   Py_VISIT(traverse_module_state->__pyx_int_15);
   Py_VISIT(traverse_module_state->__pyx_int_20);
@@ -3683,7 +3680,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_int_2 __pyx_mstate_global->__pyx_int_2
 #define __pyx_int_3 __pyx_mstate_global->__pyx_int_3
 #define __pyx_int_5 __pyx_mstate_global->__pyx_int_5
-#define __pyx_int_7 __pyx_mstate_global->__pyx_int_7
 #define __pyx_int_10 __pyx_mstate_global->__pyx_int_10
 #define __pyx_int_15 __pyx_mstate_global->__pyx_int_15
 #define __pyx_int_20 __pyx_mstate_global->__pyx_int_20
@@ -4147,15 +4143,15 @@ static PyObject *__pyx_pf_16character_cython_6Player___init__(CYTHON_UNUSED PyOb
   /* "src_cy/character.pyx":27
  * 
  *         # speed
- *         self.speed = 7             # <<<<<<<<<<<<<<
+ *         self.speed = 10             # <<<<<<<<<<<<<<
  *         self.walk = 0
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_speed, __pyx_int_7) < 0) __PYX_ERR(0, 27, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_speed, __pyx_int_10) < 0) __PYX_ERR(0, 27, __pyx_L1_error)
 
   /* "src_cy/character.pyx":28
  *         # speed
- *         self.speed = 7
+ *         self.speed = 10
  *         self.walk = 0             # <<<<<<<<<<<<<<
  * 
  *         # rect and surface
@@ -19049,7 +19045,6 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_3 = PyInt_FromLong(3); if (unlikely(!__pyx_int_3)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_5 = PyInt_FromLong(5); if (unlikely(!__pyx_int_5)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_int_7 = PyInt_FromLong(7); if (unlikely(!__pyx_int_7)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_10 = PyInt_FromLong(10); if (unlikely(!__pyx_int_10)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_15 = PyInt_FromLong(15); if (unlikely(!__pyx_int_15)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_20 = PyInt_FromLong(20); if (unlikely(!__pyx_int_20)) __PYX_ERR(0, 1, __pyx_L1_error)
