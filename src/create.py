@@ -96,7 +96,7 @@ class Create:
     def draw_enemy(self, objects):
         for enemy in self.listEnemies:
             if enemy.life <= 0:
-                if not(enemy.push):
+                if enemy.push == False:
                     self.listEnemies.remove(enemy)
             enemy.draw(self.screen, objects)
             enemy.follow(self.player) # follow the player

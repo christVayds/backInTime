@@ -122,7 +122,8 @@
     ],
 
     "Enemies_m2": [
-        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5", "default_life": "50"}
-
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5", "default_life": "20"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2", "default_life": "50"},
+        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "3.5", "default_life": "30"}
     ]
 }

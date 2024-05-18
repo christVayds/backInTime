@@ -43,9 +43,6 @@ clock = pygame.time.Clock()
 fps = 30 # 30 frames per second
 
 # audios / sfx / bg musics
-# bg1 = pygame.mixer.music.load('audio/bg2.mp3') # audio
-# pygame.mixer.music.play(-1) # play bg music in loop
-
 music = Music()
 
 select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
@@ -180,6 +177,7 @@ def draw_base():
     # draw player
     player.draw(window, create_base.listofObjects[1:])
     player.navigate()
+    player.TriggerSkills()
 
     for guis in listGUIs:
         guis.draw(window)
@@ -212,6 +210,7 @@ def draw_map2():
     player.handleFight(enemies_map2.listEnemies, window)
     player.draw(window, create_map2.listofObjects[1:])
     player.navigate()
+    player.TriggerSkills(enemies_map2.listEnemies)
 
     for guis in listGUIs:
         guis.draw(window)
@@ -373,9 +372,12 @@ def selectPlayer():
             player.name = 'jayson'
         else:
             raise Exception('Player not found')
+        
+        # player's other initializations here
         player.loadImages()
         player.flipImage()
-        music.switch = True
+        player.initSkill(window) # initialized skills
+        music.switch = True # switching music
         music.toPlay = 0
         currentPage = pages[5] # navigate to game page
     elif keys[pygame.K_ESCAPE]:

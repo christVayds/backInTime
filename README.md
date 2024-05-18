@@ -29,3 +29,16 @@ Typess of Objects:
 Maps:
   1. baseMap - The base or the home map, the time machine place in here.
   2. Map_2 - Enemies like zombies, other items and keys to open the other door is here
+
+Player Skills:
+  1. Speed
+    - move fast in 5 seconds
+  2. Dash
+    - move in a sec in 15 pixels
+    - enemies that hit during dash will dcrease its life - 10
+  3. Invesibility
+    - enemies wont attack you in 5 seconds
+  4. Smash
+    - push enemies in 10 pixels
+    - enemies that hit during Smash will decreas its life - 10
+    - stan enemies

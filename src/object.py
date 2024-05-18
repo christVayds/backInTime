@@ -46,8 +46,8 @@ class Object(pygame.sprite.Sprite):
                 self.animate(screen) # auto animating if the object is animated(note animated_once)
 
         # for debuging or testing
-        else:
-            pygame.draw.rect(screen, (255,0,0), self.rect, 1)
+        # else:
+        #     pygame.draw.rect(screen, (255,0,0), self.rect, 1)
 
         # pygame.draw.rect(screen, (255,255,255), self.rect, 1)
 

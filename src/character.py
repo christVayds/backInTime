@@ -1,5 +1,6 @@
 import pygame
 import random
+from src import skills # Smash, Dash, Invisibility, Speed
 
 import pygame.locals
 
@@ -18,10 +19,13 @@ class Player(pygame.sprite.Sprite):
         self.defaultLife = 100
         self.life = 50
         self.power = 10
-        self.weapons = ['sword']
+        self.weapons = ['sword'] # swords, bombs, sheilds
         self.equiped = self.weapons[0]
         self.attack = False
         self.attacking = 3
+
+        # skills
+        self.skills = None
 
         # speed
         self.speed = 7
@@ -29,7 +33,7 @@ class Player(pygame.sprite.Sprite):
 
         # rect and surface
         self.rect = pygame.Rect((x, y), (self.width, self.height)) # for player rect
-        self.image = pygame.Surface((self.width, self.height)) # surface
+        # self.image = pygame.Surface((self.width, self.height)).convert() # surface
 
         # facing
         self.left = False
@@ -64,6 +68,7 @@ class Player(pygame.sprite.Sprite):
 
         # handle collision
         self.handleCollision(allObj)
+        # self.TriggerSkills()
         self.displayName = self.font.render(self.name.title(), True, (0,0,0)) # temporary 
         screen.blit(self.displayName, (self.rect.x, self.rect.y - (self.width / 2), self.displayName.get_width(), self.displayName.get_height()))
 
@@ -252,6 +257,7 @@ class Player(pygame.sprite.Sprite):
 
     def navigate(self):
         if self.nav:
+            self.skills.triggered = False
             self.rect.x, self.rect.y = self.MapObjects[f'{self.respawn}_{self.location}'].rect.x, self.MapObjects[f'{self.respawn}_{self.location}'].rect.y
 
         self.nav = False
@@ -303,7 +309,7 @@ class Player(pygame.sprite.Sprite):
             if self.up:
                 screen.blit(self.sword[0], (self.rect.x, self.rect.y))
             elif self.down:
-                screen.blit(self.sword[2], (self.rect.x, self.rect.y))
+                screen.blit(self.sword[2], (self.rect.x-10, self.rect.y))
             elif self.right:
                 screen.blit(self.sword[1], (self.rect.x, self.rect.y))
             elif self.left:
@@ -312,6 +318,23 @@ class Player(pygame.sprite.Sprite):
         else:
             self.attacking = 3
             self.attack = False
+
+    def TriggerSkills(self, enemies=[]):
+        self.skills.trigger()
+        self.skills.skill(enemies)
+
+    def initSkill(self, screen):
+        if self.name == 'johny':
+            self.skills = skills.Boomerang(self, screen, (30,30))
+        elif self.name == 'ricky':
+            self.skills = skills.Invisbility(self, screen)
+        elif self.name == 'jp':
+            self.skills = skills.Smash(self)
+        elif self.name == 'jayson':
+            self.skills = skills.Speed(self, screen)
+        else:
+            # raise error if player not found
+            raise KeyError
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -330,8 +353,10 @@ class Enemy(pygame.sprite.Sprite):
         self.attacked = False # attacked by the player
         self.defaultLife = 20
         self.life = 0
-        self.push = 10
+        self.push = 0
         self.pushed = False
+
+        self.canFollow = True
 
         # facing
         self.left = True
@@ -390,7 +415,7 @@ class Enemy(pygame.sprite.Sprite):
 
     # enemy follow player until player's life is 0
     def follow(self, player):
-        if player.life > 0 and not(self.pushed):
+        if player.life > 0 and not(self.pushed) and self.canFollow:
             if self.rect.x > player.rect.x + 35:
                 self.left = True
                 self.right = False
