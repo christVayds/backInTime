@@ -28,6 +28,7 @@ from src.timer import Timer
 # IMPORT MAPS
 from Maps import baseMap, Map_2, Map_3, Map_4
 from src.music import Music
+from src import weapons
 
 # initialize pygame
 pygame.init()
@@ -165,7 +166,7 @@ def draw_base():
     window.fill((10, 10, 10))
 
     # camera
-    camera.move(allObjects1)
+    camera.move(allObjects1+player.myWeapons)
 
     # map for the base map
     base.drawMap(window)
@@ -177,6 +178,7 @@ def draw_base():
     # draw player
     player.draw(window, create_base.listofObjects[1:])
     player.navigate()
+    player.handleFight()
     player.TriggerSkills()
 
     for guis in listGUIs:
@@ -207,10 +209,10 @@ def draw_map2():
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
 
     # draw player
-    player.handleFight(enemies_map2.listEnemies, window)
     player.draw(window, create_map2.listofObjects[1:])
     player.navigate()
     player.TriggerSkills(enemies_map2.listEnemies)
+    player.handleFight(enemies_map2.listEnemies)
 
     for guis in listGUIs:
         guis.draw(window)
@@ -365,7 +367,7 @@ def selectPlayer():
         if character == 0:
             player.name = 'johny'
         elif character == 1:
-            player.name = 'jicky'
+            player.name = 'ricky'
         elif character == 2:
             player.name = 'jp'
         elif character == 3:
@@ -377,6 +379,8 @@ def selectPlayer():
         player.loadImages()
         player.flipImage()
         player.initSkill(window) # initialized skills
+        player.myWeapons.append(weapons.Sheild(player, window, (80, 80)))
+        player.equiped = player.myWeapons[0]
         music.switch = True # switching music
         music.toPlay = 0
         currentPage = pages[5] # navigate to game page

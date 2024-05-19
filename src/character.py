@@ -1,6 +1,6 @@
 import pygame
 import random
-from src import skills # Smash, Dash, Invisibility, Speed
+from src import skills # Speed, Boomerang, shield, clone
 
 import pygame.locals
 
@@ -18,11 +18,10 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
+        self.shield = 0
         self.power = 10
-        self.weapons = ['sword'] # swords, bombs, sheilds
-        self.equiped = self.weapons[0]
-        self.attack = False
-        self.attacking = 3
+        self.myWeapons = []
+        self.equiped = None
 
         # skills
         self.skills = None
@@ -275,49 +274,9 @@ class Player(pygame.sprite.Sprite):
 
             # print(self.inventories, len(self.inventories))
 
-    # animate the fight
-    def handleFight(self, enemies, screen):
-        # use space bar to fight
-        keys = pygame.key.get_just_pressed()
-
-        if self.equiped == self.weapons[0]:
-            self.Sword(screen)
-
-        if keys[pygame.K_SPACE]:
-            self.attack = True
-            for enemy in enemies:
-                if pygame.sprite.collide_rect(self, enemy):
-                    if self.left and self.rect.x > enemy.rect.x:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-                    elif self.right and self.rect.x < enemy.rect.x:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-                    elif self.down and self.rect.y < enemy.rect.y:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-                    elif self.up and self.rect.y > enemy.rect.y:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-
-    def Sword(self, screen):
-        if self.attack and self.attacking > 0:
-            if self.up:
-                screen.blit(self.sword[0], (self.rect.x, self.rect.y))
-            elif self.down:
-                screen.blit(self.sword[2], (self.rect.x-10, self.rect.y))
-            elif self.right:
-                screen.blit(self.sword[1], (self.rect.x, self.rect.y))
-            elif self.left:
-                screen.blit(self.sword[3], (self.rect.x-25, self.rect.y))
-            self.attacking -= 1
-        else:
-            self.attacking = 3
-            self.attack = False
+    def handleFight(self, enemies=[]):
+        self.equiped.Trigger()
+        self.equiped.weapon(enemies)
 
     def TriggerSkills(self, enemies=[]):
         self.skills.trigger()
@@ -327,9 +286,10 @@ class Player(pygame.sprite.Sprite):
         if self.name == 'johny':
             self.skills = skills.Boomerang(self, screen, (30,30))
         elif self.name == 'ricky':
-            self.skills = skills.Invisbility(self, screen)
+            # self.skills = skills.Clone(self, screen)
+            self.skills = skills.Shield(self, screen, (80, 80))
         elif self.name == 'jp':
-            self.skills = skills.Smash(self)
+            self.skills = skills.Shield(self, screen, (50, 50))
         elif self.name == 'jayson':
             self.skills = skills.Speed(self, screen)
         else:
@@ -491,7 +451,7 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.bottom = object.rect.top
                         
     def hit(self):
-        if self.attacked:
+        if self.attacked and self.push > 0:
             if self.down:
                 self.up = True
                 self.down = False

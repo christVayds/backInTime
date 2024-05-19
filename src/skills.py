@@ -1,5 +1,5 @@
 import pygame
-# Skills = speed, invesibility, boomerang, smash
+# Skills = speed, boomerang, shield, clone - other shield(back to enemy its own attack), ice spike, lightning bolt, mana drain(steal mana), clone self
 
 class Skills:
 
@@ -10,10 +10,16 @@ class Skills:
         self.animated = animated
         self.screen = screen
         self.triggered = False
+        self.level = 1
 
         self.image = None
+        self.animatedImage = []
+        self.frame = 0 # for animation
         self.scale = scale
+
+        # check if animated or not
         if self.animated == 'animated':
+            print('animated')
             self.loadAnimation()
             # skills rect
             self.rect = pygame.Rect(self.player.rect.x, self.player.rect.y, self.scale[0], self.scale[1])
@@ -25,7 +31,10 @@ class Skills:
     # draw skills
     def draw(self):
         if self.animated == 'animated':
-            pass
+            if (self.frame + 1) >= 21:
+                self.frame = 0
+            self.screen.blit(self.animatedImage[self.frame//3], self.rect)
+            self.frame += 1
         else:
             self.screen.blit(self.image, self.rect)
 
@@ -44,7 +53,11 @@ class Skills:
 
     # for animated skills
     def loadAnimation(self):
-        pass
+        for count in range(7):
+            image = f'characters/Skills/{self.player.name}/skill_{count}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+            self.animatedImage.append(image)
 
     def Hit(self, enemies, power):
         for enemy in enemies:
@@ -57,7 +70,7 @@ class Speed(Skills):
     def __init__(self, player, screen, animated='none'):
         super().__init__(player, screen=screen, animated=animated)
         self.cooldown = 120
-        self.speed = 15
+        self.speed = 15 # max speed: 15px
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
@@ -98,27 +111,29 @@ class Boomerang(Skills):
         elif self.player.left:
             self.rect.x -= self.speed
 
-class Invisbility(Skills):
+class Shield(Skills):
 
-    def __init__(self, player, screen, animated='none'):
-        super().__init__(player, screen, animated=animated)
+    def __init__(self, player, screen, scale, animated='animated'):
+        super().__init__(player, screen, scale, animated=animated)
         self.cooldown = 120
+        self.temporarySheild = 500
+        self.c_shield = None
 
-    def skill(self, enemies):
+    def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
-            for enemy in enemies: # making enemies blind
-                enemy.canFollow = False
+            self.c_shield = self.player.sheild
+            self.player.shield = self.temporarySheild
+
+            self.rect.x = self.player.rect.x + (self.player.width - self.rect.width) / 2
+            self.rect.y = self.player.rect.y + (self.player.height - self.rect.height) / 2
+            self.draw()
             self.cooldown -= 1
         else:
-            self.triggered = False
             self.cooldown = 120
-            for enemy in enemies: # enemies back to normal
-                enemy.canFollow = True
+            self.triggered = False
+            self.player.sheild = self.c_shield
 
-    def invisibility(self):
-        raise NotImplemented
+class Clone(Skills):
 
-class Smash(Skills):
-
-    def __init__(self, player):
-        super().__init__(player)
+    def __init__(self, player, screen, scale, animated='animated'):
+        super().__init__(player, screen, scale, animated)
