@@ -74,6 +74,10 @@
         {"name": "map2", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "map2_map4"}
     ],
 
+    "Weapons": [
+        
+    ],
+
     "mainMenu": [
         {"name": "title_4", "type": "animated", "rect": "(192, 100, 320, 40)"},
         {"name": "play", "type": "selector", "rect": "(302, 180, 96, 24)", "selected": 0},

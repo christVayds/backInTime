@@ -19,7 +19,6 @@ class Skills:
 
         # check if animated or not
         if self.animated == 'animated':
-            print('animated')
             self.loadAnimation()
             # skills rect
             self.rect = pygame.Rect(self.player.rect.x, self.player.rect.y, self.scale[0], self.scale[1])
@@ -59,11 +58,12 @@ class Skills:
             image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
             self.animatedImage.append(image)
 
-    def Hit(self, enemies, power):
+    def Hit(self, enemies, damage, delay=0):
         for enemy in enemies:
             if pygame.sprite.collide_rect(self, enemy):
-                enemy.attacked = True
-                enemy.life -= power
+                if delay <= 0:
+                    enemy.attacked = True
+                    enemy.life -= damage
 
 class Speed(Skills):
 
@@ -85,9 +85,10 @@ class Boomerang(Skills):
 
     def __init__(self, player, screen, scale):
         super().__init__(player, screen, scale)
-        self.throw = 50
+        self.range = 50
+        self.throw = self.range
         self.speed = 20
-        self.power = 50
+        self.power = 5
 
     def skill(self, enemies):
         if self.triggered and self.throw > 0:
@@ -96,7 +97,7 @@ class Boomerang(Skills):
             self.Hit(enemies, self.power)
             self.throw -= 1
         else:
-            self.throw = 50
+            self.throw = self.range
             self.triggered = False
             self.rect.x = (self.player.rect.x + (self.rect.width - self.player.width) / 2) 
             self.rect.y = (self.player.rect.y + (self.rect.width - self.player.height) / 2)
@@ -118,6 +119,8 @@ class Shield(Skills):
         self.cooldown = 150
         self.temporarySheild = 500
         self.c_shield = None
+        self.delay = 30
+        self.damage = 0.5
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
@@ -127,6 +130,12 @@ class Shield(Skills):
             self.rect.x = self.player.rect.x + (self.player.width - self.rect.width) / 2
             self.rect.y = self.player.rect.y + (self.player.height - self.rect.height) / 2
             self.draw()
+            self.Hit(enemies, self.damage, self.delay)
+            
+            if self.delay <= 0:
+                self.delay = 30
+
+            self.delay -= 1
             self.cooldown -= 1
         else:
             self.cooldown = 120

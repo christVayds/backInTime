@@ -2,8 +2,6 @@ import pygame
 import random
 from src import skills # Speed, Boomerang, shield, clone
 
-import pygame.locals
-
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y, width, height, name=''):
@@ -21,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.shield = None
         self.sheildPower = 0
         self.power = 10
-        self.myWeapons = []
+        self.myWeapons = [] # for weapons
         self.equiped1 = None
         self.equiped2 = None
 
@@ -223,9 +221,8 @@ class Player(pygame.sprite.Sprite):
     
     # handling navigating to other location
     def checkLocation(self, obj):
-        # locations: Base, Map2[zombies are enemies], Map1[Boss fight ethan], Map3[Boss fight Christian], Map4[Boss fight Aeron with Zombies (void)]
         
-        # press spcae bar to open door
+        # press spacebar to open door
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_SPACE]:
@@ -255,9 +252,8 @@ class Player(pygame.sprite.Sprite):
 
             self.walk = 0
 
-    def navigate(self):
+    def navigate(self): # place the player to navigation / pointer object
         if self.nav:
-            self.skills.triggered = False
             self.rect.x, self.rect.y = self.MapObjects[f'{self.respawn}_{self.location}'].rect.x, self.MapObjects[f'{self.respawn}_{self.location}'].rect.y
         
         self.nav = False
@@ -269,9 +265,10 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             for item in obj.loaded:
-                self.inventories.append(item)
-                print(f'inventory: {self.inventories}')
-                obj.loaded = []
+                if len(self.inventories) <= 8:
+                    self.inventories.append(item)
+                    print(f'inventory: {self.inventories}') # temporaru load to inventories list
+                obj.loaded = [] # unfinished, only remove the item in the chest what player's can takes
 
             # print(self.inventories, len(self.inventories))
 
@@ -281,11 +278,11 @@ class Player(pygame.sprite.Sprite):
         self.equiped1.weapon(enemies)
 
         # equiped 2
-        self.equiped2.Trigger()
         self.equiped2.Trigger_mouse2()
         self.equiped2.weapon(enemies)
 
-        # sheild
+    def handleDefense(self, enemies=[]):
+        # for sheil and other
         self.shield.Trigger()
         self.shield.weapon(enemies)
 

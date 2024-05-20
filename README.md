@@ -1,4 +1,5 @@
 Game name: Back In Time
+Sci-fi, Horror, Survival 2D pixel Game 
 
 Project: Application Development and Emerging Technology
 

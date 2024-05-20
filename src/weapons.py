@@ -26,9 +26,11 @@ class Weapon:
             self.frame = 0
             self.loadAnimated()
             self.rect = pygame.Rect(self.player.rect.x, self.player.rect.y, self.scale[0], self.scale[1])
+            self.icon = self.Animated[0]
         else:
             self.loadNoneAnimated()
             self.rect = pygame.Rect(self.player.rect.x, self.player.rect.y, self.scale[0], self.scale[1])
+            self.icon = self.noneAnimated
 
     def draw(self):
         if self.animated:
@@ -39,11 +41,11 @@ class Weapon:
         else:
             self.screen.blit(self.noneAnimated, self.rect)
 
-    def Hit(self, enemies):
+    def Hit(self, enemies, damage=0.5):
         for enemy in enemies:
             if self.rect.colliderect(enemy.rect):
                 enemy.attacked = True
-                enemy.life -= 3
+                enemy.life -= damage
 
     def loadNoneAnimated(self):
         image = f'characters/weapons/{self.name}/weapon.png'
@@ -106,21 +108,28 @@ class Bomb(Weapon):
 
     def __init__(self, player, screen, scale, name='bomb', animated=True):
         super().__init__(player, screen, scale, name, animated)
-        self.duration = 60
+        self.duration = 90
         self.far = 3
         self.speed = 15
+        self.particles = []
+        self.bframe = 0
+        self.loadExplosion()
 
     def weapon(self, enemies=[]):
         if self.triggered and self.duration > 0 and self.mouse:
-            self.Throw()
-            self.draw()
+            if self.duration <= 20:
+                self.Explode()
+            else:
+                self.Throw()
+                self.draw()
             self.duration -= 1
             self.far -= 1
         else:
             self.triggered = False
-            self.duration = 60
+            self.duration = 90
             self.far = 3
             self.mouse = False
+            self.bframe = 0
 
     def Throw(self):
         if self.far >= 3:
@@ -129,23 +138,38 @@ class Bomb(Weapon):
         if self.far > 0:
             self.vecPos += self.direction * self.speed
             self.rect.x, self.rect.y = self.vecPos.x, self.vecPos.y
+
+    def Explode(self):
+        if (self.bframe + 1) >= 20:
+            self.bframe = 0
+
+        self.screen.blit(self.particles[self.bframe], (self.rect.x + ((self.rect.width - 100) / 2), self.rect.y + (self.rect.height - 100) / 2))
+        self.bframe += 1
+
+    def loadExplosion(self):
+        for i in range(20):
+            image = f'characters/weapons/explosion/{i}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (100, 100))
+            self.particles.append(image)
         
 
 class Boomerang(Weapon):
 
     def __init__(self, player, screen, scale, name='boomerang', animated=True):
         super().__init__(player, screen, scale, name, animated)
-        self.defaultThrow = 60
-        self.throw = self.defaultThrow
+        self.range = 20
+        self.throw = self.range
         self.speed = 20
         self.throwed = True
+        self.damage = 1
 
     def weapon(self, enemies=[]):
         if self.triggered and self.mouse:
-            if self.throw >= 30:
+            if self.throw >= 10:
                 self.mouse_Throw()
                 self.draw()
-                self.Hit(enemies)
+                self.Hit(enemies, self.damage)
             else:
                 if not self.follow():
                     self.draw()
@@ -156,7 +180,7 @@ class Boomerang(Weapon):
         else:
             self.triggered = False
             self.mouse = False
-            self.throw = self.defaultThrow
+            self.throw = self.range
 
     def follow(self):
         playerPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
@@ -173,9 +197,14 @@ class Boomerang(Weapon):
         return False
     
     def mouse_Throw(self):
-        if self.throw >= self.defaultThrow:
+        if self.throw >= self.range:
             self.vectorPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
             self.direction = (self.mouseDirection - self.vectorPos).normalize()
         self.vectorPos += self.direction * self.speed
         self.rect.x = self.vectorPos.x
         self.rect.y = self.vectorPos.y
+
+class Items(Weapon):
+
+    def __init__(self, player, screen, scale, name, animated=False):
+        super().__init__(player, screen, scale, name, animated)

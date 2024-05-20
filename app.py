@@ -29,6 +29,8 @@ from src.timer import Timer
 from Maps import baseMap, Map_2, Map_3, Map_4
 from src.music import Music
 from src import weapons
+from src import navigation
+from src import inventories
 
 # initialize pygame
 pygame.init()
@@ -53,7 +55,11 @@ selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
 timer = Timer(fps)
 
 # Program pages
-pages = ['intro', 'main-menu', 'settings', 'credits', 'selectPlayer', 'in-game', 'pause-game', 'outro', 'exit', 'error_message']
+pages = [
+    'intro', 'main-menu', 'settings', 'credits', 
+    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'outro', 
+    'error_message', 'exit']
+
 currentPage = pages[0]
 
 # loading and checking resources
@@ -65,17 +71,11 @@ map_2 = Map_2.TileMap(25, 0, 0)
 map_3 = Map_3.TileMap(25, 0, 0)
 map_4 = Map_4.TileMap(25, 0, 0)
 
-# GUIs (not yet draw)
-itemsGUI = UI((windowSize['width'] - 384) / 2, (windowSize['height'] - 50), 384, 48, 'itemsbar_6')
-
-# pause button
-pauseButton = UI((windowSize['width'] - 60), 10, 40, 40, 'pause_btn')
-
 # player Icon and health bar
 playerIcon = UI(10, 10, 90, 90, 'player_frame2')
 # healthbar = UI(100, 10, 128, 32, 'life_bar4') # uncomment this later
 
-listGUIs = [itemsGUI, pauseButton, playerIcon] # healthbar
+listGUIs = [playerIcon] # healthbar
 
 # PLAYER
 player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
@@ -106,30 +106,25 @@ title = [
 
 ######## CREATE MAIN MENU #########
 create_menu = Create(window, player, readData.data['mainMenu'], select_item, selected_item)
-# create_menu.create_UI()
 
 ######## CREATE SETTINGS #########
 create_settings = Create(window, player, readData.data['settings'], select_item, selected_item)
-# create_settings.create_UI()
 
 ######## CREATE CREDITS #########
 create_credits = Create(window, player, readData.data['credits'], select_item, selected_item)
-# create_credits.create_UI()
 
 ######## CREATE PAUSE #########
 create_pause = Create(window, player, readData.data['pauseGame'], select_item, selected_item)
-# create_pause.create_UI()
 
 ######## CREATE SELECT PLAYER #########
 create_selectPlayer = Create(window, player, readData.data['SelectPlayer'], select_item, selected_item)
-# create_selectPlayer.create_UI()
 
 
 ######## CREATE MAPS #########
 
 # create objects for blocks and other objects - Map 1 / base
 create_base = Create(window, player, readData.data['Base'], select_item, selected_item)
-# create_base.create()
+create_base.create()
 
 # create objects for blocks and other objects - Map 2
 create_map2 = Create(window, player, readData.data['Map2'], select_item, selected_item)
@@ -139,6 +134,7 @@ create_map2.create()
 create_map3 = Create(window, player, readData.data['Map3'], select_item, selected_item)
 create_map3.create()
 
+# create objects for blocks and other objects - Map 4
 create_map4 = Create(window, player, readData.data['Map4'], select_item, selected_item)
 create_map4.create()
 
@@ -161,6 +157,13 @@ allObjects4 = create_map4.listofObjects+[map_4]
 # listenemies is a list of all enemies
 # listOfMap is a list of map tiles
 
+# For navigation to maps
+nav = navigation.Navigation(player)
+
+# Inventories GUI
+inventory = inventories.Weapon(player, window, (350, 350), (175, 75))
+inventory.sfx = [select_item, selected_item] # add sfx in inventory
+
 # draw base map function
 def draw_base():
     global currentPage
@@ -173,11 +176,13 @@ def draw_base():
     # draw object
     create_base.draw()
     pause = create_base.pauseGame() # if player click esc - pause
+    openWeapons = create_base.openWeapons()
 
     # draw player
+    player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
     player.navigate()
-    player.handleFight()
+    player.handleDefense()
     player.TriggerSkills()
 
     for guis in listGUIs:
@@ -188,8 +193,11 @@ def draw_base():
         currentPage = pages[6] # game menu / pause
         create_pause.create_UI()
 
+    elif openWeapons:
+        currentPage = pages[7]
+
     # camera
-    camera.move(create_base.listofObjects+[base]+player.myWeapons)
+    camera.move(allObjects1+player.myWeapons)
 
     pygame.display.flip()
 
@@ -277,6 +285,17 @@ def draw_map4():
     if pause:
         currentPage = pages[6]
         create_pause.create_UI()
+
+    pygame.display.flip()
+
+# for weapons
+def draw_weapons():
+    global currentPage
+
+    inventory.draw()
+    inventory.drawWeapons()
+    if inventory.Select():
+        currentPage = pages[5]
 
     pygame.display.flip()
 
@@ -396,14 +415,13 @@ def selectPlayer():
         player.initSkill(window) # initialized skills
         player.myWeapons.append(weapons.Boomerang(player, window, (30, 30)))
         player.myWeapons.append(weapons.Bomb(player, window, (30, 30)))
-        player.shield = weapons.Sheild(player, window, (80, 80))
+        player.myWeapons.append(weapons.Sheild(player, window, (80, 80)))
         player.equiped1 = player.myWeapons[0]
         player.equiped2 = player.myWeapons[1]
+        player.shield = player.myWeapons[2]
         music.switch = True # switching music
         music.toPlay = 0
         currentPage = pages[5] # navigate to game page
-        # create the base
-        create_base.create()
         create_selectPlayer.destory_UI()
     elif keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
@@ -452,7 +470,7 @@ def main():
         # check for events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                run = False # exit the game
 
         # draw the display
         # intro
@@ -468,7 +486,7 @@ def main():
             selectPlayer()
         # in-game
         elif currentPage == pages[5]: # go to game screen
-        # draw the display
+            # draw the map display
             if player.location == 'base': # map 1
                 draw_base()
             elif player.location == 'map2': # map 2
@@ -477,8 +495,11 @@ def main():
                 draw_map3()
             elif player.location == 'map4':
                 draw_map4()
+
         elif currentPage == pages[6]:
             PauseGame()
+        elif currentPage == pages[7]:
+            draw_weapons()
         elif currentPage == pages[-1]: # exit game
             run = False
 
@@ -487,7 +508,7 @@ def main():
         music.switch_music()
 
     # quit program after the loop
-    print('fps timeline:',fpsCollected)
+    print('fps timeline:', fpsCollected)
     print('lowest:', min(fpsCollected), '\nHighest:', max(fpsCollected), '\nLocation:', player.location)
     pygame.quit()
 
