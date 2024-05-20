@@ -25,3 +25,9 @@ class Music:
             pygame.mixer.music.load(self.listMusics[self.toPlay])
             self.Play()
             self.switch = False 
+
+class SoundEffects:
+
+    def __init__(self):
+        self.swicth = False
+        self.listMusics = []

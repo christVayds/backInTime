@@ -1,5 +1,5 @@
 import pygame
-import pygame.locals
+from . import weapons
 
 class Object(pygame.sprite.Sprite):
 
@@ -83,4 +83,4 @@ class Object(pygame.sprite.Sprite):
         for item in items:
             image = pygame.image.load(f'characters/icons/{item}.png')
             image = pygame.transform.scale(image, (50, 50))
-            self.loaded.append({'image': image, 'name': item})
+            self.loaded.append({'image': image, 'name': item}) # make this an weapon.item

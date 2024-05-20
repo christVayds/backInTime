@@ -1,7 +1,6 @@
 import pygame
 import random
-
-import pygame.locals
+from src import skills # Speed, Boomerang, shield, clone
 
 class Player(pygame.sprite.Sprite):
 
@@ -17,11 +16,15 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
-        self.power = 50
-        self.weapons = ['sword']
-        self.equiped = self.weapons[0]
-        self.attack = False
-        self.attacking = 3
+        self.shield = None
+        self.sheildPower = 0
+        self.power = 10
+        self.myWeapons = [] # for weapons
+        self.equiped1 = None
+        self.equiped2 = None
+
+        # skills
+        self.skills = None
 
         # speed
         self.speed = 7
@@ -29,7 +32,7 @@ class Player(pygame.sprite.Sprite):
 
         # rect and surface
         self.rect = pygame.Rect((x, y), (self.width, self.height)) # for player rect
-        self.image = pygame.Surface((self.width, self.height)) # surface
+        # self.image = pygame.Surface((self.width, self.height)).convert() # surface
 
         # facing
         self.left = False
@@ -64,6 +67,7 @@ class Player(pygame.sprite.Sprite):
 
         # handle collision
         self.handleCollision(allObj)
+
         self.displayName = self.font.render(self.name.title(), True, (0,0,0)) # temporary 
         screen.blit(self.displayName, (self.rect.x, self.rect.y - (self.width / 2), self.displayName.get_width(), self.displayName.get_height()))
 
@@ -81,7 +85,6 @@ class Player(pygame.sprite.Sprite):
 
         # right
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            # print('player.rect.x',self.rect.x)
             self.left = False
             self.right = True
             self.up = False
@@ -218,42 +221,41 @@ class Player(pygame.sprite.Sprite):
     
     # handling navigating to other location
     def checkLocation(self, obj):
-        # locations: Base, Map2[zombies are enemies], Map1[Boss fight ethan], Map3[Boss fight Christian], Map4[Boss fight Aeron with Zombies (void)]
         
-        # press spcae bar to open door
+        # press spacebar to open door
         keys = pygame.key.get_just_pressed()
 
-        if keys[pygame.K_SPACE]: # fix this shit
+        if keys[pygame.K_SPACE]:
             if obj.name == 'base':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, True, False, False
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             elif obj.name == 'map2':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, False, True, False
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             elif obj.name == 'map3':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, False, True, False
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             elif obj.name == 'map4':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, False, False, True
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             self.walk = 0
 
-    def navigate(self):
+    def navigate(self): # place the player to navigation / pointer object
         if self.nav:
             self.rect.x, self.rect.y = self.MapObjects[f'{self.respawn}_{self.location}'].rect.x, self.MapObjects[f'{self.respawn}_{self.location}'].rect.y
-
+        
         self.nav = False
 
     # for picking items and opening a chestboxes
@@ -263,55 +265,44 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             for item in obj.loaded:
-                self.inventories.append(item)
-                print(f'inventory: {self.inventories}')
-                obj.loaded = []
+                if len(self.inventories) <= 8:
+                    self.inventories.append(item)
+                    print(f'inventory: {self.inventories}') # temporaru load to inventories list
+                obj.loaded = [] # unfinished, only remove the item in the chest what player's can takes
 
             # print(self.inventories, len(self.inventories))
 
-    # animate the fight
-    def handleFight(self, enemies, screen):
-        # use space bar to fight
-        keys = pygame.key.get_just_pressed()
+    def handleFight(self, enemies=[]):
+        # equiped 1
+        self.equiped1.Trigger_mouse()
+        self.equiped1.weapon(enemies)
 
-        if self.equiped == self.weapons[0]:
-            self.Sword(screen)
+        # equiped 2
+        self.equiped2.Trigger_mouse2()
+        self.equiped2.weapon(enemies)
 
-        if keys[pygame.K_SPACE]:
-            self.attack = True
-            for enemy in enemies:
-                if pygame.sprite.collide_rect(self, enemy):
-                    if self.left and self.rect.x > enemy.rect.x:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-                    elif self.right and self.rect.x < enemy.rect.x:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-                    elif self.down and self.rect.y < enemy.rect.y:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
-                    elif self.up and self.rect.y > enemy.rect.y:
-                        enemy.attacked = True
-                        enemy.life -= self.power
-                        enemy.push = 10
+    def handleDefense(self, enemies=[]):
+        # for sheil and other
+        self.shield.Trigger()
+        self.shield.weapon(enemies)
 
-    def Sword(self, screen):
-        if self.attack and self.attacking > 0:
-            if self.up:
-                screen.blit(self.sword[0], (self.rect.x, self.rect.y-25))
-            elif self.down:
-                screen.blit(self.sword[2], (self.rect.x, self.rect.y+15))
-            elif self.right:
-                screen.blit(self.sword[1], (self.rect.x, self.rect.y))
-            elif self.left:
-                screen.blit(self.sword[3], (self.rect.x-25, self.rect.y))
-            self.attacking -= 1
+    def TriggerSkills(self, enemies=[]):
+        self.skills.trigger()
+        self.skills.skill(enemies)
+
+    def initSkill(self, screen):
+        if self.name == 'johny':
+            self.skills = skills.Boomerang(self, screen, (30,30))
+        elif self.name == 'ricky':
+            # self.skills = skills.Clone(self, screen)
+            self.skills = skills.Shield(self, screen, (80, 80))
+        elif self.name == 'jp':
+            self.skills = skills.Shield(self, screen, (50, 50))
+        elif self.name == 'jayson':
+            self.skills = skills.Speed(self, screen)
         else:
-            self.attacking = 3
-            self.attack = False
+            # raise error if player not found
+            raise KeyError
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -324,12 +315,16 @@ class Enemy(pygame.sprite.Sprite):
 
         # rect
         self.rect = pygame.Rect((x, y), (self.width, self.height))
-        self.image = pygame.Surface((self.width, self.height))
+        # self.image = pygame.Surface((self.width, self.height))
 
         self.speed = random.choice([2.5, 3, 3.5])
         self.attacked = False # attacked by the player
-        self.life = 100
-        self.push = 10
+        self.defaultLife = 20
+        self.life = 0
+        self.push = 0
+        self.pushed = False
+
+        self.canFollow = True
 
         # facing
         self.left = True
@@ -349,7 +344,8 @@ class Enemy(pygame.sprite.Sprite):
     def draw(self, screen, objects):
 
         # handle collision
-        # self.hit()
+        self.hit()
+        self.handlePushed()
         self.handleCollision(objects)
         
         if (self.walk + 1) >= 21:
@@ -376,7 +372,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def barLife(self, screen):
         pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 10, self.width, 5))
-        pygame.draw.rect(screen, (252, 78, 15), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / 100) * self.width, 5))
+        pygame.draw.rect(screen, (252, 78, 15), (self.rect.x, self.rect.y - (self.height / 2) + 10, (self.life / self.defaultLife) * self.width, 5))
 
     # enemy x and y move directions
     def move_x(self, direction):
@@ -387,7 +383,7 @@ class Enemy(pygame.sprite.Sprite):
 
     # enemy follow player until player's life is 0
     def follow(self, player):
-        if player.life > 0  :
+        if player.life > 0 and not(self.pushed) and self.canFollow:
             if self.rect.x > player.rect.x + 35:
                 self.left = True
                 self.right = False
@@ -465,16 +461,33 @@ class Enemy(pygame.sprite.Sprite):
     def hit(self):
         if self.attacked and self.push > 0:
             if self.down:
-                self.move_y(-10)
+                self.up = True
+                self.down = False
             elif self.up:
-                self.move_y(10)
+                self.up = False
+                self.down = True
             elif self.right:
-                self.move_x(-10)
+                self.right = False
+                self.left = True
             elif self.left:
-                self.move_x(10)
+                self.left = False
+                self.right = True
+            self.pushed = True
+        self.attacked = False
+
+    def handlePushed(self):
+        if self.pushed and self.push > 0:
+            if self.up:
+                self.move_y(-15)
+            elif self.down:
+                self.move_y(15)
+            elif self.left:
+                self.move_x(-15)
+            elif self.right:
+                self.move_x(15)
             self.push -= 1
         else:
-            self.attacked = False
+            self.pushed = False
 
 class NPC(pygame.sprite.Sprite):
 

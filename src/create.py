@@ -5,22 +5,25 @@ import pygame
 
 class Create:
 
-    def __init__(self, screen, player, list_obj):
+    def __init__(self, screen, player, list_obj, selectItems, selectedItems):
         self.screen = screen
         self.player = player
         self.list_obj = list_obj #list of objects for map
 
         # retun this list
-        self.listofObjects = [player]
-        self.listEnemies = []
+        self.listofObjects = [self.player] # for other objects
+        self.listEnemies = [] # for enemies
+        self.selectors = [] # for selectors
+        self.listUIs = [] # for UI
 
         self.selected = 0
-        self.selectors = []
-        self.listUIs = []
 
         #audios / sfx for selecting items
-        self.selectItems = pygame.mixer.Sound('audio/select.wav')
-        self.seletedItems = pygame.mixer.Sound('audio/selected.wav')
+        self.selectItems = selectItems
+        self.seletedItems = selectedItems
+
+        # created
+        self.created = False
 
     def create(self):
         for obj in self.list_obj:
@@ -30,20 +33,32 @@ class Create:
             if obj['type'] == 'navigation':
                 self.player.MapObjects[obj['distination']] = object
             self.listofObjects.append(object)
+
+    def destroy(self):
+        self.listofObjects = [self.player]
+        self.listEnemies = []
                     
     def draw(self):
         for obj in self.listofObjects:
             if obj != self.listofObjects[0]:
                 obj.draw(self.screen)
 
+    # UI - Pause menu
     def pauseGame(self):
          keys = pygame.key.get_just_pressed()
 
          if keys[pygame.K_ESCAPE]:
              self.selectItems.play()
              return True
+         
+    def openWeapons(self):
+        keys = pygame.key.get_just_pressed()
 
-    #  for UI
+        if keys[pygame.K_f]:
+            self.seletedItems.play()
+            return True
+
+    #  FOR USER INTERFACE
     def create_UI(self):
         for obj in self.list_obj:
             ui = UI(obj['rect'][0], obj['rect'][1], obj['rect'][2], obj['rect'][3], obj['name'], obj['type'])
@@ -52,12 +67,17 @@ class Create:
                 self.selectors.append(ui)
             self.listUIs.append(ui)
 
+    def destory_UI(self):
+        self.selectors = []
+        self.listUIs = []
+        self.selected = 0
+
     def draw_ui(self):
         for uis in self.listUIs:
             uis.draw(self.screen)
         # self.Select()
 
-    def Select(self): # select from the main menu only
+    def Select(self): # select menu
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_TAB] or keys[pygame.K_DOWN]:
@@ -89,11 +109,14 @@ class Create:
         for enemy in self.list_obj:
             enmy = Enemy(enemy['rect'][0], enemy['rect'][1], enemy['rect'][2], enemy['rect'][3], enemy['name'])
             enmy.speed = float(enemy['speed'])
+            enmy.defaultLife = int(enemy['default_life'])
+            enmy.life = int(enemy['default_life'])
             self.listEnemies.append(enmy)
 
     def draw_enemy(self, objects):
         for enemy in self.listEnemies:
             if enemy.life <= 0:
-                self.listEnemies.remove(enemy)
+                if enemy.push == False:
+                    self.listEnemies.remove(enemy)
             enemy.draw(self.screen, objects)
             enemy.follow(self.player) # follow the player
