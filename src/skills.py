@@ -115,14 +115,14 @@ class Shield(Skills):
 
     def __init__(self, player, screen, scale, animated='animated'):
         super().__init__(player, screen, scale, animated=animated)
-        self.cooldown = 120
+        self.cooldown = 150
         self.temporarySheild = 500
         self.c_shield = None
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
-            self.c_shield = self.player.sheild
-            self.player.shield = self.temporarySheild
+            self.c_shield = self.player.sheildPower
+            self.player.shieldPower = self.temporarySheild
 
             self.rect.x = self.player.rect.x + (self.player.width - self.rect.width) / 2
             self.rect.y = self.player.rect.y + (self.player.height - self.rect.height) / 2
@@ -131,7 +131,7 @@ class Shield(Skills):
         else:
             self.cooldown = 120
             self.triggered = False
-            self.player.sheild = self.c_shield
+            self.player.sheildPower = self.c_shield
 
 class Clone(Skills):
 

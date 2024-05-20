@@ -66,7 +66,7 @@ map_3 = Map_3.TileMap(25, 0, 0)
 map_4 = Map_4.TileMap(25, 0, 0)
 
 # GUIs (not yet draw)
-itemsGUI = UI((windowSize['width'] - 244) / 2, (windowSize['height'] - 70), 244, 60, 'itemsbar_6')
+itemsGUI = UI((windowSize['width'] - 384) / 2, (windowSize['height'] - 50), 384, 48, 'itemsbar_6')
 
 # pause button
 pauseButton = UI((windowSize['width'] - 60), 10, 40, 40, 'pause_btn')
@@ -84,11 +84,12 @@ player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) /
 readData = Read('Data/data.json')
 readData.read() # read all data
 
-readData.strToTuple('Base') # make all string tuple in Map1 to tuple
+readData.strToTuple('Base')# make all string tuple in Map1 to tuple
 readData.strToTuple('Map2')
 readData.strToTuple('Map3')
 readData.strToTuple('Map4')
-readData.strToTuple('Enemies_m2') # read the tuple(positions) of the enemies
+readData.strToTuple('Enemies_m2')# read the tuple(positions) of the enemies
+# Other pages
 readData.strToTuple('mainMenu')
 readData.strToTuple('settings')
 readData.strToTuple('credits')
@@ -104,46 +105,47 @@ title = [
 ]
 
 ######## CREATE MAIN MENU #########
-create_menu = Create(window, player, readData.data['mainMenu'])
-create_menu.create_UI()
+create_menu = Create(window, player, readData.data['mainMenu'], select_item, selected_item)
+# create_menu.create_UI()
 
 ######## CREATE SETTINGS #########
-create_settings = Create(window, player, readData.data['settings'])
-create_settings.create_UI()
+create_settings = Create(window, player, readData.data['settings'], select_item, selected_item)
+# create_settings.create_UI()
 
 ######## CREATE CREDITS #########
-create_credits = Create(window, player, readData.data['credits'])
-create_credits.create_UI()
+create_credits = Create(window, player, readData.data['credits'], select_item, selected_item)
+# create_credits.create_UI()
 
 ######## CREATE PAUSE #########
-create_pause = Create(window, player, readData.data['pauseGame'])
-create_pause.create_UI()
+create_pause = Create(window, player, readData.data['pauseGame'], select_item, selected_item)
+# create_pause.create_UI()
 
 ######## CREATE SELECT PLAYER #########
-create_selectPlayer = Create(window, player, readData.data['SelectPlayer'])
-create_selectPlayer.create_UI()
+create_selectPlayer = Create(window, player, readData.data['SelectPlayer'], select_item, selected_item)
+# create_selectPlayer.create_UI()
+
 
 ######## CREATE MAPS #########
 
 # create objects for blocks and other objects - Map 1 / base
-create_base = Create(window, player, readData.data['Base'])
-create_base.create()
+create_base = Create(window, player, readData.data['Base'], select_item, selected_item)
+# create_base.create()
 
 # create objects for blocks and other objects - Map 2
-create_map2 = Create(window, player, readData.data['Map2'])
+create_map2 = Create(window, player, readData.data['Map2'], select_item, selected_item)
 create_map2.create()
 
 # create objects for blocks and other objects - Map 3
-create_map3 = Create(window, player, readData.data['Map3'])
+create_map3 = Create(window, player, readData.data['Map3'], select_item, selected_item)
 create_map3.create()
 
-create_map4 = Create(window, player, readData.data['Map4'])
+create_map4 = Create(window, player, readData.data['Map4'], select_item, selected_item)
 create_map4.create()
 
 ######## CREATE ENEMIES #########
 
 # enemies for map 2
-enemies_map2 = Create(window, player, readData.data['Enemies_m2'])
+enemies_map2 = Create(window, player, readData.data['Enemies_m2'], select_item, selected_item)
 enemies_map2.create_enemies()
 
 # camera
@@ -165,9 +167,6 @@ def draw_base():
 
     window.fill((10, 10, 10))
 
-    # camera
-    camera.move(allObjects1+player.myWeapons)
-
     # map for the base map
     base.drawMap(window)
 
@@ -187,6 +186,10 @@ def draw_base():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
+        create_pause.create_UI()
+
+    # camera
+    camera.move(create_base.listofObjects+[base]+player.myWeapons)
 
     pygame.display.flip()
 
@@ -196,7 +199,7 @@ def draw_map2():
     window.fill((10, 10, 10))
 
     # camera for map 2
-    camera.move(allObjects2)
+    camera.move(allObjects2+player.myWeapons)
 
     # draw map 2
     map_2.drawMap(window)
@@ -220,6 +223,7 @@ def draw_map2():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
+        create_pause.create_UI()
 
     pygame.display.flip()
 
@@ -234,7 +238,7 @@ def draw_map3():
     pause = create_map3.pauseGame()
 
     # draw player in map3
-    player.draw(window, create_map3.listofObjects[1:])
+    player.draw(window, create_map3.listofObjects[1:])  
     player.navigate()
 
     # camera fot map 3
@@ -246,6 +250,7 @@ def draw_map3():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
+        create_pause.create_UI()
 
     pygame.display.flip()
 
@@ -271,6 +276,7 @@ def draw_map4():
 
     if pause:
         currentPage = pages[6]
+        create_pause.create_UI()
 
     pygame.display.flip()
 
@@ -287,13 +293,17 @@ def PauseGame():
     if keys[pygame.K_ESCAPE]: # back to game
         selected_item.play()
         currentPage = pages[5]
+        create_pause.destory_UI()
     
     if selected == 0:
         currentPage = pages[5] # back to game
+        create_pause.destory_UI()
     elif selected == 1:
         currentPage = pages[1] # navigate to main menu
         music.switch = True
         music.toPlay = 1
+        # create_menu.draw_ui()
+        create_pause.destory_UI()
 
     pygame.display.flip()
 
@@ -306,17 +316,20 @@ def mainMenu():
     create_menu.draw_ui()
     selected = create_menu.Select()
 
-    if selected == 0: # navigate to Select player 
+    if selected == 0: # navigate to Select player
         if player.name != "":
             currentPage = pages[5]
             music.switch = True
             music.toPlay = 0
         else:
             currentPage = pages[4]
+            create_selectPlayer.create_UI()
     elif selected == 1: # credits
         currentPage = pages[3]
+        create_credits.create_UI()
     elif selected == 2: # settings
         currentPage = pages[2]
+        create_settings.create_UI()
     elif selected == 3: # exit game
         currentPage = pages[-1]
 
@@ -333,7 +346,8 @@ def settings():
 
     if selected == 2: # if save is selected
         currentPage = pages[1] # back to main menu
-        selected = 0
+        # create_menu.draw_ui()
+        create_settings.destory_UI()
 
     pygame.display.flip()
 
@@ -349,6 +363,7 @@ def credits():
     if keys[pygame.K_SPACE] or keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
         currentPage = pages[1]
+        create_credits.destory_UI()
 
     pygame.display.flip()
 
@@ -379,14 +394,21 @@ def selectPlayer():
         player.loadImages()
         player.flipImage()
         player.initSkill(window) # initialized skills
-        player.myWeapons.append(weapons.Sheild(player, window, (80, 80)))
-        player.equiped = player.myWeapons[0]
+        player.myWeapons.append(weapons.Boomerang(player, window, (30, 30)))
+        player.myWeapons.append(weapons.Bomb(player, window, (30, 30)))
+        player.shield = weapons.Sheild(player, window, (80, 80))
+        player.equiped1 = player.myWeapons[0]
+        player.equiped2 = player.myWeapons[1]
         music.switch = True # switching music
         music.toPlay = 0
         currentPage = pages[5] # navigate to game page
+        # create the base
+        create_base.create()
+        create_selectPlayer.destory_UI()
     elif keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
         currentPage = pages[1] # back to main menu
+        create_selectPlayer.destory_UI()
 
     pygame.display.flip()
 
@@ -408,6 +430,7 @@ def Opening():
             if timer.coolDown(5):
                 player.location = 'base'
                 currentPage = pages[1] # navigate to main menu
+                create_menu.create_UI()
                 music.switch = True
                 music.toPlay = 1
                 del title # remove or delete all loaded images

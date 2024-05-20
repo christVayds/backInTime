@@ -18,10 +18,12 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
-        self.shield = 0
+        self.shield = None
+        self.sheildPower = 0
         self.power = 10
         self.myWeapons = []
-        self.equiped = None
+        self.equiped1 = None
+        self.equiped2 = None
 
         # skills
         self.skills = None
@@ -67,7 +69,7 @@ class Player(pygame.sprite.Sprite):
 
         # handle collision
         self.handleCollision(allObj)
-        # self.TriggerSkills()
+
         self.displayName = self.font.render(self.name.title(), True, (0,0,0)) # temporary 
         screen.blit(self.displayName, (self.rect.x, self.rect.y - (self.width / 2), self.displayName.get_width(), self.displayName.get_height()))
 
@@ -85,7 +87,6 @@ class Player(pygame.sprite.Sprite):
 
         # right
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            # print('player.rect.x',self.rect.x)
             self.left = False
             self.right = True
             self.up = False
@@ -227,30 +228,30 @@ class Player(pygame.sprite.Sprite):
         # press spcae bar to open door
         keys = pygame.key.get_just_pressed()
 
-        if keys[pygame.K_SPACE]: # fix this shit
+        if keys[pygame.K_SPACE]:
             if obj.name == 'base':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, True, False, False
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             elif obj.name == 'map2':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, False, True, False
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             elif obj.name == 'map3':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, False, True, False
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             elif obj.name == 'map4':
+                self.nav = True
                 self.right, self.left, self.up, self.down, = False, False, False, True
                 self.respawn = self.location
                 self.location = obj.name
-                self.nav = True
 
             self.walk = 0
 
@@ -258,7 +259,7 @@ class Player(pygame.sprite.Sprite):
         if self.nav:
             self.skills.triggered = False
             self.rect.x, self.rect.y = self.MapObjects[f'{self.respawn}_{self.location}'].rect.x, self.MapObjects[f'{self.respawn}_{self.location}'].rect.y
-
+        
         self.nav = False
 
     # for picking items and opening a chestboxes
@@ -275,8 +276,18 @@ class Player(pygame.sprite.Sprite):
             # print(self.inventories, len(self.inventories))
 
     def handleFight(self, enemies=[]):
-        self.equiped.Trigger()
-        self.equiped.weapon(enemies)
+        # equiped 1
+        self.equiped1.Trigger_mouse()
+        self.equiped1.weapon(enemies)
+
+        # equiped 2
+        self.equiped2.Trigger()
+        self.equiped2.Trigger_mouse2()
+        self.equiped2.weapon(enemies)
+
+        # sheild
+        self.shield.Trigger()
+        self.shield.weapon(enemies)
 
     def TriggerSkills(self, enemies=[]):
         self.skills.trigger()
@@ -307,7 +318,7 @@ class Enemy(pygame.sprite.Sprite):
 
         # rect
         self.rect = pygame.Rect((x, y), (self.width, self.height))
-        self.image = pygame.Surface((self.width, self.height))
+        # self.image = pygame.Surface((self.width, self.height))
 
         self.speed = random.choice([2.5, 3, 3.5])
         self.attacked = False # attacked by the player

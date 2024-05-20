@@ -53,8 +53,10 @@ Keys:
   4. E: Healing
   5. Q: Recharge mana
   6. R: Skills
-  7. SPACE: for using weapons, navigating to other map
+  7. SPACE: navigating to other map or opening chestbox
   8. C: Sheild
+  9. Mouse left: Weapon 1
+  10. Mouse Right: Weapon 2
 
 - Player can hold 4 items in item bar
 - Player can only open inventory when you open chestbox at base
