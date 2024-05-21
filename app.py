@@ -161,7 +161,8 @@ allObjects4 = create_map4.listofObjects+[map_4]
 nav = navigation.Navigation(player)
 
 # initialized effects
-effects = weapons.Effects(player, window)
+effects_1 = weapons.Effects(window)
+effects_2 = weapons.Effects(window)
 
 # Inventories GUI
 inventory = inventories.Weapon(player, window, (350, 350), (175, 75))
@@ -184,7 +185,8 @@ def draw_base():
     # draw player
     player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
-    effects.effects()
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
     player.handleDefense()
     player.TriggerSkills()
@@ -229,7 +231,8 @@ def draw_map2():
 
     # draw player
     player.draw(window, create_map2.listofObjects[1:])
-    effects.effects()
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
     player.TriggerSkills(enemies_map2.listEnemies)
 
@@ -257,7 +260,8 @@ def draw_map3():
     # draw player in map3
     player.handleFight(enemies_map2.listEnemies)
     player.draw(window, create_map2.listofObjects[1:])
-    effects.effects()
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
 
     # camera fot map 3
@@ -286,7 +290,8 @@ def draw_map4():
 
     player.handleFight(enemies_map2.listEnemies)
     player.draw(window, create_map2.listofObjects[1:])
-    effects.effects()
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
 
 
@@ -434,7 +439,8 @@ def selectPlayer():
         player.shield = player.myWeapons[2] # equiped the shield
         music.switch = True # switching music
         music.toPlay = 0 # switch bg music
-        effects.loadEffects() # load effects
+        effects_1.loadEffects(player.equiped1) # load effects - no effects yet to equiped 1(boomerang)
+        effects_2.loadEffects(player.equiped2) # load effects
         currentPage = pages[5] # navigate to game page
         create_selectPlayer.destory_UI() # destroy this page
     

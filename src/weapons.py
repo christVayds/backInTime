@@ -216,34 +216,32 @@ class Items(Weapon):
 
 class Effects:
 
-    def __init__(self, player, screen):
-        self.player = player
-        self.weapons = None
-        self.weapons2 = None
+    def __init__(self, screen):
         self.screen = screen
+        self.weapons = None
 
         # self.frames = 20
         self.loaded = []
-        # self.loadEffects() # temporary load effects in initialization
 
     def effects(self):
-        if self.weapons == None:
-            self.weapons2 = self.player.equiped2
-            self.weapons = self.player.equiped1
-        
-        if self.weapons2.effect:
+        if self.weapons.effect:
             self.draw()
 
     def draw(self):
-        if (self.weapons2.bframe + 1) >= 20:
-            self.weapons2.bframe = 0
+        if (self.weapons.bframe + 1) >= 20:
+            self.weapons.bframe = 0
 
-        self.screen.blit(self.loaded[self.weapons2.bframe], (self.weapons2.rect.x + ((self.weapons2.rect.width - 100) / 2), self.weapons2.rect.y + (self.weapons2.rect.height - 100) / 2))
-        self.weapons2.bframe+=1
+        self.screen.blit(self.loaded[self.weapons.bframe], (self.weapons.rect.x + ((self.weapons.rect.width - 100) / 2), self.weapons.rect.y + (self.weapons.rect.height - 100) / 2))
+        self.weapons.bframe+=1
 
-    def loadEffects(self):
-        for i in range(20):
-            image = f'characters/weapons/explosion/{i}.png'
-            image = pygame.image.load(image)
-            image = pygame.transform.scale(image, (100, 100))
-            self.loaded.append(image)
+    def loadEffects(self, equiped):
+        self.weapons = equiped
+
+        try: # check if the weapon has effects
+            for i in range(20):
+                image = f'characters/effects/{self.weapons.name}/{i}.png'
+                image = pygame.image.load(image)
+                image = pygame.transform.scale(image, (100, 100))
+                self.loaded.append(image)
+        except FileNotFoundError:
+            print(f'{self.weapons.name} no effects')
