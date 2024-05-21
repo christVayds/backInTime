@@ -59,5 +59,14 @@ Keys:
   9. Mouse left: Weapon 1
   10. Mouse Right: Weapon 2
 
+Keys for selecting weapons to equiped:
+  1. Tab or Right: select increment
+  2. Left: select decrement
+  3. Q: Select weapon for left mouse key
+  4. W: Select weapon for right mouse key
+  5. F: Exit weapons Inventory GUI
+  6. S: Select sheild
+  7. A: select potions
+
 - Player can hold 4 items in item bar
 - Player can only open inventory when you open chestbox at base
