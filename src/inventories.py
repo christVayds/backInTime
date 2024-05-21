@@ -32,8 +32,8 @@ class Weapon(Inventory):
 
     def __init__(self, player, screen, scale, pos):
         super().__init__(player, screen, scale, pos)
-        self.positions = [(225,280), (292,280), (358, 280), (424, 280)]
-        self.equiped = [(365, 195), (448, 195), (448, 108)]
+        self.positions = [(225,280), (292,280), (358, 280), (424, 280)] # grid for all weapons and items - 8 items
+        self.equiped = [(365, 195), (448, 195), (448, 108)] # for weapons equiped - 4 items
 
     def Select(self):
         keys = pygame.key.get_just_pressed()

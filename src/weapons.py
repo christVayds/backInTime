@@ -15,6 +15,7 @@ class Weapon:
         self.triggered = False
         self.c_triggered = False
         self.level = 1
+        self.effect = False
 
         # get mouse positions
         self.mouse = False
@@ -118,18 +119,21 @@ class Bomb(Weapon):
     def weapon(self, enemies=[]):
         if self.triggered and self.duration > 0 and self.mouse:
             if self.duration <= 20:
-                self.Explode()
+                # self.Explode()
+                self.effect = True
             else:
                 self.Throw()
                 self.draw()
             self.duration -= 1
             self.far -= 1
         else:
+            # reset
             self.triggered = False
             self.duration = 90
             self.far = 3
             self.mouse = False
             self.bframe = 0
+            self.effect = False
 
     def Throw(self):
         if self.far >= 3:
@@ -140,11 +144,12 @@ class Bomb(Weapon):
             self.rect.x, self.rect.y = self.vecPos.x, self.vecPos.y
 
     def Explode(self):
-        if (self.bframe + 1) >= 20:
-            self.bframe = 0
+        if self.effect:
+            if (self.bframe + 1) >= 20:
+                self.bframe = 0
 
-        self.screen.blit(self.particles[self.bframe], (self.rect.x + ((self.rect.width - 100) / 2), self.rect.y + (self.rect.height - 100) / 2))
-        self.bframe += 1
+            self.screen.blit(self.particles[self.bframe], (self.rect.x + ((self.rect.width - 100) / 2), self.rect.y + (self.rect.height - 100) / 2))
+            self.bframe += 1
 
     def loadExplosion(self):
         for i in range(20):
@@ -208,3 +213,37 @@ class Items(Weapon):
 
     def __init__(self, player, screen, scale, name, animated=False):
         super().__init__(player, screen, scale, name, animated)
+
+class Effects:
+
+    def __init__(self, player, screen):
+        self.player = player
+        self.weapons = None
+        self.weapons2 = None
+        self.screen = screen
+
+        # self.frames = 20
+        self.loaded = []
+        # self.loadEffects() # temporary load effects in initialization
+
+    def effects(self):
+        if self.weapons == None:
+            self.weapons2 = self.player.equiped2
+            self.weapons = self.player.equiped1
+        
+        if self.weapons2.effect:
+            self.draw()
+
+    def draw(self):
+        if (self.weapons2.bframe + 1) >= 20:
+            self.weapons2.bframe = 0
+
+        self.screen.blit(self.loaded[self.weapons2.bframe], (self.weapons2.rect.x + ((self.weapons2.rect.width - 100) / 2), self.weapons2.rect.y + (self.weapons2.rect.height - 100) / 2))
+        self.weapons2.bframe+=1
+
+    def loadEffects(self):
+        for i in range(20):
+            image = f'characters/weapons/explosion/{i}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (100, 100))
+            self.loaded.append(image)

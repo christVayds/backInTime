@@ -161,6 +161,7 @@ class Player(pygame.sprite.Sprite):
                     self.c_up.append(img)
                 elif image == 'S_Walk_':
                     self.c_left.append(img)
+        self.flipImage()
 
     # flip all characters to right
     def flipImage(self):
@@ -282,7 +283,7 @@ class Player(pygame.sprite.Sprite):
         self.equiped2.weapon(enemies)
 
     def handleDefense(self, enemies=[]):
-        # for sheil and other
+        # for sheild and other
         self.shield.Trigger()
         self.shield.weapon(enemies)
 

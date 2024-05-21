@@ -160,6 +160,9 @@ allObjects4 = create_map4.listofObjects+[map_4]
 # For navigation to maps
 nav = navigation.Navigation(player)
 
+# initialized effects
+effects = weapons.Effects(player, window)
+
 # Inventories GUI
 inventory = inventories.Weapon(player, window, (350, 350), (175, 75))
 inventory.sfx = [select_item, selected_item] # add sfx in inventory
@@ -181,6 +184,7 @@ def draw_base():
     # draw player
     player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
+    effects.effects()
     player.navigate()
     player.handleDefense()
     player.TriggerSkills()
@@ -204,6 +208,7 @@ def draw_base():
 # draw MAP 2 funtion
 def draw_map2():
     global currentPage
+
     window.fill((10, 10, 10))
 
     # camera for map 2
@@ -216,14 +221,17 @@ def draw_map2():
     create_map2.draw()
     pause = create_map2.pauseGame()
 
+    # drop or display weapons
+    player.handleFight(enemies_map2.listEnemies)
+
     # enemies
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
 
     # draw player
     player.draw(window, create_map2.listofObjects[1:])
+    effects.effects()
     player.navigate()
     player.TriggerSkills(enemies_map2.listEnemies)
-    player.handleFight(enemies_map2.listEnemies)
 
     for guis in listGUIs:
         guis.draw(window)
@@ -238,6 +246,7 @@ def draw_map2():
 # not yet done
 def draw_map3():
     global currentPage
+
     window.fill((10, 10, 10))
 
     map_3.drawMap(window)
@@ -246,7 +255,9 @@ def draw_map3():
     pause = create_map3.pauseGame()
 
     # draw player in map3
-    player.draw(window, create_map3.listofObjects[1:])  
+    player.handleFight(enemies_map2.listEnemies)
+    player.draw(window, create_map2.listofObjects[1:])
+    effects.effects()
     player.navigate()
 
     # camera fot map 3
@@ -273,7 +284,9 @@ def draw_map4():
     create_map4.draw()
     pause = create_map4.pauseGame()
 
-    player.draw(window, create_map4.listofObjects[1:])
+    player.handleFight(enemies_map2.listEnemies)
+    player.draw(window, create_map2.listofObjects[1:])
+    effects.effects()
     player.navigate()
 
 
@@ -410,19 +423,21 @@ def selectPlayer():
             raise Exception('Player not found')
         
         # player's other initializations here
-        player.loadImages()
-        player.flipImage()
+        player.loadImages() # load the image of the player
+        # player.flipImage() # right side of the player
         player.initSkill(window) # initialized skills
-        player.myWeapons.append(weapons.Boomerang(player, window, (30, 30)))
-        player.myWeapons.append(weapons.Bomb(player, window, (30, 30)))
-        player.myWeapons.append(weapons.Sheild(player, window, (80, 80)))
-        player.equiped1 = player.myWeapons[0]
-        player.equiped2 = player.myWeapons[1]
-        player.shield = player.myWeapons[2]
+        player.myWeapons.append(weapons.Boomerang(player, window, (30, 30))) # load the weapon 1
+        player.myWeapons.append(weapons.Bomb(player, window, (30, 30))) # load the weapon 2
+        player.myWeapons.append(weapons.Sheild(player, window, (80, 80))) # load the sheild
+        player.equiped1 = player.myWeapons[0] # equiped the weapon 1
+        player.equiped2 = player.myWeapons[1] # equiped the weapon 2
+        player.shield = player.myWeapons[2] # equiped the shield
         music.switch = True # switching music
-        music.toPlay = 0
+        music.toPlay = 0 # switch bg music
+        effects.loadEffects() # load effects
         currentPage = pages[5] # navigate to game page
-        create_selectPlayer.destory_UI()
+        create_selectPlayer.destory_UI() # destroy this page
+    
     elif keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
         currentPage = pages[1] # back to main menu
