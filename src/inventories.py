@@ -2,13 +2,15 @@ import pygame
 
 class Inventory:
 
-    def __init__(self, player, screen, scale, pos):
+    def __init__(self, player, screen, scale, pos, name):
         self.player = player
         self.screen = screen
         self.scale = scale
+        self.name = name
 
         self.selected = 0
         self.guis = []
+        self.weaponsgui = [] # for items gui viewing player's weapons
         self.loadGUIs()
         self.rect = pygame.Rect(pos[0], pos[1], self.scale[0], self.scale[1])
 
@@ -25,7 +27,7 @@ class Inventory:
 
     def loadGUIs(self):
         for i in range(8):
-            image = f'characters/GUI/weapons_gui/s_{i}.png'
+            image = f'characters/GUI/{self.name}/s_{i}.png'
             image = pygame.image.load(image)
             image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
             self.guis.append(image)
@@ -40,13 +42,101 @@ class Inventory:
 
 class Items(Inventory):
 
-    def __init__(self, player, screen, scale, pos):
-        super().__init__(player, screen, scale, pos)
+    def __init__(self, player, screen, scale, pos, name='items_gui'):
+        super().__init__(player, screen, scale, pos, name)
+        self.chestGrid = []
+        self.weaponGrid = []
+        self.name = 'items_gui'
+        self.focus = 'chestGrid'
+        self.selectedWeapons = 0
+
+    def draw(self):
+        if self.focus == 'chestGrid':
+            self.screen.blit(self.guis[self.selected], self.rect)
+        else:
+            self.screen.blit(self.weaponsgui[self.selectedWeapons], self.rect)
+
+    def Select(self):
+        pass
+
+    def loadGUIs(self): # temporary
+        for i in range(20):
+            image = f'characters/GUI/{self.name}/s_{i}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+            self.guis.append(image)
+
+        for i in range(8):
+            image = f'characters/GUI/{self.name}/e_{i}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+            self.weaponsgui.append(image)
+
+    def Select(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_TAB]:
+            self.sfx[0].play()
+            if self.focus == 'chestGrid':
+                self.focus = 'weaponGrid'
+            else:
+                self.focus = 'chestGrid'
+
+        if keys[pygame.K_RIGHT]:
+            self.sfx[0].play()
+            if self.focus == 'chestGrid':
+                self.selected += 1 # increment selected
+
+                if self.selected > (len(self.guis) -1): # if selected is greater than the number of boxes, reset to 0
+                    self.selected = 0
+            else:
+                self.selectedWeapons += 1 # increment selected
+
+                if self.selectedWeapons > (len(self.weaponsgui) -1): # if selected is greater than the number of boxes, reset to 0
+                    self.selectedWeapons = 0
+
+        elif keys[pygame.K_LEFT]:
+            self.sfx[0].play()
+            if self.focus == 'chestGrid':
+                self.selected -= 1
+
+                if self.selected < 0:
+                    self.selected = len(self.guis) -1
+            else:
+                self.selectedWeapons -= 1 # increment selected
+
+                if self.selectedWeapons < 0: # if selected is greater than the number of boxes, reset to 0
+                    self.selectedWeapons = len(self.weaponsgui) -1
+
+        elif keys[pygame.K_UP]:
+            self.sfx[0].play()
+            if self.focus == 'chestGrid':
+                tmp = self.selected
+                self.selected -= 5
+
+                if self.selected < 0:
+                    self.selected = tmp + 15
+
+        elif keys[pygame.K_DOWN]:
+            self.sfx[0].play()
+            if self.focus == 'chestGrid':
+                tmp = self.selected
+                self.selected += 5
+
+                if self.selected > len(self.guis) -1:
+                    self.selected = tmp - 15
+
+        # exit inventory
+        elif keys[pygame.K_f] or keys[pygame.K_ESCAPE]:
+            self.sfx[1].play()
+            return True
+
 
 class Weapon(Inventory):
 
-    def __init__(self, player, screen, scale, pos):
-        super().__init__(player, screen, scale, pos)
+    def __init__(self, player, screen, scale, pos, name='weapons_gui'):
+        super().__init__(player, screen, scale, pos, name)
+        self.name = 'weapon_gui'
         self.positions = [ # grid for all weapons and items - 8 items
             (225,280), (292,280), (358, 280), (424, 280),
             (225, 346), (292, 346), (358, 346), (424, 346)
@@ -107,7 +197,7 @@ class Weapon(Inventory):
         try:
             if keys[pygame.K_q]:
                 self.sfx[1].play() # play sfx
-                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield']:
+                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item']:
                     if self.player.myWeapons[self.selected] != self.player.equiped2:
                         self.player.equiped1.effect = False # reset the effect
                         self.player.equiped1 = self.player.myWeapons[self.selected] # equiped the weapon
@@ -117,7 +207,7 @@ class Weapon(Inventory):
                     self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a weapon'
             elif keys[pygame.K_w]:
                 self.sfx[1].play()
-                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield']:
+                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item']:
                     if self.player.myWeapons[self.selected] != self.player.equiped1:
                         self.player.equiped2.effect = False # reset the effect
                         self.player.equiped2 = self.player.myWeapons[self.selected]
@@ -127,14 +217,14 @@ class Weapon(Inventory):
                     self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a weapon'
             elif keys[pygame.K_a]:
                 self.sfx[1].play()
-                if self.player.myWeapons[self.selected]._type not in ['shield', 'weapon', 'weapon-shield']:
+                if self.player.myWeapons[self.selected]._type not in ['shield', 'weapon', 'weapon-shield', 'item']:
                     self.player.potion.effect = False # reset the effect
                     self.player.potion = self.player.myWeapons[self.selected]
                 else:
                     self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a potion'
             elif keys[pygame.K_s]:
                 self.sfx[1].play()
-                if self.player.myWeapons[self.selected]._type not in ['potion', 'weapon']:
+                if self.player.myWeapons[self.selected]._type not in ['potion', 'weapon', 'item']:
                     self.player.shield.effect = False # reset the effect
                     self.player.shield = self.player.myWeapons[self.selected]
                 else:

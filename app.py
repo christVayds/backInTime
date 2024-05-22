@@ -65,7 +65,7 @@ timer = Timer(fps)
 # Program pages
 pages = [
     'intro', 'main-menu', 'settings', 'credits', 
-    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'outro', 
+    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'chestBox', 'outro', 
     'error_message', 'exit']
 
 currentPage = pages[0]
@@ -169,9 +169,12 @@ nav = navigation.Navigation(player) # not yet done
 effects_1 = weapons.Effects(window)
 effects_2 = weapons.Effects(window)
 
-# Inventories GUI
+# Inventories ITtems and Weapons GUI
 inventory = inventories.Weapon(player, window, (350, 350), (175, 75))
 inventory.sfx = [select_item, selected_item] # add sfx in inventory
+# chest box
+chestBox = inventories.Items(player, window, (640, 320), ((windowSize['width'] - 640) / 2, (windowSize['height'] - 320) / 2))
+chestBox.sfx = inventory.sfx
 
 # draw base map function
 def draw_base():
@@ -205,7 +208,9 @@ def draw_base():
         create_pause.create_UI()
 
     elif openWeapons:
-        currentPage = pages[7]
+        currentPage = pages[7] # weapons inventory
+    elif player.viewInventory:
+        currentPage = pages[8] # items inventory
 
     showfps()
 
@@ -340,6 +345,18 @@ def draw_weapons():
 
     pygame.display.flip()
 
+def draw_chestBox():
+    global currentPage
+
+    chestBox.draw()
+    if chestBox.Select():
+        currentPage = pages[5]
+        player.viewInventory = False
+
+    showfps()
+
+    pygame.display.flip()
+
 # pause the game
 def PauseGame():
     global currentPage
@@ -466,7 +483,7 @@ def selectPlayer():
             weapons.Potions(player, window, (25, 25), 'strength'),
             # weapons.Potions(player, window, (25, 25), 'durability'),
             weapons.Mjolnir(player, window, (30, 30)),
-            weapons.Shuriken(player, window, (30, 30)),
+            # weapons.Shuriken(player, window, (30, 30)),
 
         ]
         player.equiped1 = player.myWeapons[0] # equiped the weapon 1
@@ -497,14 +514,14 @@ def Opening():
     for ttle in title:
         ttle.draw(window)
 
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            player.location = 'base'
-            currentPage = pages[1]
-            create_menu.create_UI()
-            music.switch = True
-            music.toPlay = 1
-            del title
+    keys = pygame.key.get_just_pressed()
+    if keys[pygame.K_SPACE]:
+        player.location = 'base'
+        music.switch = True
+        music.toPlay = 1
+        del title
+        currentPage = pages[1]
+        create_menu.create_UI()
 
     pygame.display.flip()
 
@@ -550,6 +567,8 @@ def main():
             PauseGame()
         elif currentPage == pages[7]:
             draw_weapons()
+        elif currentPage == pages[8]:
+            draw_chestBox()
         elif currentPage == pages[-1]: # exit game
             run = False
 

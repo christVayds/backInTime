@@ -5,7 +5,7 @@
         {"name": "book_shelf", "type": "other", "rect": "(470, 30, 70, 90)"},
         {"name": "monitor_1", "type": "other", "rect": "(400, 45, 70, 70)"},
         {"name": "box_1", "type": "other", "rect": "(300, 60, 60, 55)", "items": ["icon14_01"]},
-        {"name": "box_1", "type": "other", "rect": "(240, 60, 60, 55)", "items": ["icon14_01"]},
+        {"name": "box_1", "type": "other", "rect": "(240, 60, 60, 55)", "items": ["icon14_03"]},
         {"name": "table_1", "type": "other", "rect": "(600, 150, 60, 60)"},
         {"name": "book_1", "type": "other", "rect": "(615, 150, 30, 30)"},
 
