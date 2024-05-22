@@ -16,12 +16,13 @@ class Player(pygame.sprite.Sprite):
         # player life
         self.defaultLife = 100
         self.life = 50
-        self.shield = None
         self.sheildPower = 0
         self.power = 10
         self.myWeapons = [] # for weapons
         self.equiped1 = None
         self.equiped2 = None
+        self.potion = None
+        self.shield = None
 
         # skills
         self.skills = None
@@ -125,7 +126,7 @@ class Player(pygame.sprite.Sprite):
     
     def Facing(self, screen):
         # self.walk is the number of walk of character
-        if (self.walk + 1) >= 21:
+        if (self.walk + 1) >= 9:
             self.walk = 0
             
         if self.left:
@@ -151,7 +152,7 @@ class Player(pygame.sprite.Sprite):
         images = ['D_Walk_', 'S_Walk_', 'U_Walk_']
 
         for image in images:
-            for count in range(7):
+            for count in range(3):
                 img = f'characters/{self.name}/{image}{count}.png'
                 img = pygame.image.load(img)
                 img = pygame.transform.scale(img, (self.width, self.height))
@@ -160,12 +161,13 @@ class Player(pygame.sprite.Sprite):
                 elif image == 'U_Walk_':
                     self.c_up.append(img)
                 elif image == 'S_Walk_':
-                    self.c_left.append(img)
+                    self.c_right.append(img)
+        self.flipImage()
 
     # flip all characters to right
     def flipImage(self):
-        for character in self.c_left:
-            self.c_right.append(pygame.transform.flip(character, True, False))
+        for character in self.c_right:
+            self.c_left.append(pygame.transform.flip(character, True, False))
     
     # [direction] positive number going to right, negative going to left
     def move_x(self, direction):
@@ -200,6 +202,8 @@ class Player(pygame.sprite.Sprite):
                     # check if item is chestbox
                     if obj.name in ['box_1']:
                         self.pick(obj) # pick the item with space bar
+                    elif obj.name in ['vault_1']:
+                        self.Open_inventory()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -272,6 +276,9 @@ class Player(pygame.sprite.Sprite):
 
             # print(self.inventories, len(self.inventories))
 
+    def Open_inventory(self):
+        pass
+
     def handleFight(self, enemies=[]):
         # equiped 1
         self.equiped1.Trigger_mouse()
@@ -282,7 +289,7 @@ class Player(pygame.sprite.Sprite):
         self.equiped2.weapon(enemies)
 
     def handleDefense(self, enemies=[]):
-        # for sheil and other
+        # for sheild and other
         self.shield.Trigger()
         self.shield.weapon(enemies)
 
@@ -336,6 +343,8 @@ class Enemy(pygame.sprite.Sprite):
         # images / character
         self.e_left = []
         self.e_right = []
+        self.e_down = []
+        self.e_up = []
         # load and flip image
         self.loadImages()
         self.flipImage()
@@ -348,16 +357,24 @@ class Enemy(pygame.sprite.Sprite):
         self.handlePushed()
         self.handleCollision(objects)
         
-        if (self.walk + 1) >= 21:
+        if (self.walk + 1) >= 9:
             self.walk = 0
 
-        if self.left or self.up:
+        if self.left:
             if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.e_left[self.walk//3], (self.rect.x, self.rect.y))
+            self.walk += 1
+        elif self.up:
+            if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
+                screen.blit(self.e_up[self.walk//3], (self.rect.x, self.rect.y))
             self.walk += 1
         elif self.right or self.down:
             if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.e_right[self.walk//3], (self.rect.x, self.rect.y))
+            self.walk += 1
+        elif self.down:
+            if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
+                screen.blit(self.e_down[self.walk//3], (self.rect.x, self.rect.y))
             self.walk += 1
         else:
             if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
@@ -413,16 +430,23 @@ class Enemy(pygame.sprite.Sprite):
 
     # load enemies image
     def loadImages(self):
-        for character in range(7):
-            image = f'characters/goblin/S_Walk_{character+1}.png'
-            image = pygame.image.load(image)
-            image = pygame.transform.scale(image, (self.width, self.height))
-            self.e_left.append(image)
+        sides = ['D_Walk_', 'U_Walk_', 'S_Walk_']
+        for side in sides:
+            for i in range(3):
+                image = f'characters/zombies/{side}{i}.png'
+                image = pygame.image.load(image)
+                image = pygame.transform.scale(image, (self.width, self.height))
+                if side == sides[0]:
+                    self.e_down.append(image)
+                elif side == sides[1]:
+                    self.e_up.append(image)
+                elif side == sides[2]:
+                    self.e_right.append(image)
 
     # flip the image of enemy
     def flipImage(self):
-        for character in self.e_left:
-            self.e_right.append(pygame.transform.flip(character, True, False))
+        for character in self.e_right:
+            self.e_left.append(pygame.transform.flip(character, True, False))
 
     # enemies collision
     def handleCollision(self, objects):
@@ -488,6 +512,11 @@ class Enemy(pygame.sprite.Sprite):
             self.push -= 1
         else:
             self.pushed = False
+
+class Slime(Enemy): # for slimes
+
+    def __init__(self, x, y, width, height, name='slime'):
+        super().__init__(x, y, width, height, name)
 
 class NPC(pygame.sprite.Sprite):
 

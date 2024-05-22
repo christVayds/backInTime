@@ -3,16 +3,13 @@ Game name: Back in Time
 Project: Application Development and Emerging Technology
 Professor: Gary Bato-ey
 
-Frames: 30 fps
-walking animation(character and enemy): 7 frames/images
-characters size(character and enemy): 130x80 pixels
-
 developers:
     1. Christian Vaydal
     2. Aeron Segobia
     3. Ethan Diego Lim
 
 Date started: April 16, 2024
+Date submited: 
 """
 
 import pygame
@@ -35,6 +32,7 @@ from src import inventories
 # initialize pygame
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
 
 # screen
 windowSize = {'width': 700, 'height': 500} # size of the display
@@ -44,6 +42,16 @@ pygame.display.set_caption('Back In Time')
 # clock and FPS - frame per second
 clock = pygame.time.Clock()
 fps = 30 # 30 frames per second
+
+showFPS = pygame.font.SysFont('arial', 20)
+def showfps():
+    getfps = round(clock.get_fps(), 2)
+    ftext = showFPS.render(f'FPS: {getfps}', True, (255,255,255))
+    if getfps < float(29.50):
+        pygame.draw.rect(window, (255,0,0), (600, 10, 100, 30))
+    else:
+        pygame.draw.rect(window, (0,0,0), (600, 10, 100, 30))
+    window.blit(ftext, (600, 15))
 
 # audios / sfx / bg musics
 music = Music()
@@ -61,9 +69,6 @@ pages = [
     'error_message', 'exit']
 
 currentPage = pages[0]
-
-# loading and checking resources
-load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 500, 15)
 
 # MAP
 base = baseMap.TileMap(25, 0, 0)
@@ -158,7 +163,11 @@ allObjects4 = create_map4.listofObjects+[map_4]
 # listOfMap is a list of map tiles
 
 # For navigation to maps
-nav = navigation.Navigation(player)
+nav = navigation.Navigation(player) # not yet done
+
+# initialized effects fo equiped weapons
+effects_1 = weapons.Effects(window)
+effects_2 = weapons.Effects(window)
 
 # Inventories GUI
 inventory = inventories.Weapon(player, window, (350, 350), (175, 75))
@@ -181,6 +190,8 @@ def draw_base():
     # draw player
     player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
     player.handleDefense()
     player.TriggerSkills()
@@ -196,6 +207,8 @@ def draw_base():
     elif openWeapons:
         currentPage = pages[7]
 
+    showfps()
+
     # camera
     camera.move(allObjects1+player.myWeapons)
 
@@ -204,6 +217,7 @@ def draw_base():
 # draw MAP 2 funtion
 def draw_map2():
     global currentPage
+
     window.fill((10, 10, 10))
 
     # camera for map 2
@@ -215,15 +229,20 @@ def draw_map2():
     # draw objects
     create_map2.draw()
     pause = create_map2.pauseGame()
+    openWeapons = create_base.openWeapons()
+
+    # drop or display weapons
+    player.handleFight(enemies_map2.listEnemies)
 
     # enemies
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
 
     # draw player
     player.draw(window, create_map2.listofObjects[1:])
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
     player.TriggerSkills(enemies_map2.listEnemies)
-    player.handleFight(enemies_map2.listEnemies)
 
     for guis in listGUIs:
         guis.draw(window)
@@ -232,25 +251,34 @@ def draw_map2():
     if pause:
         currentPage = pages[6] # game menu / pause
         create_pause.create_UI()
+    elif openWeapons:
+        currentPage = pages[7]
+
+    showfps()
 
     pygame.display.flip()
 
 # not yet done
 def draw_map3():
     global currentPage
+
     window.fill((10, 10, 10))
+
+    # camera fot map 3
+    camera.move(allObjects3)
 
     map_3.drawMap(window)
 
     create_map3.draw()
     pause = create_map3.pauseGame()
+    openWeapons = create_base.openWeapons()
 
     # draw player in map3
-    player.draw(window, create_map3.listofObjects[1:])  
+    player.handleFight([])
+    player.draw(window, create_map3.listofObjects[1:])
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
-
-    # camera fot map 3
-    camera.move(allObjects3)
 
     for gui in listGUIs:
         gui.draw(window)
@@ -259,6 +287,10 @@ def draw_map3():
     if pause:
         currentPage = pages[6] # game menu / pause
         create_pause.create_UI()
+    elif openWeapons:
+        currentPage = pages[7]
+
+    showfps()
 
     pygame.display.flip()
 
@@ -267,17 +299,20 @@ def draw_map4():
 
     window.fill((10, 10, 10))
 
+    camera.move(allObjects4)
+
     # draw the map
     map_4.drawMap(window)
 
     create_map4.draw()
     pause = create_map4.pauseGame()
+    openWeapons = create_base.openWeapons()
 
+    player.handleFight([])
     player.draw(window, create_map4.listofObjects[1:])
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
     player.navigate()
-
-
-    camera.move(allObjects4)
 
     for gui in listGUIs:
         gui.draw(window)
@@ -285,6 +320,10 @@ def draw_map4():
     if pause:
         currentPage = pages[6]
         create_pause.create_UI()
+    elif openWeapons:
+        currentPage = pages[7]
+
+    showfps()
 
     pygame.display.flip()
 
@@ -296,6 +335,8 @@ def draw_weapons():
     inventory.drawWeapons()
     if inventory.Select():
         currentPage = pages[5]
+
+    showfps()
 
     pygame.display.flip()
 
@@ -410,19 +451,35 @@ def selectPlayer():
             raise Exception('Player not found')
         
         # player's other initializations here
-        player.loadImages()
-        player.flipImage()
+        player.loadImages() # load the image of the player
+        # player.flipImage() # right side of the player
         player.initSkill(window) # initialized skills
-        player.myWeapons.append(weapons.Boomerang(player, window, (30, 30)))
-        player.myWeapons.append(weapons.Bomb(player, window, (30, 30)))
-        player.myWeapons.append(weapons.Sheild(player, window, (80, 80)))
-        player.equiped1 = player.myWeapons[0]
-        player.equiped2 = player.myWeapons[1]
-        player.shield = player.myWeapons[2]
+        # player.myWeapons.append(weapons.Boomerang(player, window, (30, 30))) # load the weapon 1
+        # player.myWeapons.append(weapons.Bomb(player, window, (30, 30))) # load the weapon 2
+        # player.myWeapons.append(weapons.Sheild(player, window, (80, 80))) # load the sheild
+        player.myWeapons = [
+            weapons.Boomerang(player, window, (30, 30)), # load the weapon 1
+            weapons.Bomb(player, window, (30, 30)), # load the weapon 2
+            weapons.Sheild(player, window, (80, 80)), # load the sheild
+            weapons.SnowBall(player, window, (20, 20)),
+            weapons.Trident(player, window, (50, 50)),
+            weapons.Potions(player, window, (25, 25), 'strength'),
+            # weapons.Potions(player, window, (25, 25), 'durability'),
+            weapons.Mjolnir(player, window, (30, 30)),
+            weapons.Shuriken(player, window, (30, 30)),
+
+        ]
+        player.equiped1 = player.myWeapons[0] # equiped the weapon 1
+        player.equiped2 = player.myWeapons[1] # equiped the weapon 2
+        player.shield = player.myWeapons[2] # equiped the shield
+        player.potion = player.myWeapons[5]
         music.switch = True # switching music
-        music.toPlay = 0
+        music.toPlay = 0 # switch bg music
+        effects_1.loadEffects(player.equiped1) # load effects - no effects yet to equiped 1(boomerang)
+        effects_2.loadEffects(player.equiped2) # load effects
         currentPage = pages[5] # navigate to game page
-        create_selectPlayer.destory_UI()
+        create_selectPlayer.destory_UI() # destroy this page
+    
     elif keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
         currentPage = pages[1] # back to main menu
@@ -440,23 +497,16 @@ def Opening():
     for ttle in title:
         ttle.draw(window)
 
-    # slow down the loading animation
-    load.draw(window)
-    if timer.coolDown(5):
-        check = load.checkResources()
-        if check:
-            if timer.coolDown(5):
-                player.location = 'base'
-                currentPage = pages[1] # navigate to main menu
-                create_menu.create_UI()
-                music.switch = True
-                music.toPlay = 1
-                del title # remove or delete all loaded images
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            player.location = 'base'
+            currentPage = pages[1]
+            create_menu.create_UI()
+            music.switch = True
+            music.toPlay = 1
+            del title
 
     pygame.display.flip()
-
-# for testing
-fpsCollected = [] # collecting frames per second value
 
 # main function
 def main():
@@ -504,20 +554,8 @@ def main():
             run = False
 
         # for testing
-        chechFPS(round(clock.get_fps(), 2))
         music.switch_music()
-
-    # quit program after the loop
-    print('fps timeline:', fpsCollected)
-    print('lowest:', min(fpsCollected), '\nHighest:', max(fpsCollected), '\nLocation:', player.location)
     pygame.quit()
-
-# function for testing
-
-# frame drops test
-def chechFPS(frames):
-    if frames not in fpsCollected and frames >= 1:
-        fpsCollected.append(frames)
 
 # main program
 if __name__=='__main__':

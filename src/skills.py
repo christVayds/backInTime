@@ -1,5 +1,5 @@
 import pygame
-# Skills = speed, boomerang, shield, clone - other shield(back to enemy its own attack), ice spike, lightning bolt, mana drain(steal mana), clone self
+# Skills = speed, boomerang, shield, Copy - other shield(back to enemy its own attack), ice spike, lightning bolt, mana drain(steal mana)
 
 class Skills:
 
@@ -142,7 +142,7 @@ class Shield(Skills):
             self.triggered = False
             self.player.sheildPower = self.c_shield
 
-class Clone(Skills):
+class Copy(Skills): # random other 3 Skills
 
     def __init__(self, player, screen, scale, animated='animated'):
         super().__init__(player, screen, scale, animated)
