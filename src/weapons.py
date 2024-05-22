@@ -1,4 +1,4 @@
-# weapons - sheild, bomb, boomerang, traps bomb, snowball, mjolnir, tredent
+# weapons - sheild, bomb, boomerang, traps bomb, snowball, mjolnir, tredent, shuriken
 
 import pygame
 import math
@@ -12,7 +12,7 @@ class Weapon:
         self.name = name
         self.animated = animated
         
-        self.type = _type
+        self._type = _type
 
         # keys
         self.triggered = False
@@ -58,7 +58,7 @@ class Weapon:
         return False
 
     def loadNoneAnimated(self):
-        if self.type == 'weapon':
+        if self._type == 'weapon':
             image = f'characters/weapons/{self.name}/weapon.png'
             image = pygame.image.load(image)
             image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
@@ -112,10 +112,10 @@ class Weapon:
     def move_y(self, direction):
         self.rect.y += direction
 
-class Sheild(Weapon):
+class Sheild(Weapon): # regular shield
 
-    def __init__(self, player, screen, scale, name='sheild', animated=True):
-        super().__init__(player, screen, scale, name, animated)
+    def __init__(self, player, screen, scale, name='sheild', animated=True, _type='shield'):
+        super().__init__(player, screen, scale, name, animated, _type)
         self.duration = 120
         self.absorb = 5
 
@@ -128,6 +128,11 @@ class Sheild(Weapon):
         else:
             self.c_triggered = False
             self.duration = 120
+
+class BoomShield(Weapon): # combination of weapon and shield
+
+    def __init__(self, player, screen, scale, name='Boomerang sheild', animated=False, _type='weapon-sheild'):
+        super().__init__(player, screen, scale, name, animated, _type)
 
 class Bomb(Weapon):
 
@@ -250,7 +255,7 @@ class Trident(Weapon):
         self.range = 15
         self.throw = self.range
         self.damage = 1.5
-        self.speed = 20
+        self.speed = 23
 
     def weapon(self, enemies):
         if self.triggered and self.throw > 0 and self.mouse:
@@ -271,6 +276,34 @@ class Trident(Weapon):
         trident_rect = trident.get_rect(center=(self.rect.x, self.rect.y))
         self.screen.blit(trident, trident_rect)
 
+class Shuriken(Weapon):
+
+    def __init__(self, player, screen, scale, name='shuriken', animated=False):
+        super().__init__(player, screen, scale, name, animated)
+        self.range = 20
+        self.throw = self.range
+        self.damage = 0.9
+        self.speed = 20
+
+    def weapon(self, enemies):
+        if self.triggered and self.throw > 0 and self.mouse:
+            self.Throw(self.range)
+            self.rotate()
+            if self.Hit(enemies):
+                self.triggered = False
+            self.throw -= 1
+        else:
+            self.triggered = False
+            self.mouse = False
+            self.throw = self.range
+
+    def rotate(self):
+        dis_x, dis_y = self.mouseDirection.x - self.player.rect.x, self.mouseDirection.y - self.player.rect.y
+        angle = math.atan2(-dis_y, dis_x)
+        trident = pygame.transform.rotate(self.noneAnimated, math.degrees(angle) - 90)
+        trident_rect = trident.get_rect(center=(self.rect.x, self.rect.y))
+        self.screen.blit(trident, trident_rect)
+
 class Mjolnir(Weapon):
 
     def __init__(self, player, screen, scale, name='mjolnir', animated=True):
@@ -279,13 +312,17 @@ class Mjolnir(Weapon):
         self.throw = self.range
         self.damage = 2
         self.speed = 25
+        self.return_radius = 150
+        self.angle = 0
 
     def weapon(self, enemies):
-        if self.triggered and self.throw > 0:
+        if self.triggered:
             if self.throw >= self.range / 2:
                 self.Throw(self.range)
             else:
-                if self.follow():
+                # if self.Rotate():
+                #     self.triggered = False
+                if self.follow(): # temporary use the follow function
                     self.throw = 0
                     self.triggered = False
             self.draw()
@@ -296,6 +333,7 @@ class Mjolnir(Weapon):
             self.triggered = False
             self.mouse = False
             self.throw = self.range
+            self.angle = 0
 
     def follow(self):
         playerPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
@@ -310,6 +348,18 @@ class Mjolnir(Weapon):
             return True
         
         return False
+    
+    def Rotate(self):
+        self.angle += 0.1
+        if self.angle > 2 * math.pi:
+            self.angle -= 2 * math.pi
+
+        self.rect.x = self.player.rect.x + self.return_radius * math.cos(self.angle)
+        self.rect.y = self.player.rect.y + self.return_radius * math.sin(self.angle)
+
+        if self.rect.colliderect(self.player.rect):
+            return True
+
 
 class Potions(Weapon):
 
@@ -317,10 +367,13 @@ class Potions(Weapon):
         super().__init__(player, screen, scale, name, animated, _type)
         self.damage = 2
 
+    def weapon(self, enemies):
+        pass
+
 class Items(Weapon):
 
-    def __init__(self, player, screen, scale, name, animated=False):
-        super().__init__(player, screen, scale, name, animated)
+    def __init__(self, player, screen, scale, name, animated=False, _type='item'):
+        super().__init__(player, screen, scale, name, animated, _type)
 
 class Effects:
 
@@ -347,9 +400,10 @@ class Effects:
 
         try: # check if the weapon has effects
             for i in range(20):
-                image = f'characters/effects/{self.weapons.name}/{i}.png'
+                image = f'characters/effects/{self.weapons.name}/second/{i}.png'
                 image = pygame.image.load(image)
                 image = pygame.transform.scale(image, (100, 100))
                 self.loaded.append(image)
+
         except FileNotFoundError:
             print(f'{self.weapons.name} no effects')

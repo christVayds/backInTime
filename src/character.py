@@ -161,13 +161,13 @@ class Player(pygame.sprite.Sprite):
                 elif image == 'U_Walk_':
                     self.c_up.append(img)
                 elif image == 'S_Walk_':
-                    self.c_left.append(img)
+                    self.c_right.append(img)
         self.flipImage()
 
     # flip all characters to right
     def flipImage(self):
-        for character in self.c_left:
-            self.c_right.append(pygame.transform.flip(character, True, False))
+        for character in self.c_right:
+            self.c_left.append(pygame.transform.flip(character, True, False))
     
     # [direction] positive number going to right, negative going to left
     def move_x(self, direction):
@@ -202,6 +202,8 @@ class Player(pygame.sprite.Sprite):
                     # check if item is chestbox
                     if obj.name in ['box_1']:
                         self.pick(obj) # pick the item with space bar
+                    elif obj.name in ['vault_1']:
+                        self.Open_inventory()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -273,6 +275,9 @@ class Player(pygame.sprite.Sprite):
                 obj.loaded = [] # unfinished, only remove the item in the chest what player's can takes
 
             # print(self.inventories, len(self.inventories))
+
+    def Open_inventory(self):
+        pass
 
     def handleFight(self, enemies=[]):
         # equiped 1
@@ -507,6 +512,11 @@ class Enemy(pygame.sprite.Sprite):
             self.push -= 1
         else:
             self.pushed = False
+
+class Slime(Enemy): # for slimes
+
+    def __init__(self, x, y, width, height, name='slime'):
+        super().__init__(x, y, width, height, name)
 
 class NPC(pygame.sprite.Sprite):
 

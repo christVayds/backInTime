@@ -3,16 +3,13 @@ Game name: Back in Time
 Project: Application Development and Emerging Technology
 Professor: Gary Bato-ey
 
-Frames: 30 fps
-walking animation(character and enemy): 7 frames/images
-characters size(character and enemy): 130x80 pixels
-
 developers:
     1. Christian Vaydal
     2. Aeron Segobia
     3. Ethan Diego Lim
 
 Date started: April 16, 2024
+Date submited: 
 """
 
 import pygame
@@ -72,9 +69,6 @@ pages = [
     'error_message', 'exit']
 
 currentPage = pages[0]
-
-# loading and checking resources
-load = Loading((windowSize['width'] - 500) / 2, (windowSize['height'] - 200), 500, 15)
 
 # MAP
 base = baseMap.TileMap(25, 0, 0)
@@ -171,7 +165,7 @@ allObjects4 = create_map4.listofObjects+[map_4]
 # For navigation to maps
 nav = navigation.Navigation(player) # not yet done
 
-# initialized effects
+# initialized effects fo equiped weapons
 effects_1 = weapons.Effects(window)
 effects_2 = weapons.Effects(window)
 
@@ -470,8 +464,9 @@ def selectPlayer():
             weapons.SnowBall(player, window, (20, 20)),
             weapons.Trident(player, window, (50, 50)),
             weapons.Potions(player, window, (25, 25), 'strength'),
-            weapons.Potions(player, window, (25, 25), 'durability'),
+            # weapons.Potions(player, window, (25, 25), 'durability'),
             weapons.Mjolnir(player, window, (30, 30)),
+            weapons.Shuriken(player, window, (30, 30)),
 
         ]
         player.equiped1 = player.myWeapons[0] # equiped the weapon 1
@@ -502,18 +497,14 @@ def Opening():
     for ttle in title:
         ttle.draw(window)
 
-    # slow down the loading animation
-    load.draw(window)
-    if timer.coolDown(5):
-        check = load.checkResources()
-        if check:
-            if timer.coolDown(5):
-                player.location = 'base'
-                currentPage = pages[1] # navigate to main menu
-                create_menu.create_UI()
-                music.switch = True
-                music.toPlay = 1
-                del title # remove or delete all loaded images
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            player.location = 'base'
+            currentPage = pages[1]
+            create_menu.create_UI()
+            music.switch = True
+            music.toPlay = 1
+            del title
 
     pygame.display.flip()
 
