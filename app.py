@@ -510,7 +510,7 @@ def Opening():
 
     window.fill((10, 10, 10))
 
-    # draw animated title
+    # draw animated title 
     for ttle in title:
         ttle.draw(window)
 
