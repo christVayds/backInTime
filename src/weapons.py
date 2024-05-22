@@ -1,5 +1,4 @@
 # weapons - sheild, bomb, boomerang, traps bomb, snowball, mjolnir, tredent, shuriken
-
 import pygame
 import math
 
@@ -367,13 +366,19 @@ class Potions(Weapon):
         super().__init__(player, screen, scale, name, animated, _type)
         self.damage = 2
 
-    def weapon(self, enemies):
-        pass
-
 class Items(Weapon):
 
     def __init__(self, player, screen, scale, name, animated=False, _type='item'):
         super().__init__(player, screen, scale, name, animated, _type)
+
+    def draw(self, screen):
+        self.screen = screen
+
+    def loadNoneAnimated(self):
+        image = f'characters/icons/{self.name}.png'
+        image = pygame.image.load(image)
+        image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+        self.noneAnimated = image
 
 class Effects:
 

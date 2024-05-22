@@ -29,7 +29,7 @@ class Create:
         for obj in self.list_obj:
             object = Object(obj['rect'][0], obj['rect'][1], obj['rect'][2], obj['rect'][3], obj['type'], obj['name'])
             if obj['name'] in ['box_1']:
-                object.loadChestBox(obj['items'])
+                object.loadChestBox(obj['items'], self.player, self.screen)
             if obj['type'] == 'navigation':
                 self.player.MapObjects[obj['distination']] = object
             self.listofObjects.append(object)

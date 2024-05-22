@@ -79,8 +79,7 @@ class Object(pygame.sprite.Sprite):
             self.nonAnimated = pygame.transform.scale(image, (self.width, self.height))
 
     # for chestbox
-    def loadChestBox(self, items):
+    def loadChestBox(self, items, player, screen):
         for item in items:
-            image = pygame.image.load(f'characters/icons/{item}.png')
-            image = pygame.transform.scale(image, (50, 50))
-            self.loaded.append({'image': image, 'name': item}) # make this an weapon.item
+            item = weapons.Items(player, screen, (25,25), item)
+            self.loaded.append(item)

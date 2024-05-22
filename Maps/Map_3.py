@@ -8,12 +8,12 @@ class TileMap():
         self.x = x
         self.y = y
         self.name = 'Map3'
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/border_1.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/wall_4.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/wall_3.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/wall_1.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/tile_2.png"), (self.tilesize, self.tilesize)))
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/pygame_project/characters/objects/floor_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/border_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/wall_4.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/wall_3.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/wall_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("acters/objects/tile_2.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("characters/objects/floor_1.png"), (self.tilesize, self.tilesize)))
         self.array = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0],

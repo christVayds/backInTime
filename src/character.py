@@ -1,6 +1,6 @@
 import pygame
 import random
-from src import skills # Speed, Boomerang, shield, clone
+from . import skills # Speed, Boomerang, shield, copy
 
 class Player(pygame.sprite.Sprite):
 
@@ -55,6 +55,7 @@ class Player(pygame.sprite.Sprite):
 
         # inventories / items list
         self.inventories = []
+        self.viewInventory = False
 
         # handling location
         self.location = 'base'
@@ -190,6 +191,8 @@ class Player(pygame.sprite.Sprite):
             # if the player collide with the objects
             if pygame.sprite.collide_rect(self, obj):
                 if obj._type in ['hidden2', 'other2']: # no y-sorting objects
+                    if obj.name in ['vault_1']:
+                        self.openChestBox()
                     if self.left:
                         self.rect.left = obj.rect.right
                     elif self.right:
@@ -202,8 +205,6 @@ class Player(pygame.sprite.Sprite):
                     # check if item is chestbox
                     if obj.name in ['box_1']:
                         self.pick(obj) # pick the item with space bar
-                    elif obj.name in ['vault_1']:
-                        self.Open_inventory()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -269,15 +270,19 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             for item in obj.loaded:
-                if len(self.inventories) <= 8:
-                    self.inventories.append(item)
-                    print(f'inventory: {self.inventories}') # temporaru load to inventories list
-                obj.loaded = [] # unfinished, only remove the item in the chest what player's can takes
+                if len(self.myWeapons) < 8:
+                    self.myWeapons.append(item)
+                    obj.loaded.remove(item) # remove the item from the chestbox
+                    print(f'you get {item.name}')
+                else:
+                    print(f'Inventory is full - remain {len(obj.loaded)}')
+                    print(obj.loaded)
+                    
+    def openChestBox(self):
+        keys = pygame.key.get_just_pressed()
 
-            # print(self.inventories, len(self.inventories))
-
-    def Open_inventory(self):
-        pass
+        if keys[pygame.K_SPACE]:
+            self.viewInventory = True
 
     def handleFight(self, enemies=[]):
         # equiped 1
