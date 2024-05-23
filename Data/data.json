@@ -74,18 +74,13 @@
         {"name": "map2", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "map2_map4"}
     ],
 
-    "Weapons": [
-        
-    ],
-
     "SelectPlayer": [
+        {"name": "test_bg", "type": "bg_image", "rect": "(0, 0, 700, 700)", "comment": "This is bg image"},
         {"name": "selectplayer", "type": "animated", "rect": "(254, 5, 192, 24)"},
         {"name": "johny", "type": "selector", "rect": "(158, 50, 192, 192)", "selected": 0},
         {"name": "ricky", "type": "selector", "rect": "(356, 50, 192, 192)", "selected": 1},
         {"name": "jp", "type": "selector", "rect": "(158, 250, 192, 192)", "selected": 1},
-        {"name": "jayson", "type": "selector", "rect": "(356, 250, 192, 192)", "selected": 1},
-        {"name": "selected_player", "type": "animated", "rect": "(567, 480, 128, 16)"},
-        {"name": "selected_exit", "type": "animated", "rect": "(5, 480, 128, 16)"}
+        {"name": "jayson", "type": "selector", "rect": "(356, 250, 192, 192)", "selected": 1}
     ],
 
     "Enemies_m2": [

@@ -371,23 +371,7 @@ class Potions(Weapon):
     def __init__(self, player, screen, scale, name, animated=False, _type='potion'):
         super().__init__(player, screen, scale, name, animated, _type)
         self.potionData = {}
-        self.default = {}
         self.LoadData()
-        self.apply = False
-
-    def Change(self):
-        try:
-            self.player.shield.absorb = self.default['shield-support']
-            self.player.equiped1.damage = self.default['eq1']
-            self.player.equiped2.damage = self.default['eq2']
-            self.apply = False
-        except KeyError:
-            print('no default data')
-
-    def GetDefaultData(self):
-        self.default['shield-support'] = self.player.shield.absorb
-        self.default['eq1'] = self.player.equiped1.damage
-        self.default['eq2'] = self.player.equiped2.damage
 
     def Use(self):
         if self.player.life < self.player.defaultLife:
@@ -395,11 +379,17 @@ class Potions(Weapon):
         if self.player.mana < self.player.defaultMana:
             self.player.mana += self.potionData[self.name]['plus-mana']
 
-        if not self.apply:
-            self.player.shield.absorb += self.potionData[self.name]['shield-support']
-            self.player.equiped1.damage += self.potionData[self.name]['damage']
-            self.player.equiped2.damage += self.potionData[self.name]['damage']
-            self.apply = True
+    def Apply(self, weapon):
+        weapon.damage += self.potionData[self.name]['damage']
+        if weapon.mana > self.potionData[self.name]['weapon-support']:
+            weapon.mana = round(weapon.mana - self.potionData[self.name]['weapon-support'], 2)
+
+        # print(f'name: {weapon.name} damage: {weapon.damage} - mana: {weapon.mana}')
+
+    def Remove(self, weapon):
+        weapon.damage = round(weapon.damage - self.potionData[self.name]['damage'], 2)
+        if weapon.mana > self.potionData[self.name]['weapon-support']:
+            weapon.mana += self.potionData[self.name]['weapon-support']
 
     def LoadData(self):
         with open('Data/weapons.json') as file:

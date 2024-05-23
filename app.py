@@ -87,16 +87,16 @@ playerIcon = UI(10, 10, 256, 64, 'player_frame')
 listGUIs = [playerIcon] # list contain: healthbar
 
 ##### PAUSE MENU #####
-pause_menu = GUI(254, 58, (192, 384), window, 'pause_game')
+pause_menu = GUI(254, 58, (192, 384), window, 'pause_game', sfx=[select_item, selected_item])
 
 ##### MAIN MENU #####
-main_menu = GUI(498, 58, (192, 384), window, 'main_menu')
+main_menu = GUI(498, 58, (192, 384), window, 'main_menu', sfx=[select_item, selected_item])
 
 ##### SETTINGS #####
-settings_menu = GUI(254, 58, (192, 384), window, 'settings_menu')
+settings_menu = GUI(254, 58, (192, 384), window, 'settings_menu', sfx=[select_item, selected_item])
 
 ##### CREDITS #####
-credits_menu = GUI(254, 58, (192, 384), window, 'credits')
+credits_menu = GUI(254, 58, (192, 384), window, 'credits', sfx=[select_item, selected_item])
 
 ############# PLAYER #####################
 
@@ -118,13 +118,14 @@ readData.strToTuple('SelectPlayer')
 
 # for loading screen / intro
 title = [
+    Object(0, 0, 700, 700, 'bg_image', 'test_bg'),
     Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_3'),
-    Object((windowSize['width'] - 192) / 2, windowSize['height'] - 150, 192, 48, 'other', 'credits')
+    Object(508, 0, 192, 48, 'other', 'credits'),
+    Object(254, 350, 192, 24, 'animated', 'enter_game')
 ]
 
 ######## CREATE SELECT PLAYER #########
 create_selectPlayer = Create(window, player, readData.data['SelectPlayer'], select_item, selected_item)
-
 
 ######## CREATE MAPS #########
 
@@ -192,7 +193,7 @@ def draw_base():
     openWeapons = create_base.openWeapons()
 
     # draw player
-    player.potion.Use()
+    player.potion.Use() # use the potion
     player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
@@ -445,7 +446,7 @@ def credits():
 # display selecting players / characters
 def selectPlayer():
     global currentPage
-    window.fill((10, 10, 10))
+    window.fill((20, 6, 79))
 
     create_selectPlayer.draw_ui()
     character = create_selectPlayer.Select()
@@ -473,6 +474,7 @@ def selectPlayer():
             weapons.Trident(player, window, (50, 50)),
             weapons.Mjolnir(player, window, (30, 30)),
             weapons.Shuriken(player, window, (30, 30)),
+            weapons.Potions(player, window, (25, 25), 'weaponize')
 
         ]
 
@@ -483,6 +485,9 @@ def selectPlayer():
         player.equiped2 = weapons.Bomb(player, window, (30, 30)) # equiped the weapon 2
         player.shield = weapons.Sheild(player, window, (80, 80)) # equiped the shield
         player.potion = weapons.Potions(player, window, (25, 25), 'power')
+        player.potion.Apply(player.equiped1)
+        player.potion.Apply(player.equiped2)
+        player.potion.Apply(player.shield)
 
         music.switch = True # switching music
         music.toPlay = 0 # switch bg music

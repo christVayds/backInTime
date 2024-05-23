@@ -24,6 +24,8 @@ class UI(pygame.sprite.Sprite):
             self.loadSelector()
         elif self._type == 'selector_player':
             self.loadplayer()
+        elif self._type == 'bg_image':
+            self.objectImage = self.loadBg()
         else:
             self.objectImage = self.loadImage()
 
@@ -72,39 +74,55 @@ class UI(pygame.sprite.Sprite):
         image = pygame.transform.scale(image, (self.width, self.height))
         return image
     
+    def loadBg(self):
+        image = f'characters/objects/{self.name}.jpg'
+        image = pygame.image.load(image)
+        return pygame.transform.scale(image, (self.width, self.height))
+    
 class GUI:
 
-    def __init__(self, x, y, scale, screen, name):
+    def __init__(self, x, y, scale, screen, name, bg='test_bg', sfx=None):
         self.x = x
         self.y = y
         self.scale = scale
         self.screen = screen
         self.name = name
+        self.bg = bg
         
+        self.bg_image = None
         self.selections = []
         self.loadImages()
+        self.loadBg()
         self.selected = 0
 
-        self.sfx = None # sound effects
+        self.sfx = sfx # sound effects
  
     def draw(self):
+        # draw the bg image
+        if self.bg_image != None:
+            self.screen.blit(self.bg_image, (0,0))
+
+        # draw the gui
         self.screen.blit(self.selections[self.selected], (self.x, self.y))
 
     def Select(self):
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_UP]:
+            self.sfx[0].play()
             self.selected -= 1
 
             if self.selected < 0:
                 self.selected = len(self.selections) -1
         elif keys[pygame.K_DOWN]:
+            self.sfx[0].play()
             self.selected += 1
 
             if self.selected > len(self.selections) -1:
                 self.selected = 0
         
         elif keys[pygame.K_SPACE]:
+            self.sfx[1].play()
             return self.selected
 
     def loadImages(self):
@@ -118,3 +136,9 @@ class GUI:
                     self.selections.append(image)
                 except pygame.error:
                     print('File not found:', image_path)
+
+    def loadBg(self):
+        image = f'characters/objects/{self.bg}.jpg'
+        image = pygame.image.load(image)
+        image = pygame.transform.scale(image, (700, 700))
+        self.bg_image = image

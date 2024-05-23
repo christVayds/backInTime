@@ -37,7 +37,7 @@ class Object(pygame.sprite.Sprite):
         # Optimizing rendering objects - rendering the object when the object is in the display
         # if x position is greater than the negative side of the object and if x position is less than the size of the width of the screen and y position is greater than the size of the object and y position is less than the height of the screen then render the image of tile
 
-        if self._type in ['other', 'other2']:
+        if self._type in ['other', 'other2', 'bg_image']:
             if self.rect.x > -self.rect.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.nonAnimated, self.rect)
 
@@ -76,6 +76,10 @@ class Object(pygame.sprite.Sprite):
     def loadNonAnimated(self):
         if self._type in ['other', 'other2']:
             image = pygame.image.load(f'characters/objects/{self.name}.png')
+            self.nonAnimated = pygame.transform.scale(image, (self.width, self.height))
+
+        elif self._type == 'bg_image':
+            image = pygame.image.load(f'characters/objects/{self.name}.jpg')
             self.nonAnimated = pygame.transform.scale(image, (self.width, self.height))
 
     # for chestbox
