@@ -17,6 +17,7 @@ class Skills:
         self.frame = 0 # for animation
         self.scale = scale
         self.mana = 0
+        self.skill_cooldown = 30
 
         # check if animated or not
         if self.animated == 'animated':
@@ -48,8 +49,9 @@ class Skills:
     def trigger(self):
         keys = pygame.key.get_just_pressed()
 
-        if keys[pygame.K_r] and not(self.triggered) and self.player.mana > 0:
+        if keys[pygame.K_r] and not(self.triggered) and self.player.mana > 0 and self.player.skill_cooldown >= self.skill_cooldown:
             self.triggered = True
+            self.player.skill_cooldown = 0
 
     # for animated skills
     def loadAnimation(self):
@@ -67,7 +69,7 @@ class Skills:
                     enemy.life -= damage
 
     def decreaseMana(self):
-        if self.player.mana > 10:
+        if self.player.mana > 1:
             self.player.mana -= self.mana
 
 class Speed(Skills):
