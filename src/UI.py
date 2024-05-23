@@ -1,4 +1,5 @@
 import pygame
+import os
 
 class UI(pygame.sprite.Sprite):
 
@@ -70,3 +71,50 @@ class UI(pygame.sprite.Sprite):
         image = pygame.image.load(image)
         image = pygame.transform.scale(image, (self.width, self.height))
         return image
+    
+class GUI:
+
+    def __init__(self, x, y, scale, screen, name):
+        self.x = x
+        self.y = y
+        self.scale = scale
+        self.screen = screen
+        self.name = name
+        
+        self.selections = []
+        self.loadImages()
+        self.selected = 0
+
+        self.sfx = None # sound effects
+ 
+    def draw(self):
+        self.screen.blit(self.selections[self.selected], (self.x, self.y))
+
+    def Select(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_UP]:
+            self.selected -= 1
+
+            if self.selected < 0:
+                self.selected = len(self.selections) -1
+        elif keys[pygame.K_DOWN]:
+            self.selected += 1
+
+            if self.selected > len(self.selections) -1:
+                self.selected = 0
+        
+        elif keys[pygame.K_SPACE]:
+            return self.selected
+
+    def loadImages(self):
+        path = f'characters/GUI/{self.name}'
+        for filename in os.listdir(path):
+            if filename.endswith('.png'):
+                image_path = os.path.join(path, filename)
+                try:
+                    image = pygame.image.load(image_path)
+                    image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+                    self.selections.append(image)
+                except pygame.error:
+                    print('File not found:', image_path)

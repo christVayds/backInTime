@@ -18,6 +18,8 @@ class Skills:
         self.scale = scale
         self.mana = 0
         self.skill_cooldown = 30
+        self.range = 0
+        self.cooldown = 0
 
         # check if animated or not
         if self.animated == 'animated':
@@ -79,6 +81,7 @@ class Speed(Skills):
         self.cooldown = 120
         self.speed = 15 # max speed: 15px
         self.mana = 1
+        self.skill_cooldown = 35
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
@@ -94,21 +97,21 @@ class Boomerang(Skills):
 
     def __init__(self, player, screen, scale):
         super().__init__(player, screen, scale)
-        self.range = 50
-        self.throw = self.range
+        self.range = 60
+        self.cooldown = self.range
         self.speed = 20
         self.power = 5
-        self.mana = 1
+        self.mana = 2
 
     def skill(self, enemies):
-        if self.triggered and self.throw > 0:
+        if self.triggered and self.cooldown > 0:
             self.Move()
             self.draw()
             self.Hit(enemies, self.power)
-            self.throw -= 1
+            self.cooldown -= 1
             self.decreaseMana()
         else:
-            self.throw = self.range
+            self.cooldown = self.range
             self.triggered = False
             self.rect.x = (self.player.rect.x + (self.rect.width - self.player.width) / 2) 
             self.rect.y = (self.player.rect.y + (self.rect.width - self.player.height) / 2)
@@ -128,11 +131,12 @@ class Shield(Skills):
     def __init__(self, player, screen, scale, animated='animated'):
         super().__init__(player, screen, scale, animated=animated)
         self.cooldown = 150
-        self.temporarySheild = 500
+        self.temporarySheild = 500 # not implemented yet
         self.c_shield = None
-        self.delay = 30
-        self.damage = 0.5
+        self.delay = 30 # slowdown enemies
+        self.damage = 0.5 # damage of enemies
         self.mana = 0.8
+        self.skill_cooldown = 25
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
