@@ -68,5 +68,10 @@ Keys for selecting weapons to equiped:
   6. S: Select sheild
   7. A: select potions
 
+Keys for inventories:
+  1. Tab: change from Items chestbox inventory to weapons inventory, vise versa
+  2. WADS: selecting items
+  3. SPACE: move item
+
 - Player can hold 4 items in item bar
 - Player can only open inventory when you open chestbox at base

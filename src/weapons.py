@@ -1,6 +1,7 @@
 # weapons - sheild, bomb, boomerang, traps bomb, snowball, mjolnir, tredent, shuriken
 import pygame
 import math
+import json
 
 class Weapon:
     
@@ -22,6 +23,7 @@ class Weapon:
         self.damage = 0.5 # default damage
         self.speed = 5 # default speed
         self.absorb = 0 # sheild absorb
+        self.mana = 0.2
 
         # get mouse positions
         self.mouse = False
@@ -55,6 +57,10 @@ class Weapon:
                 enemy.life -= self.damage
                 return True
         return False
+    
+    def decreaseMana(self):
+        if self.player.mana > 1:
+            self.player.mana -= self.mana
 
     def loadNoneAnimated(self):
         if self._type == 'weapon':
@@ -78,12 +84,12 @@ class Weapon:
     def Trigger(self):
         keys = pygame.key.get_just_pressed()
 
-        if keys[pygame.K_c]:
+        if keys[pygame.K_c] and self.player.mana > 5:
             self.c_triggered = True
 
     def Trigger_mouse(self):
         mouse = pygame.mouse.get_pressed()
-        if mouse[0]:
+        if mouse[0] and self.player.mana > 5:
             self.mouse = True
             self.triggered = True
             mx, my = pygame.mouse.get_pos()
@@ -91,7 +97,7 @@ class Weapon:
 
     def Trigger_mouse2(self):
         mouse = pygame.mouse.get_pressed()
-        if mouse[2]:
+        if mouse[2] and self.player.mana > 5:
             self.mouse = True
             self.triggered = True
             mx, my = pygame.mouse.get_pos()
@@ -105,6 +111,9 @@ class Weapon:
         self.rect.x = self.vectorPos.x
         self.rect.y = self.vectorPos.y
 
+    def addLevel(self):
+        pass
+
     def move_x(self, direction):
         self.rect.x += direction
 
@@ -117,6 +126,7 @@ class Sheild(Weapon): # regular shield
         super().__init__(player, screen, scale, name, animated, _type)
         self.duration = 120
         self.absorb = 5
+        self.mana = 0.01
 
     def weapon(self, enemies=[]):
         if self.c_triggered and self.duration > 0:
@@ -124,6 +134,7 @@ class Sheild(Weapon): # regular shield
             self.rect.y = self.player.rect.y + (self.player.height - self.rect.height) / 2
             self.draw()
             self.duration -= 1
+            self.decreaseMana()
         else:
             self.c_triggered = False
             self.duration = 120
@@ -132,6 +143,7 @@ class BoomShield(Weapon): # combination of weapon and shield
 
     def __init__(self, player, screen, scale, name='Boomerang sheild', animated=False, _type='weapon-sheild'):
         super().__init__(player, screen, scale, name, animated, _type)
+        self.mana = 1
 
 class Bomb(Weapon):
 
@@ -140,18 +152,17 @@ class Bomb(Weapon):
         self.duration = 90
         self.far = 3
         self.speed = 15
-        self.particles = []
         self.bframe = 0
-        self.loadExplosion()
+        self.mana = 0.3
 
     def weapon(self, enemies=[]):
-        if self.triggered and self.duration > 0 and self.mouse:
+        if self.triggered and self.duration:
             if self.duration <= 20:
-                # self.Explode()
                 self.effect = True
             else:
                 self.Throw()
                 self.draw()
+            self.decreaseMana()
             self.duration -= 1
             self.far -= 1
         else:
@@ -170,21 +181,6 @@ class Bomb(Weapon):
         if self.far > 0:
             self.vecPos += self.direction * self.speed
             self.rect.x, self.rect.y = self.vecPos.x, self.vecPos.y
-
-    def Explode(self):
-        if self.effect:
-            if (self.bframe + 1) >= 20:
-                self.bframe = 0
-
-            self.screen.blit(self.particles[self.bframe], (self.rect.x + ((self.rect.width - 100) / 2), self.rect.y + (self.rect.height - 100) / 2))
-            self.bframe += 1
-
-    def loadExplosion(self):
-        for i in range(20):
-            image = f'characters/weapons/explosion/{i}.png'
-            image = pygame.image.load(image)
-            image = pygame.transform.scale(image, (100, 100))
-            self.particles.append(image)
         
 
 class Boomerang(Weapon):
@@ -195,6 +191,7 @@ class Boomerang(Weapon):
         self.throw = self.range
         self.speed = 20
         self.damage = 1
+        self.mana = 0.6
 
     def weapon(self, enemies=[]):
         if self.triggered and self.mouse:
@@ -205,6 +202,7 @@ class Boomerang(Weapon):
                     self.triggered = False
             self.draw()
             self.Hit(enemies)
+            self.decreaseMana()
             self.throw -= 1
         else:
             self.triggered = False
@@ -233,13 +231,15 @@ class SnowBall(Weapon):
         self.throw = self.range
         self.speed = 20
         self.damage = 0.8
+        self.mana = 0.09
 
     def weapon(self, enemies=[]):
-        if self.triggered and self.mouse and self.throw > 0:
+        if self.triggered and self.throw:
             self.Throw(self.range)
             self.draw()
             if self.Hit(enemies):
-                self.throw = 0
+                self.triggered = False
+            self.decreaseMana()
             self.throw -= 1
         else:
             # reset
@@ -255,12 +255,14 @@ class Trident(Weapon):
         self.throw = self.range
         self.damage = 1.5
         self.speed = 23
+        self.mana = 0.9
 
     def weapon(self, enemies):
-        if self.triggered and self.throw > 0 and self.mouse:
+        if self.triggered and self.throw:
             self.Throw(self.range)
             self.rotate()
             self.Hit(enemies)
+            self.decreaseMana()
             self.throw -= 1
         else:
             #reset
@@ -283,13 +285,15 @@ class Shuriken(Weapon):
         self.throw = self.range
         self.damage = 0.9
         self.speed = 20
+        self.mana = 0.01
 
     def weapon(self, enemies):
-        if self.triggered and self.throw > 0 and self.mouse:
+        if self.triggered and self.throw:
             self.Throw(self.range)
             self.rotate()
             if self.Hit(enemies):
                 self.triggered = False
+                self.decreaseMana()
             self.throw -= 1
         else:
             self.triggered = False
@@ -313,6 +317,7 @@ class Mjolnir(Weapon):
         self.speed = 25
         self.return_radius = 150
         self.angle = 0
+        self.mana = 1
 
     def weapon(self, enemies):
         if self.triggered:
@@ -324,6 +329,7 @@ class Mjolnir(Weapon):
                 if self.follow(): # temporary use the follow function
                     self.throw = 0
                     self.triggered = False
+            self.decreaseMana()
             self.draw()
             self.Hit(enemies)
             self.throw -= 1
@@ -348,7 +354,7 @@ class Mjolnir(Weapon):
         
         return False
     
-    def Rotate(self):
+    def Rotate(self): # fix this
         self.angle += 0.1
         if self.angle > 2 * math.pi:
             self.angle -= 2 * math.pi
@@ -364,15 +370,48 @@ class Potions(Weapon):
 
     def __init__(self, player, screen, scale, name, animated=False, _type='potion'):
         super().__init__(player, screen, scale, name, animated, _type)
-        self.damage = 2
+        self.potionData = {}
+        self.default = {}
+        self.LoadData()
+        self.apply = False
+
+    def Change(self):
+        try:
+            self.player.shield.absorb = self.default['shield-support']
+            self.player.equiped1.damage = self.default['eq1']
+            self.player.equiped2.damage = self.default['eq2']
+            self.apply = False
+        except KeyError:
+            print('no default data')
+
+    def GetDefaultData(self):
+        self.default['shield-support'] = self.player.shield.absorb
+        self.default['eq1'] = self.player.equiped1.damage
+        self.default['eq2'] = self.player.equiped2.damage
+
+    def Use(self):
+        if self.player.life < self.player.defaultLife:
+            self.player.life += self.potionData[self.name]['support']
+        if self.player.mana < self.player.defaultMana:
+            self.player.mana += self.potionData[self.name]['plus-mana']
+
+        if not self.apply:
+            self.player.shield.absorb += self.potionData[self.name]['shield-support']
+            self.player.equiped1.damage += self.potionData[self.name]['damage']
+            self.player.equiped2.damage += self.potionData[self.name]['damage']
+            self.apply = True
+
+    def LoadData(self):
+        with open('Data/weapons.json') as file:
+            self.potionData = json.load(file)
+
+        self.damage = self.potionData[self.name]['damage']
+        self.absorb = self.potionData[self.name]['shield-support']
 
 class Items(Weapon):
 
     def __init__(self, player, screen, scale, name, animated=False, _type='item'):
         super().__init__(player, screen, scale, name, animated, _type)
-
-    def draw(self, screen):
-        self.screen = screen
 
     def loadNoneAnimated(self):
         image = f'characters/icons/{self.name}.png'
@@ -384,16 +423,16 @@ class Effects:
 
     def __init__(self, screen):
         self.screen = screen
-        self.weapons = None
+        self.weapons = None # the weapons
 
-        # self.frames = 20
         self.loaded = []
 
     def effects(self):
-        if self.weapons.effect:
-            self.draw()
+        if self.weapons.effect: # if the weapon effects is true or the weapon is ready to effects
+            self.draw() # draw the effect animation
 
     def draw(self):
+        # draw the animation
         if (self.weapons.bframe + 1) >= 20:
             self.weapons.bframe = 0
 
