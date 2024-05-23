@@ -19,7 +19,6 @@ from src.create import Create
 from src.camera import Camera
 from Data.read import Read
 from src.UI import UI
-from src.loading import Loading
 from src.timer import Timer
 
 # IMPORT MAPS
