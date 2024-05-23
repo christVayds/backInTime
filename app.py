@@ -44,6 +44,8 @@ clock = pygame.time.Clock()
 fps = 30 # 30 frames per second
 
 showFPS = pygame.font.SysFont('arial', 20)
+
+#function for fps
 def showfps():
     getfps = round(clock.get_fps(), 2)
     ftext = showFPS.render(f'FPS: {getfps}', True, (255,255,255))
@@ -53,8 +55,10 @@ def showfps():
         pygame.draw.rect(window, (0,0,0), (600, 10, 100, 30))
     window.blit(ftext, (600, 15))
 
-# audios / sfx / bg musics
-music = Music()
+####################### audios / sfx / bg musics ####################### AERON
+music = Music() # load music inside MUSIC CLASS
+
+####################### SOUND EFFECTS (SFX) HERE ####################### AERON
 
 select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
 selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
@@ -70,17 +74,17 @@ pages = [
 
 currentPage = pages[0]
 
-# MAP
+# MAP HERE
 base = baseMap.TileMap(25, 0, 0)
 map_2 = Map_2.TileMap(25, 0, 0)
 map_3 = Map_3.TileMap(25, 0, 0)
 map_4 = Map_4.TileMap(25, 0, 0)
 
 # player Icon and health bar
-playerIcon = UI(10, 10, 90, 90, 'player_frame2')
+playerIcon = UI(10, 10, 256, 64, 'player_frame')
 # healthbar = UI(100, 10, 128, 32, 'life_bar4') # uncomment this later
 
-listGUIs = [playerIcon] # healthbar
+listGUIs = [playerIcon] # list contain: healthbar
 
 # PLAYER
 player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
@@ -191,6 +195,7 @@ def draw_base():
     openWeapons = create_base.openWeapons()
 
     # draw player
+    player.potion.Use()
     player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
@@ -199,6 +204,7 @@ def draw_base():
     player.handleDefense()
     player.TriggerSkills()
 
+    player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
 
@@ -207,15 +213,16 @@ def draw_base():
         currentPage = pages[6] # game menu / pause
         create_pause.create_UI()
 
-    elif openWeapons:
+    elif openWeapons or player.viewChestBox:
         currentPage = pages[7] # weapons inventory
+
     elif player.viewInventory:
         currentPage = pages[8] # items inventory
 
     showfps()
 
     # camera
-    camera.move(allObjects1+player.myWeapons)
+    camera.move(allObjects1+[player.equiped1, player.equiped2])
 
     pygame.display.flip()
 
@@ -226,7 +233,7 @@ def draw_map2():
     window.fill((10, 10, 10))
 
     # camera for map 2
-    camera.move(allObjects2+player.myWeapons)
+    camera.move(allObjects2+[player.equiped1, player.equiped2])
 
     # draw map 2
     map_2.drawMap(window)
@@ -237,6 +244,7 @@ def draw_map2():
     openWeapons = create_base.openWeapons()
 
     # drop or display weapons
+    player.potion.Use()
     player.handleFight(enemies_map2.listEnemies)
 
     # enemies
@@ -249,6 +257,7 @@ def draw_map2():
     player.navigate()
     player.TriggerSkills(enemies_map2.listEnemies)
 
+    player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
 
@@ -270,7 +279,7 @@ def draw_map3():
     window.fill((10, 10, 10))
 
     # camera fot map 3
-    camera.move(allObjects3)
+    camera.move(allObjects3+[player.equiped1, player.equiped2])
 
     map_3.drawMap(window)
 
@@ -279,14 +288,16 @@ def draw_map3():
     openWeapons = create_base.openWeapons()
 
     # draw player in map3
+    player.potion.Use()
     player.handleFight([])
     player.draw(window, create_map3.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
     player.navigate()
 
-    for gui in listGUIs:
-        gui.draw(window)
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
 
     # temporary
     if pause:
@@ -304,7 +315,7 @@ def draw_map4():
 
     window.fill((10, 10, 10))
 
-    camera.move(allObjects4)
+    camera.move(allObjects4+[player.equiped1, player.equiped2])
 
     # draw the map
     map_4.drawMap(window)
@@ -313,14 +324,16 @@ def draw_map4():
     pause = create_map4.pauseGame()
     openWeapons = create_base.openWeapons()
 
+    player.potion.Use()
     player.handleFight([])
     player.draw(window, create_map4.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
     player.navigate()
 
-    for gui in listGUIs:
-        gui.draw(window)
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
 
     if pause:
         currentPage = pages[6]
@@ -336,10 +349,17 @@ def draw_map4():
 def draw_weapons():
     global currentPage
 
+    player.potion.Use()
     inventory.draw()
     inventory.drawWeapons()
+
     if inventory.Select():
         currentPage = pages[5]
+        player.viewChestBox = False
+
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
 
     showfps()
 
@@ -348,10 +368,17 @@ def draw_weapons():
 def draw_chestBox():
     global currentPage
 
+    player.potion.Use()
     chestBox.draw()
+    chestBox.drawInventories()
+
     if chestBox.Select():
         currentPage = pages[5]
         player.viewInventory = False
+    
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
 
     showfps()
 
@@ -469,31 +496,29 @@ def selectPlayer():
         
         # player's other initializations here
         player.loadImages() # load the image of the player
-        # player.flipImage() # right side of the player
         player.initSkill(window) # initialized skills
-        # player.myWeapons.append(weapons.Boomerang(player, window, (30, 30))) # load the weapon 1
-        # player.myWeapons.append(weapons.Bomb(player, window, (30, 30))) # load the weapon 2
-        # player.myWeapons.append(weapons.Sheild(player, window, (80, 80))) # load the sheild
         player.myWeapons = [
-            weapons.Boomerang(player, window, (30, 30)), # load the weapon 1
-            weapons.Bomb(player, window, (30, 30)), # load the weapon 2
-            weapons.Sheild(player, window, (80, 80)), # load the sheild
             weapons.SnowBall(player, window, (20, 20)),
             weapons.Trident(player, window, (50, 50)),
-            weapons.Potions(player, window, (25, 25), 'strength'),
-            # weapons.Potions(player, window, (25, 25), 'durability'),
             weapons.Mjolnir(player, window, (30, 30)),
-            # weapons.Shuriken(player, window, (30, 30)),
+            weapons.Shuriken(player, window, (30, 30)),
 
         ]
-        player.equiped1 = player.myWeapons[0] # equiped the weapon 1
-        player.equiped2 = player.myWeapons[1] # equiped the weapon 2
-        player.shield = player.myWeapons[2] # equiped the shield
-        player.potion = player.myWeapons[5]
+
+        player.inventories = [weapons.Potions(player, window, (25, 25), 'durability')] # load at least one item or weapon in inventory
+
+        # give player equipment
+        player.equiped1 = weapons.Boomerang(player, window, (30, 30)) # equiped the weapon 1
+        player.equiped2 = weapons.Bomb(player, window, (30, 30)) # equiped the weapon 2
+        player.shield = weapons.Sheild(player, window, (80, 80)) # equiped the shield
+        player.potion = weapons.Potions(player, window, (25, 25), 'power')
+
         music.switch = True # switching music
         music.toPlay = 0 # switch bg music
+
         effects_1.loadEffects(player.equiped1) # load effects - no effects yet to equiped 1(boomerang)
         effects_2.loadEffects(player.equiped2) # load effects
+
         currentPage = pages[5] # navigate to game page
         create_selectPlayer.destory_UI() # destroy this page
     

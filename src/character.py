@@ -15,7 +15,10 @@ class Player(pygame.sprite.Sprite):
 
         # player life
         self.defaultLife = 100
-        self.life = 50
+        self.defaultMana = 100
+        self.life = self.defaultLife
+        self.mana = self.defaultMana
+        self.skill_cooldown = 100
         self.sheildPower = 0
         self.power = 10
         self.myWeapons = [] # for weapons
@@ -54,8 +57,10 @@ class Player(pygame.sprite.Sprite):
         ]
 
         # inventories / items list
+        self.chestBoxes = []
         self.inventories = []
         self.viewInventory = False
+        self.viewChestBox = False
 
         # handling location
         self.location = 'base'
@@ -117,13 +122,19 @@ class Player(pygame.sprite.Sprite):
         
         # player rect
         # pygame.draw.rect(screen, (255,255,10), self.rect, 1)
-        self.barLife(screen)
 
     def barLife(self, screen):
-        # player's life bar
-        pygame.draw.rect(screen, (207, 208, 255), (self.rect.x, self.rect.y - (self.height / 2) + 15, self.width, 5))
-        pygame.draw.rect(screen, (225, 252, 68), (self.rect.x, self.rect.y - (self.height / 2) + 15, (self.life / self.defaultLife) * self.width, 5))
+        # life bar
+        pygame.draw.rect(screen, (0, 16, 41), (65, 20, 195, 20))
+        pygame.draw.rect(screen, (7, 247, 227), (65, 20, (self.life / self.defaultLife) * 195, 20))
+        
+        # mana bar
+        pygame.draw.rect(screen, (0, 16, 41), (73, 45, 173, 10))
+        pygame.draw.rect(screen, (255, 120, 241), (73, 45, (self.mana / self.defaultMana) * 173, 10))
 
+        # skill bar
+        pygame.draw.rect(screen, (0, 16, 41), (68, 53, 173, 10))
+        pygame.draw.rect(screen, (255, 84, 126), (68, 53, (self.skill_cooldown / 100) * 173, 10))
     
     def Facing(self, screen):
         # self.walk is the number of walk of character
@@ -163,6 +174,7 @@ class Player(pygame.sprite.Sprite):
                     self.c_up.append(img)
                 elif image == 'S_Walk_':
                     self.c_right.append(img)
+
         self.flipImage()
 
     # flip all characters to right
@@ -203,7 +215,7 @@ class Player(pygame.sprite.Sprite):
                         self.rect.bottom = obj.rect.top
                 elif obj._type in ['other', 'hidden', 'animated', 'animated_once']: # with y-sorting objects
                     # check if item is chestbox
-                    if obj.name in ['box_1']:
+                    if obj.name in ['box_1'] and obj.loaded:
                         self.pick(obj) # pick the item with space bar
 
                     # handle facing and collision for object - with y-sorting
@@ -265,15 +277,16 @@ class Player(pygame.sprite.Sprite):
 
     # for picking items and opening a chestboxes
     def pick(self, obj):
+
         # click space bar to pick the object or open the object
-        keys = pygame.key.get_just_pressed()
+        keys = pygame.key.get_pressed()
 
         if keys[pygame.K_SPACE]:
             for item in obj.loaded:
                 if len(self.myWeapons) < 8:
                     self.myWeapons.append(item)
                     obj.loaded.remove(item) # remove the item from the chestbox
-                    print(f'you get {item.name}')
+                    self.viewChestBox = True
                 else:
                     print(f'Inventory is full - remain {len(obj.loaded)}')
                     print(obj.loaded)
@@ -309,7 +322,7 @@ class Player(pygame.sprite.Sprite):
             # self.skills = skills.Clone(self, screen)
             self.skills = skills.Shield(self, screen, (80, 80))
         elif self.name == 'jp':
-            self.skills = skills.Shield(self, screen, (50, 50))
+            self.skills = skills.Shield(self, screen, (80, 80))
         elif self.name == 'jayson':
             self.skills = skills.Speed(self, screen)
         else:

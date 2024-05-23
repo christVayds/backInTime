@@ -16,6 +16,7 @@ class Skills:
         self.animatedImage = []
         self.frame = 0 # for animation
         self.scale = scale
+        self.mana = 0
 
         # check if animated or not
         if self.animated == 'animated':
@@ -47,7 +48,7 @@ class Skills:
     def trigger(self):
         keys = pygame.key.get_just_pressed()
 
-        if keys[pygame.K_r] and not(self.triggered):
+        if keys[pygame.K_r] and not(self.triggered) and self.player.mana > 0:
             self.triggered = True
 
     # for animated skills
@@ -65,16 +66,22 @@ class Skills:
                     enemy.attacked = True
                     enemy.life -= damage
 
+    def decreaseMana(self):
+        if self.player.mana > 10:
+            self.player.mana -= self.mana
+
 class Speed(Skills):
 
     def __init__(self, player, screen, animated='none'):
         super().__init__(player, screen=screen, animated=animated)
         self.cooldown = 120
         self.speed = 15 # max speed: 15px
+        self.mana = 1
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
             self.player.speed = self.speed
+            self.decreaseMana()
             self.cooldown -= 1
         else:
             self.triggered = False
@@ -89,6 +96,7 @@ class Boomerang(Skills):
         self.throw = self.range
         self.speed = 20
         self.power = 5
+        self.mana = 1
 
     def skill(self, enemies):
         if self.triggered and self.throw > 0:
@@ -96,6 +104,7 @@ class Boomerang(Skills):
             self.draw()
             self.Hit(enemies, self.power)
             self.throw -= 1
+            self.decreaseMana()
         else:
             self.throw = self.range
             self.triggered = False
@@ -121,6 +130,7 @@ class Shield(Skills):
         self.c_shield = None
         self.delay = 30
         self.damage = 0.5
+        self.mana = 0.8
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
@@ -137,6 +147,7 @@ class Shield(Skills):
 
             self.delay -= 1
             self.cooldown -= 1
+            self.decreaseMana()
         else:
             self.cooldown = 120
             self.triggered = False
@@ -146,3 +157,4 @@ class Copy(Skills): # random other 3 Skills
 
     def __init__(self, player, screen, scale, animated='animated'):
         super().__init__(player, screen, scale, animated)
+        self.mana = 1.5
