@@ -474,7 +474,8 @@ def selectPlayer():
             weapons.Trident(player, window, (50, 50)),
             weapons.Mjolnir(player, window, (30, 30)),
             weapons.Shuriken(player, window, (30, 30)),
-            weapons.Potions(player, window, (25, 25), 'weaponize')
+            weapons.Potions(player, window, (25, 25), 'weaponize'),
+            weapons.Potions(player, window, (25, 25), 'speed'),
 
         ]
 

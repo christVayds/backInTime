@@ -4,20 +4,31 @@
         "plus-mana": 0.2,
         "support": 0.2,
         "shield-support": 1,
-        "weapon-support": 0.1
+        "weapon-support": 0.1,
+        "speed": 0
     },
     "durability": {
         "damage": 0.6,
         "plus-mana": 0.1,
         "support": 0.3,
         "shield-support": 5,
-        "weapon-support": 0.1
+        "weapon-support": 0.1,
+        "speed": 0
     },
     "weaponize": {
         "damage": 0.9,
         "plus-mana": 0.9,
         "support": 0.1,
         "shield-support": 6,
-        "weapon-support": 0.06
+        "weapon-support": 0.06,
+        "speed": 0
+    },
+    "speed": {
+        "damage": 0.1,
+        "plus-mana": 0.1,
+        "support": 0.1,
+        "shield-support": 1,
+        "weapon-support": 0,
+        "speed": 1
     }
 }
