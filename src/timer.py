@@ -8,12 +8,13 @@ class Timer:
         self.countDown = 0
 
     # return true
-    def coolDown(self, duration):
+    def coolDown(self, duration): # duration = 1 second
         if self.wait <= 0:
             self.countDown += 1
             self.wait = self.fps
 
         if self.countDown == duration:
+            self.countDown = 0
             return True
 
         self.wait -= 1

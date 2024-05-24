@@ -18,8 +18,7 @@ from src.object import *
 from src.create import Create
 from src.camera import Camera
 from Data.read import Read
-from src.UI import UI
-from src.loading import Loading
+from src.UI import UI, GUI
 from src.timer import Timer
 
 # IMPORT MAPS
@@ -45,7 +44,7 @@ fps = 30 # 30 frames per second
 
 showFPS = pygame.font.SysFont('arial', 20)
 
-#function for fps
+#function for fps / for testing the fps
 def showfps():
     getfps = round(clock.get_fps(), 2)
     ftext = showFPS.render(f'FPS: {getfps}', True, (255,255,255))
@@ -80,13 +79,27 @@ map_2 = Map_2.TileMap(25, 0, 0)
 map_3 = Map_3.TileMap(25, 0, 0)
 map_4 = Map_4.TileMap(25, 0, 0)
 
+#################### GUI #######################
+
 # player Icon and health bar
 playerIcon = UI(10, 10, 256, 64, 'player_frame')
-# healthbar = UI(100, 10, 128, 32, 'life_bar4') # uncomment this later
 
 listGUIs = [playerIcon] # list contain: healthbar
 
-# PLAYER
+##### PAUSE MENU #####
+pause_menu = GUI(254, 58, (192, 384), window, 'pause_game', sfx=[select_item, selected_item])
+
+##### MAIN MENU #####
+main_menu = GUI(498, 58, (192, 384), window, 'main_menu', sfx=[select_item, selected_item])
+
+##### SETTINGS #####
+settings_menu = GUI(254, 58, (192, 384), window, 'settings_menu', sfx=[select_item, selected_item])
+
+##### CREDITS #####
+credits_menu = GUI(254, 58, (192, 384), window, 'credits', sfx=[select_item, selected_item])
+
+############# PLAYER #####################
+
 player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
 
 # read object data from json file data
@@ -98,36 +111,21 @@ readData.strToTuple('Map2')
 readData.strToTuple('Map3')
 readData.strToTuple('Map4')
 readData.strToTuple('Enemies_m2')# read the tuple(positions) of the enemies
-# Other pages
-readData.strToTuple('mainMenu')
-readData.strToTuple('settings')
-readData.strToTuple('credits')
-readData.strToTuple('pauseGame')
+# Other page
 readData.strToTuple('SelectPlayer')
 
 # CREATIONS
 
 # for loading screen / intro
 title = [
+    Object(0, 0, 700, 700, 'bg_image', 'test_bg'),
     Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_3'),
-    Object((windowSize['width'] - 192) / 2, windowSize['height'] - 150, 192, 48, 'other', 'credits')
+    Object(508, 0, 192, 48, 'other', 'credits'),
+    Object(254, 350, 192, 24, 'animated', 'enter_game')
 ]
-
-######## CREATE MAIN MENU #########
-create_menu = Create(window, player, readData.data['mainMenu'], select_item, selected_item)
-
-######## CREATE SETTINGS #########
-create_settings = Create(window, player, readData.data['settings'], select_item, selected_item)
-
-######## CREATE CREDITS #########
-create_credits = Create(window, player, readData.data['credits'], select_item, selected_item)
-
-######## CREATE PAUSE #########
-create_pause = Create(window, player, readData.data['pauseGame'], select_item, selected_item)
 
 ######## CREATE SELECT PLAYER #########
 create_selectPlayer = Create(window, player, readData.data['SelectPlayer'], select_item, selected_item)
-
 
 ######## CREATE MAPS #########
 
@@ -195,7 +193,7 @@ def draw_base():
     openWeapons = create_base.openWeapons()
 
     # draw player
-    player.potion.Use()
+    player.potion.Use() # use the potion
     player.handleFight()
     player.draw(window, create_base.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
@@ -211,7 +209,6 @@ def draw_base():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
-        create_pause.create_UI()
 
     elif openWeapons or player.viewChestBox:
         currentPage = pages[7] # weapons inventory
@@ -264,7 +261,6 @@ def draw_map2():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
-        create_pause.create_UI()
     elif openWeapons:
         currentPage = pages[7]
 
@@ -302,7 +298,6 @@ def draw_map3():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
-        create_pause.create_UI()
     elif openWeapons:
         currentPage = pages[7]
 
@@ -337,7 +332,6 @@ def draw_map4():
 
     if pause:
         currentPage = pages[6]
-        create_pause.create_UI()
     elif openWeapons:
         currentPage = pages[7]
 
@@ -387,27 +381,15 @@ def draw_chestBox():
 # pause the game
 def PauseGame():
     global currentPage
-    window.fill((10, 10, 10))
+    # window.fill((10, 10, 10))
 
-    create_pause.draw_ui()
-    selected = create_pause.Select()
-
-    keys = pygame.key.get_just_pressed()
-
-    if keys[pygame.K_ESCAPE]: # back to game
-        selected_item.play()
-        currentPage = pages[5]
-        create_pause.destory_UI()
-    
+    pause_menu.draw()
+    selected = pause_menu.Select()
     if selected == 0:
         currentPage = pages[5] # back to game
-        create_pause.destory_UI()
     elif selected == 1:
-        currentPage = pages[1] # navigate to main menu
-        music.switch = True
-        music.toPlay = 1
-        # create_menu.draw_ui()
-        create_pause.destory_UI()
+        pause_menu.selected = 0
+        currentPage = pages[1] # to main menu
 
     pygame.display.flip()
 
@@ -417,10 +399,9 @@ def mainMenu():
 
     window.fill((10, 10, 10))
 
-    create_menu.draw_ui()
-    selected = create_menu.Select()
-
-    if selected == 0: # navigate to Select player
+    main_menu.draw()
+    selected = main_menu.Select()
+    if selected == 0:
         if player.name != "":
             currentPage = pages[5]
             music.switch = True
@@ -428,14 +409,12 @@ def mainMenu():
         else:
             currentPage = pages[4]
             create_selectPlayer.create_UI()
-    elif selected == 1: # credits
-        currentPage = pages[3]
-        create_credits.create_UI()
-    elif selected == 2: # settings
-        currentPage = pages[2]
-        create_settings.create_UI()
-    elif selected == 3: # exit game
-        currentPage = pages[-1]
+    elif selected == 1:
+        currentPage = pages[2] # settings
+    elif selected == 2:
+        currentPage = pages[3] # credits
+    elif selected == 3:
+        currentPage = pages[-1] # exit
 
     pygame.display.flip()
 
@@ -445,13 +424,10 @@ def settings():
 
     window.fill((10, 10, 10))
 
-    create_settings.draw_ui()
-    selected = create_settings.Select()
-
-    if selected == 2: # if save is selected
-        currentPage = pages[1] # back to main menu
-        # create_menu.draw_ui()
-        create_settings.destory_UI()
+    settings_menu.draw()
+    selected = settings_menu.Select()
+    if selected == 2:
+        currentPage = pages[1]
 
     pygame.display.flip()
 
@@ -460,21 +436,17 @@ def credits():
     global currentPage
     window.fill((10, 10, 10))
 
-    create_credits.draw_ui()
-
-    keys = pygame.key.get_just_pressed()
-
-    if keys[pygame.K_SPACE] or keys[pygame.K_ESCAPE]:
-        selected_item.play() # play audio selected
+    credits_menu.draw()
+    selected = credits_menu.Select()
+    if selected == 0:
         currentPage = pages[1]
-        create_credits.destory_UI()
 
     pygame.display.flip()
 
 # display selecting players / characters
 def selectPlayer():
     global currentPage
-    window.fill((10, 10, 10))
+    window.fill((20, 6, 79))
 
     create_selectPlayer.draw_ui()
     character = create_selectPlayer.Select()
@@ -502,6 +474,8 @@ def selectPlayer():
             weapons.Trident(player, window, (50, 50)),
             weapons.Mjolnir(player, window, (30, 30)),
             weapons.Shuriken(player, window, (30, 30)),
+            weapons.Potions(player, window, (25, 25), 'weaponize'),
+            weapons.Potions(player, window, (25, 25), 'speed'),
 
         ]
 
@@ -512,6 +486,9 @@ def selectPlayer():
         player.equiped2 = weapons.Bomb(player, window, (30, 30)) # equiped the weapon 2
         player.shield = weapons.Sheild(player, window, (80, 80)) # equiped the shield
         player.potion = weapons.Potions(player, window, (25, 25), 'power')
+        player.potion.Apply(player.equiped1)
+        player.potion.Apply(player.equiped2)
+        player.potion.Apply(player.shield)
 
         music.switch = True # switching music
         music.toPlay = 0 # switch bg music
@@ -546,7 +523,6 @@ def Opening():
         music.toPlay = 1
         del title
         currentPage = pages[1]
-        create_menu.create_UI()
 
     pygame.display.flip()
 

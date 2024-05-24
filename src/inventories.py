@@ -252,8 +252,10 @@ class Weapon(Inventory):
                     if self.player.myWeapons[self.selected] != self.player.equiped2:
                         self.player.equiped1.effect = False # reset the effect
                         temp = self.player.equiped1
+                        self.player.potion.Remove(temp)
                         self.player.equiped1 = self.player.myWeapons[self.selected] # equiped the weapon
                         self.player.myWeapons[self.selected] = temp
+                        self.player.potion.Apply(self.player.equiped1)
                     else:
                         self.message = 'You can\'t use \nalready equiped\nweapon'
                 else:
@@ -266,8 +268,10 @@ class Weapon(Inventory):
                     if self.player.myWeapons[self.selected] != self.player.equiped1:
                         self.player.equiped2.effect = False # reset the effect
                         temp = self.player.equiped2
+                        self.player.potion.Remove(temp)
                         self.player.equiped2 = self.player.myWeapons[self.selected]
                         self.player.myWeapons[self.selected] = temp
+                        self.player.potion.Apply(self.player.equiped2)
                     else:
                         self.message = 'You can\'t use \nalready equiped\nweapon'
                 else:
@@ -279,10 +283,14 @@ class Weapon(Inventory):
                 if self.player.myWeapons[self.selected]._type not in ['shield', 'weapon', 'weapon-shield', 'item']:
                     self.player.potion.effect = False # reset the effect
                     temp = self.player.potion
+                    self.player.potion.Remove(self.player.equiped1) # reset
+                    self.player.potion.Remove(self.player.equiped2) # reset
+                    self.player.potion.Remove(self.player.shield) # reset
                     self.player.potion = self.player.myWeapons[self.selected]
-                    self.player.potion.GetDefaultData()
-                    self.player.myWeapons[self.selected] = temp
-                    temp.Change()
+                    self.player.myWeapons[self.selected] = temp # return to inventory
+                    self.player.potion.Apply(self.player.equiped1) # apply
+                    self.player.potion.Apply(self.player.equiped2) # apply
+                    self.player.potion.Apply(self.player.shield) # apply
                 else:
                     self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a potion'
 
@@ -292,8 +300,10 @@ class Weapon(Inventory):
                 if self.player.myWeapons[self.selected]._type not in ['potion', 'weapon', 'item']:
                     self.player.shield.effect = False # reset the effect
                     temp = self.player.shield
+                    self.player.potion.Remove(temp)
                     self.player.shield = self.player.myWeapons[self.selected]
                     self.player.myWeapons[self.selected] = temp
+                    self.player.potion.Apply(self.player.shield)
                 else:
                     self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a shield'
 

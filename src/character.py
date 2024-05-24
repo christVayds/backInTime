@@ -1,6 +1,7 @@
 import pygame
 import random
 from . import skills # Speed, Boomerang, shield, copy
+from . import timer
 
 class Player(pygame.sprite.Sprite):
 
@@ -12,13 +13,13 @@ class Player(pygame.sprite.Sprite):
 
         # Fonts
         self.font = pygame.font.SysFont('consolas', 15)
+        self.timer = timer.Timer(30) # fps = 30
 
         # player life
         self.defaultLife = 100
         self.defaultMana = 100
         self.life = self.defaultLife
         self.mana = self.defaultMana
-        self.skill_cooldown = 100
         self.sheildPower = 0
         self.power = 10
         self.myWeapons = [] # for weapons
@@ -29,6 +30,7 @@ class Player(pygame.sprite.Sprite):
 
         # skills
         self.skills = None
+        self.skill_cooldown = None
 
         # speed
         self.speed = 7
@@ -134,7 +136,7 @@ class Player(pygame.sprite.Sprite):
 
         # skill bar
         pygame.draw.rect(screen, (0, 16, 41), (68, 53, 173, 10))
-        pygame.draw.rect(screen, (255, 84, 126), (68, 53, (self.skill_cooldown / 100) * 173, 10))
+        pygame.draw.rect(screen, (255, 84, 126), (68, 53, (self.skill_cooldown / self.skills.skill_cooldown) * 173, 10))
     
     def Facing(self, screen):
         # self.walk is the number of walk of character
@@ -312,19 +314,30 @@ class Player(pygame.sprite.Sprite):
         self.shield.weapon(enemies)
 
     def TriggerSkills(self, enemies=[]):
+        self.CoolDown()
         self.skills.trigger()
         self.skills.skill(enemies)
+
+    def CoolDown(self):
+        if self.skill_cooldown < self.skills.skill_cooldown:
+            self.skill_cooldown = self.timer.countDown
+            if self.timer.coolDown(self.skills.skill_cooldown):
+                self.skill_cooldown = self.skills.skill_cooldown
 
     def initSkill(self, screen):
         if self.name == 'johny':
             self.skills = skills.Boomerang(self, screen, (30,30))
+            self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'ricky':
             # self.skills = skills.Clone(self, screen)
             self.skills = skills.Shield(self, screen, (80, 80))
+            self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'jp':
             self.skills = skills.Shield(self, screen, (80, 80))
+            self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'jayson':
             self.skills = skills.Speed(self, screen)
+            self.skill_cooldown = self.skills.skill_cooldown
         else:
             # raise error if player not found
             raise KeyError
