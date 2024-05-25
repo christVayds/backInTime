@@ -68,7 +68,7 @@ timer = Timer(fps)
 # Program pages
 pages = [
     'intro', 'main-menu', 'settings', 'credits', 
-    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'chestBox', 'outro', 
+    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'chestBox', 'craftbox', 'outro', 
     'error_message', 'exit']
 
 currentPage = pages[0]
@@ -90,7 +90,7 @@ listGUIs = [playerIcon] # list contain: healthbar
 pause_menu = GUI(254, 58, (192, 384), window, 'pause_game', sfx=[select_item, selected_item])
 
 ##### MAIN MENU #####
-main_menu = GUI(498, 58, (192, 384), window, 'main_menu', sfx=[select_item, selected_item])
+main_menu = GUI(254, 58, (192, 384), window, 'main_menu', sfx=[select_item, selected_item])
 
 ##### SETTINGS #####
 settings_menu = GUI(254, 58, (192, 384), window, 'settings_menu', sfx=[select_item, selected_item])
@@ -178,6 +178,10 @@ inventory.sfx = [select_item, selected_item] # add sfx in inventory
 chestBox = inventories.Items(player, window, (640, 320), ((windowSize['width'] - 640) / 2, (windowSize['height'] - 320) / 2))
 chestBox.sfx = inventory.sfx
 
+# Crafting Table
+crafting_table = inventories.CraftingTable(player, window, (512, 256), (94, 122))
+crafting_table.sfx = inventory.sfx
+
 # draw base map function
 def draw_base():
     global currentPage
@@ -215,6 +219,9 @@ def draw_base():
 
     elif player.viewInventory:
         currentPage = pages[8] # items inventory
+
+    elif player.craft:
+        currentPage = pages[9] # open craftbox
 
     showfps()
 
@@ -263,6 +270,8 @@ def draw_map2():
         currentPage = pages[6] # game menu / pause
     elif openWeapons:
         currentPage = pages[7]
+    elif player.craft:
+        currentPage = pages[9] # open craftbox
 
     showfps()
 
@@ -300,6 +309,8 @@ def draw_map3():
         currentPage = pages[6] # game menu / pause
     elif openWeapons:
         currentPage = pages[7]
+    elif player.craft:
+        currentPage = pages[9] # open craftbox
 
     showfps()
 
@@ -334,6 +345,8 @@ def draw_map4():
         currentPage = pages[6]
     elif openWeapons:
         currentPage = pages[7]
+    elif player.craft:
+        currentPage = pages[9] # open craftbox
 
     showfps()
 
@@ -370,6 +383,24 @@ def draw_chestBox():
         currentPage = pages[5]
         player.viewInventory = False
     
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
+
+    showfps()
+
+    pygame.display.flip()
+
+def draw_craftbox():
+    global currentPage
+
+    player.potion.Use()
+    crafting_table.draw()
+    crafting_table.drawItems()
+    if crafting_table.Select():
+        currentPage = pages[5]
+        player.craft = False
+
     player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
@@ -570,6 +601,8 @@ def main():
             draw_weapons()
         elif currentPage == pages[8]:
             draw_chestBox()
+        elif currentPage == pages[9]:
+            draw_craftbox()
         elif currentPage == pages[-1]: # exit game
             run = False
 

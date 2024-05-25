@@ -63,6 +63,7 @@ class Player(pygame.sprite.Sprite):
         self.inventories = []
         self.viewInventory = False
         self.viewChestBox = False
+        self.craft = False
 
         # handling location
         self.location = 'base'
@@ -204,9 +205,14 @@ class Player(pygame.sprite.Sprite):
 
             # if the player collide with the objects
             if pygame.sprite.collide_rect(self, obj):
+                # chest boxes and craftbox
                 if obj._type in ['hidden2', 'other2']: # no y-sorting objects
                     if obj.name in ['vault_1']:
                         self.openChestBox()
+                    elif obj.name in ['crafting_table']:
+                        self.openCraftBox()
+
+                    # other collisions
                     if self.left:
                         self.rect.left = obj.rect.right
                     elif self.right:
@@ -298,6 +304,13 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             self.viewInventory = True
+
+    def openCraftBox(self):
+
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_SPACE]:
+            self.craft = True
 
     def handleFight(self, enemies=[]):
         # equiped 1

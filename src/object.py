@@ -85,5 +85,6 @@ class Object(pygame.sprite.Sprite):
     # for chestbox
     def loadChestBox(self, items, player, screen):
         for item in items:
-            item = weapons.Items(player, screen, (25,25), item)
-            self.loaded.append(item)
+            item = weapons.Items(player, screen, (40, 40), item)
+            if item.checkItem(): # if items is in the item.json data
+                self.loaded.append(item)

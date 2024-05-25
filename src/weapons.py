@@ -13,6 +13,8 @@ class Weapon:
         self.animated = animated
         
         self._type = _type
+        self.data = None
+        self.code = None
 
         # keys
         self.triggered = False
@@ -408,12 +410,26 @@ class Items(Weapon):
 
     def __init__(self, player, screen, scale, name, animated=False, _type='item'):
         super().__init__(player, screen, scale, name, animated, _type)
+        self.code = None
+        self.openData()
 
     def loadNoneAnimated(self):
         image = f'characters/icons/{self.name}.png'
         image = pygame.image.load(image)
         image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
         self.noneAnimated = image
+
+    def openData(self):
+        with open('data/items.json') as file:
+            self.data = json.load(file)
+
+    def checkItem(self):
+        try:
+            self.code = self.data['Items'][self.name]['code']
+            self.name = self.data['Items'][self.name]['name']
+            return True
+        except KeyError:
+            return False
 
 class Effects:
 

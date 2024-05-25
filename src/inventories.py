@@ -1,4 +1,7 @@
 import pygame
+import os
+import json
+from . import weapons
 
 class Inventory:
 
@@ -10,7 +13,7 @@ class Inventory:
 
         self.selected = 0
         self.guis = []
-        self.weaponsgui = [] # for items gui viewing player's weapons
+        self.weaponsgui = [] # for items gui viewing player's weapons / to craft items
         self.loadGUIs()
         self.rect = pygame.Rect(pos[0], pos[1], self.scale[0], self.scale[1])
 
@@ -26,11 +29,16 @@ class Inventory:
         self.screen.blit(self.guis[self.selected], self.rect)
 
     def loadGUIs(self):
-        for i in range(8):
-            image = f'characters/GUI/{self.name}/s_{i}.png'
-            image = pygame.image.load(image)
-            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
-            self.guis.append(image)
+        path = f'characters/GUI/{self.name}'
+        for filename in os.listdir(path):
+            if filename.endswith('.png'):
+                imag_path = os.path.join(path, filename)
+                try:
+                    image = pygame.image.load(imag_path)
+                    image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+                    self.guis.append(image)
+                except pygame.error:
+                    print('file not found')
 
     def showLabel(self):
         try:
@@ -54,7 +62,6 @@ class Items(Inventory):
         self.name = 'items_gui'
         self.focus = 'chestGrid'
         self.selectedWeapons = 0
-        self.hold = None # item to move to other inventory
 
     def draw(self):
         if self.focus == 'chestGrid':
@@ -188,7 +195,6 @@ class Weapon(Inventory):
 
     def __init__(self, player, screen, scale, pos, name='weapons_gui'):
         super().__init__(player, screen, scale, pos, name)
-        self.name = 'weapon_gui'
         self.positions = [ # grid for all weapons and items - 8 items
             (225,280), (292,280), (358, 280), (424, 280),
             (225, 346), (292, 346), (358, 346), (424, 346)
@@ -323,3 +329,166 @@ class Weapon(Inventory):
         for weapon in range(len(self.player.myWeapons)):
             wp = pygame.transform.scale(self.player.myWeapons[weapon].icon, (45, 45))
             self.screen.blit(wp, self.positions[weapon])
+
+class CraftingTable(Inventory):
+
+    def __init__(self, player, screen, scale, pos, name='crafting_table'):
+        super().__init__(player, screen, scale, pos, name)
+        self.placed = []
+        self.placed_code = []
+        self.result = None
+
+        self.itemsGrid = [
+            (120, 252), (180, 252), (240, 252), (300, 252),
+            (120, 312), (180, 312), (240, 312), (300, 312)
+            ]
+        self.craftGrid = [
+            (424, 164), (484, 164),
+            (424, 224), (484, 224)
+        ]
+        self.resultGrid = (456, 300)
+        self.focus = 'myWeapons'
+        self.selectedCraft = 0
+
+        self.dataCombination = []
+        self.getCombinationData()
+
+    def Select(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_LEFT]:
+            self.sfx[0].play()
+            if self.focus == 'myWeapons':
+                self.selected -= 1
+
+                if self.selected < 0:
+                    self.selected = len(self.guis) -1
+            else:
+                self.selectedCraft -= 1
+
+                if self.selectedCraft < 0:
+                    self.selectedCraft = len(self.weaponsgui) -1
+
+        elif keys[pygame.K_RIGHT]:
+            self.sfx[0].play()
+            if self.focus == 'myWeapons':
+                self.selected += 1
+
+                if self.selected > len(self.guis) -1:
+                    self.selected = 0
+            else:
+                self.selectedCraft += 1
+
+                if self.selectedCraft > len(self.weaponsgui) -1:
+                    self.selectedCraft = 0
+
+        elif keys[pygame.K_UP]:
+            self.sfx[0].play()
+            if self.focus == 'myWeapons':
+                tmp = self.selected
+                self.selected -= 4
+
+                if self.selected < 0:
+                    self.selected = tmp + 4
+            else:
+                temp = self.selectedCraft
+                self.selectedCraft -= 2
+
+                if self.selectedCraft < 0:
+                    self.selectedCraft = temp + 2
+
+        elif keys[pygame.K_DOWN]:
+            self.sfx[0].play()
+            if self.focus == 'myWeapons':
+                tmp = self.selected
+                self.selected += 4
+
+                if self.selected > len(self.guis) - 1:
+                    self.selected = tmp - 4
+            else:
+                temp = self.selectedCraft
+                self.selectedCraft += 2
+
+                if self.selectedCraft > len(self.weaponsgui) -1:
+                    self.selectedCraft = temp - 2
+
+        elif keys[pygame.K_TAB]:
+            self.sfx[0].play()
+            if self.focus == 'myWeapons':
+                self.focus = 'items'
+            else:
+                self.focus = 'myWeapons'
+        try:
+            if keys[pygame.K_SPACE]:
+                self.sfx[1].play()
+                if self.focus == 'myWeapons':
+                    if len(self.placed) < 4:
+                        self.placed.append(self.player.myWeapons[self.selected])
+                        self.placed_code.append(self.player.myWeapons[self.selected].code)
+                        self.player.myWeapons.remove(self.player.myWeapons[self.selected])
+                else:
+                    if len(self.player.myWeapons) < 8:
+                        self.player.myWeapons.append(self.placed[self.selectedCraft])
+                        self.placed.remove(self.placed[self.selectedCraft])
+                        self.placed_code.remove(self.placed_code[self.selectedCraft])
+        
+        except IndexError:
+            print('empty')
+
+        if keys[pygame.K_f] or keys[pygame.K_ESCAPE]:
+            self.sfx[1].play()
+            self.result = None
+            return True
+        
+        self.Craft()
+        
+    def draw(self):
+        if self.focus == 'myWeapons':
+            self.screen.blit(self.guis[self.selected], self.rect)
+        else:
+            self.screen.blit(self.weaponsgui[self.selectedCraft], self.rect)
+        
+    def drawItems(self):
+        try:
+            for i, item in enumerate(self.player.myWeapons): # draw all weapons ang items
+                image = pygame.transform.scale(item.icon, (40, 40))
+                self.screen.blit(image, self.itemsGrid[i])
+
+            for i, item in enumerate(self.placed): # draw the item that placed in crafting table
+                image = pygame.transform.scale(item.icon, (40, 40))
+                self.screen.blit(image, self.craftGrid[i])
+
+            if self.result != None:
+                self.screen.blit(self.result.icon, self.resultGrid)
+        except IndexError:
+            print('empty')
+
+    def loadGUIs(self): # temporary
+        for i in range(8):
+            image = f'characters/GUI/{self.name}/s_{i}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+            self.guis.append(image)
+
+        for i in range(4):
+            image = f'characters/GUI/{self.name}/e_{i}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+            self.weaponsgui.append(image)
+
+    def Craft(self):
+        for data in self.dataCombination['combination']:
+            if self.placed_code == data['combination']:
+                self.build(data['result'])
+                self.placed_code = []
+                self.placed = []
+
+    def getCombinationData(self):
+        with open('data/items.json') as file:
+            self.dataCombination = json.load(file)
+
+    def build(self, name):
+        item = weapons.Items(self.player, self.screen, (40, 40), name)
+        if item.checkItem():
+            self.player.myWeapons.append(item)
+            self.result = item
