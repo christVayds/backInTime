@@ -287,15 +287,15 @@ class Shuriken(Weapon):
         self.throw = self.range
         self.damage = 0.9
         self.speed = 20
-        self.mana = 0.01
+        self.mana = 2
 
     def weapon(self, enemies):
         if self.triggered and self.throw:
             self.Throw(self.range)
             self.rotate()
             if self.Hit(enemies):
-                self.triggered = False
                 self.decreaseMana()
+                self.triggered = False
             self.throw -= 1
         else:
             self.triggered = False

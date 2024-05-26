@@ -7,6 +7,10 @@ run the vanilla python version of this game:
 run the cythonized version of this game:
     python run.py
 
+# create chest box
+{"name": "box_1", "type": "other", "rect": "(300, 60, 60, 55)", "items": ["icon14_01"]},
+{"name": "box_1", "type": "other", "rect": "(240, 60, 60, 55)", "items": ["icon14_03"]},
+
 # animate the fight
     def handleFight(self, enemies, screen):
         # use space bar to fight

@@ -207,9 +207,7 @@ class Player(pygame.sprite.Sprite):
             if pygame.sprite.collide_rect(self, obj):
                 # chest boxes and craftbox
                 if obj._type in ['hidden2', 'other2']: # no y-sorting objects
-                    if obj.name in ['vault_1']:
-                        self.openChestBox()
-                    elif obj.name in ['crafting_table']:
+                    if obj.name in ['crafting_table']:
                         self.openCraftBox()
 
                     # other collisions
@@ -223,8 +221,10 @@ class Player(pygame.sprite.Sprite):
                         self.rect.bottom = obj.rect.top
                 elif obj._type in ['other', 'hidden', 'animated', 'animated_once']: # with y-sorting objects
                     # check if item is chestbox
-                    if obj.name in ['box_1'] and obj.loaded:
+                    if obj.name in ['box_1', 'box_2', 'box_3'] and obj.loaded:
                         self.pick(obj) # pick the item with space bar
+                    elif obj.name in ['vault_box']:
+                        self.openChestBox()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -366,7 +366,6 @@ class Enemy(pygame.sprite.Sprite):
 
         # rect
         self.rect = pygame.Rect((x, y), (self.width, self.height))
-        # self.image = pygame.Surface((self.width, self.height))
 
         self.speed = random.choice([2.5, 3, 3.5])
         self.attacked = False # attacked by the player
@@ -389,6 +388,7 @@ class Enemy(pygame.sprite.Sprite):
         self.e_right = []
         self.e_down = []
         self.e_up = []
+
         # load and flip image
         self.loadImages()
         self.flipImage()
@@ -451,26 +451,24 @@ class Enemy(pygame.sprite.Sprite):
                 self.up = False
                 self.down = False
                 self.move_x(self.speed * -1)
-            elif self.rect.x < player.rect.x - 35:
+            if self.rect.x < player.rect.x - 35:
                 self.left = False
                 self.right = True
                 self.up = False
                 self.down = False
                 self.move_x(self.speed)
-            elif self.rect.y > player.rect.y + 35:
+            if self.rect.y > player.rect.y + 35:
                 self.left = False
                 self.right = False
                 self.up = True
                 self.down = False
                 self.move_y(self.speed * -1)
-            elif self.rect.y < player.rect.y - 35:
+            if self.rect.y < player.rect.y - 35:
                 self.left = False
                 self.right = False
                 self.up = False
                 self.down = True
                 self.move_y(self.speed)
-            else:
-                self.walk = 0
 
     # load enemies image
     def loadImages(self):
