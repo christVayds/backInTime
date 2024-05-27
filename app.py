@@ -25,7 +25,6 @@ from src.timer import Timer
 from Maps import baseMap, Map_2, Map_3, Map_4
 from src.music import Music
 from src import weapons
-from src import navigation
 from src import inventories
 
 # initialize pygame
@@ -68,7 +67,7 @@ timer = Timer(fps)
 # Program pages
 pages = [
     'intro', 'main-menu', 'settings', 'credits', 
-    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'vaultbox', 'craftbox', 'outro', 
+    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'vaultbox', 'craftbox', 'collectable' 'outro', 
     'error_message', 'exit']
 
 currentPage = pages[0]
@@ -164,9 +163,6 @@ allObjects4 = create_map4.listofObjects+[map_4]
 # listenemies is a list of all enemies
 # listOfMap is a list of map tiles
 
-# For navigation to maps
-nav = navigation.Navigation(player) # not yet done
-
 # initialized effects fo equiped weapons
 effects_1 = weapons.Effects(window)
 effects_2 = weapons.Effects(window)
@@ -182,6 +178,10 @@ vaultbox.sfx = inventory.sfx
 # Crafting Table
 crafting_table = inventories.CraftingTable(player, window, (512, 256), (94, 122))
 crafting_table.sfx = inventory.sfx
+
+# collectables
+collectable_table = inventories.Collectables(player, window, (640, 160), (30, 170))
+collectable_table.sfx = inventory.sfx
 
 # draw base map function
 def draw_base():
@@ -226,6 +226,9 @@ def draw_base():
 
     elif player.craft:
         currentPage = pages[9] # open craftbox
+
+    elif player.collectables:
+        currentPage = pages[10] # open collectable table
 
     showfps()
 
@@ -330,6 +333,9 @@ def draw_map3():
 
     elif player.craft:
         currentPage = pages[9] # open craftbox
+    
+    elif player.collectables:
+        currentPage = pages[10] # open collectable table
 
     showfps()
 
@@ -430,6 +436,24 @@ def draw_craftbox():
     if crafting_table.Select():
         currentPage = pages[5]
         player.craft = False
+
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
+
+    showfps()
+
+    pygame.display.flip()
+
+def draw_collectables():
+    global currentPage
+
+    player.potion.Use()
+    collectable_table.draw()
+
+    if collectable_table.Close():
+        currentPage = pages[5] # return to game
+        player.collectables = False
 
     player.barLife(window)
     for guis in listGUIs:
@@ -543,6 +567,7 @@ def selectPlayer():
         player.inventories = [
             weapons.Potions(player, window, (25, 25), 'durability'),
             weapons.Shield(player, window, (80, 80), 'protektor'),
+            weapons.Shield(player, window, (80, 80), 'armored'),
             ] # load at least one item or weapon in inventory
 
         # give player equipment
@@ -636,6 +661,8 @@ def main():
             draw_vaultbox()
         elif currentPage == pages[9]:
             draw_craftbox()
+        elif currentPage == pages[10]:
+            draw_collectables()
         elif currentPage == pages[-1]: # exit game
             run = False
 

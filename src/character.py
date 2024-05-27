@@ -1,5 +1,4 @@
 import pygame
-import random
 from . import skills # Speed, Boomerang, shield, copy
 from . import timer
 
@@ -64,11 +63,13 @@ class Player(pygame.sprite.Sprite):
         ]
 
         # inventories / items list
-        self.chestBoxes = []
+        # self.chestBoxes = []
         self.inventories = []
+        self.collectedItems = []
         self.viewInventory = False
         self.viewVaultBox = False
         self.craft = False
+        self.collectables = False
 
         # handling location
         self.location = 'base'
@@ -237,6 +238,8 @@ class Player(pygame.sprite.Sprite):
                             self.viewVaultBox = True
                     elif obj.name in ['vault_box']:
                         self.openChestBox()
+                    elif obj.name == 'machine_2':
+                        self.openCollectable()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -314,7 +317,6 @@ class Player(pygame.sprite.Sprite):
                 screen.blit(text, (25, (500 - text.get_height()) / 2, text.get_width(), text.get_height()))
             else:
                 self.showMessage = False
-
                     
     def openChestBox(self):
         keys = pygame.key.get_just_pressed()
@@ -328,6 +330,12 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             self.craft = True
+
+    def openCollectable(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_SPACE]:
+            self.collectables = True
 
     def handleFight(self, enemies=[]):
         # equiped 1

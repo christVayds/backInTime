@@ -51,6 +51,66 @@ class Inventory:
             text = self.font.render(f'Name: Empty\nLevel: 0\nDamage: 0\nAbsorb: 0', True, (255,255,255))
         self.screen.blit(text, (210,110))
 
+class Collectables(Inventory):
+
+    def __init__(self, player, screen, scale, pos, name='collect'):
+        super().__init__(player, screen, scale, pos, name)
+        self.collectedGrid = []
+        self.collectedItems = []
+        self.collectedItemsCode = []
+        self.column = 55
+        self.row = 200
+        self.createGrid()
+        self.level = 1
+
+        self.dataWeapons = None
+        self.openData()
+
+    def draw(self):
+        self.checkItems() # check for all collectable items in your inventories
+        self.screen.blit(self.guis[0], self.rect)
+
+        self.Message()
+        self.screen.blit(self.message, (450, 200))
+        self.drawCollected()
+
+    def Message(self):
+        self.message = f'Level: {self.level}\nCollected: {len(self.collectedItems)}'
+        self.message = self.font.render(self.message, True, (255,255,255))
+
+    def createGrid(self):
+        for _ in range(2):
+            for _ in range(6):
+                self.collectedGrid.append((self.column, self.row))
+                self.column += 65
+            self.column = 55
+            self.row += 65
+
+    def checkItems(self):
+        for data in self.dataWeapons:
+            if data['level'] == self.level:
+                for weapon in self.player.myWeapons:
+                    if weapon.code in data['collect'] and weapon.code not in self.collectedItemsCode:
+                        self.collectedItems.append(weapon)
+                        self.collectedItemsCode.append(weapon.code)
+
+    def openData(self):
+        with open('data/items.json') as file:
+            self.dataWeapons = json.load(file)
+
+        self.dataWeapons = self.dataWeapons['Collectables']
+
+    def Close(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_SPACE] or keys[pygame.K_f] or keys[pygame.K_ESCAPE]:
+            return True
+
+    def drawCollected(self):
+        for i, weapon in enumerate(self.collectedItems):
+            image = pygame.transform.scale(weapon.icon, (40, 40))
+            self.screen.blit(image, self.collectedGrid[i])
+
 class Items(Inventory):
 
     def __init__(self, player, screen, scale, pos, name='items_gui'):
