@@ -68,7 +68,7 @@ timer = Timer(fps)
 # Program pages
 pages = [
     'intro', 'main-menu', 'settings', 'credits', 
-    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'chestBox', 'craftbox', 'outro', 
+    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'vaultbox', 'craftbox', 'outro', 
     'error_message', 'exit']
 
 currentPage = pages[0]
@@ -171,12 +171,13 @@ nav = navigation.Navigation(player) # not yet done
 effects_1 = weapons.Effects(window)
 effects_2 = weapons.Effects(window)
 
-# Inventories ITtems and Weapons GUI
+# Inventories Items and Weapons GUI
 inventory = inventories.Weapon(player, window, (350, 350), (175, 75))
 inventory.sfx = [select_item, selected_item] # add sfx in inventory
-# chest box
-chestBox = inventories.Items(player, window, (640, 320), ((windowSize['width'] - 640) / 2, (windowSize['height'] - 320) / 2))
-chestBox.sfx = inventory.sfx
+
+# vault box
+vaultbox = inventories.Items(player, window, (640, 320), ((windowSize['width'] - 640) / 2, (windowSize['height'] - 320) / 2))
+vaultbox.sfx = inventory.sfx
 
 # Crafting Table
 crafting_table = inventories.CraftingTable(player, window, (512, 256), (94, 122))
@@ -202,9 +203,12 @@ def draw_base():
     player.draw(window, create_base.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
+    effects_2.Hit([player])
+    effects_1.Hit([player])
     player.navigate()
     player.handleDefense()
     player.TriggerSkills()
+    player.Message(window)
 
     player.barLife(window)
     for guis in listGUIs:
@@ -214,7 +218,7 @@ def draw_base():
     if pause:
         currentPage = pages[6] # game menu / pause
 
-    elif openWeapons or player.viewChestBox:
+    elif openWeapons or player.viewVaultBox:
         currentPage = pages[7] # weapons inventory
 
     elif player.viewInventory:
@@ -250,6 +254,7 @@ def draw_map2():
     # drop or display weapons
     player.potion.Use()
     player.handleFight(enemies_map2.listEnemies)
+    player.Message(window)
 
     # enemies
     enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
@@ -258,6 +263,8 @@ def draw_map2():
     player.draw(window, create_map2.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
+    effects_2.Hit([player]+enemies_map2.listEnemies)
+    effects_1.Hit([player]+enemies_map2.listEnemies)
     player.navigate()
     player.TriggerSkills(enemies_map2.listEnemies)
 
@@ -268,8 +275,13 @@ def draw_map2():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
-    elif openWeapons:
-        currentPage = pages[7]
+
+    elif openWeapons or player.viewVaultBox:
+        currentPage = pages[7] # weapons inventory
+
+    elif player.viewInventory:
+        currentPage = pages[8] # items inventory
+
     elif player.craft:
         currentPage = pages[9] # open craftbox
 
@@ -299,6 +311,7 @@ def draw_map3():
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
     player.navigate()
+    player.Message(window)
 
     player.barLife(window)
     for guis in listGUIs:
@@ -307,8 +320,13 @@ def draw_map3():
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
-    elif openWeapons:
-        currentPage = pages[7]
+
+    elif openWeapons or player.viewVaultBox:
+        currentPage = pages[7] # weapons inventory
+
+    elif player.viewInventory:
+        currentPage = pages[8] # items inventory
+
     elif player.craft:
         currentPage = pages[9] # open craftbox
 
@@ -331,20 +349,27 @@ def draw_map4():
     openWeapons = create_base.openWeapons()
 
     player.potion.Use()
-    player.handleFight([])
+    player.handleFight([create_map4.practice])
     player.draw(window, create_map4.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
     player.navigate()
+    player.TriggerSkills([create_map4.practice])
+    player.Message(window)
 
     player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
 
     if pause:
-        currentPage = pages[6]
-    elif openWeapons:
-        currentPage = pages[7]
+        currentPage = pages[6] # game menu / pause
+
+    elif openWeapons or player.viewVaultBox:
+        currentPage = pages[7] # weapons inventory
+
+    elif player.viewInventory:
+        currentPage = pages[8] # items inventory
+
     elif player.craft:
         currentPage = pages[9] # open craftbox
 
@@ -359,10 +384,11 @@ def draw_weapons():
     player.potion.Use()
     inventory.draw()
     inventory.drawWeapons()
+    player.Message(window)
 
     if inventory.Select():
         currentPage = pages[5]
-        player.viewChestBox = False
+        player.viewVaultBox = False
 
     player.barLife(window)
     for guis in listGUIs:
@@ -372,14 +398,15 @@ def draw_weapons():
 
     pygame.display.flip()
 
-def draw_chestBox():
+def draw_vaultbox():
     global currentPage
 
     player.potion.Use()
-    chestBox.draw()
-    chestBox.drawInventories()
+    vaultbox.draw()
+    vaultbox.drawInventories()
+    player.Message(window)
 
-    if chestBox.Select():
+    if vaultbox.Select():
         currentPage = pages[5]
         player.viewInventory = False
     
@@ -397,6 +424,8 @@ def draw_craftbox():
     player.potion.Use()
     crafting_table.draw()
     crafting_table.drawItems()
+    player.Message(window)
+
     if crafting_table.Select():
         currentPage = pages[5]
         player.craft = False
@@ -510,12 +539,15 @@ def selectPlayer():
 
         ]
 
-        player.inventories = [weapons.Potions(player, window, (25, 25), 'durability')] # load at least one item or weapon in inventory
+        player.inventories = [
+            weapons.Potions(player, window, (25, 25), 'durability'),
+            weapons.Shield(player, window, (80, 80), 'protektor'),
+            ] # load at least one item or weapon in inventory
 
         # give player equipment
         player.equiped1 = weapons.Boomerang(player, window, (30, 30)) # equiped the weapon 1
         player.equiped2 = weapons.Bomb(player, window, (30, 30)) # equiped the weapon 2
-        player.shield = weapons.Sheild(player, window, (80, 80)) # equiped the shield
+        player.shield = weapons.Shield(player, window, (80, 80)) # equiped the shield
         player.potion = weapons.Potions(player, window, (25, 25), 'power')
         player.potion.Apply(player.equiped1)
         player.potion.Apply(player.equiped2)
@@ -600,7 +632,7 @@ def main():
         elif currentPage == pages[7]:
             draw_weapons()
         elif currentPage == pages[8]:
-            draw_chestBox()
+            draw_vaultbox()
         elif currentPage == pages[9]:
             draw_craftbox()
         elif currentPage == pages[-1]: # exit game

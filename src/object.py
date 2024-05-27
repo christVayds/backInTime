@@ -17,6 +17,12 @@ class Object(pygame.sprite.Sprite):
         # enemies in front of abj
         self.e_front = []
 
+        # for practice
+        self.attacked = False
+        self.life = 100
+        self.practice = None
+        self.hit = None
+
         self.rect = pygame.Rect((x, y), (self.width, self.height)) # oject rect
         self.image = pygame.Surface((self.width, self.height)) # object surface
 
@@ -27,7 +33,7 @@ class Object(pygame.sprite.Sprite):
         # for animated object
         self.animation = 0
         self.animatedObjects = [] # load all animated image here
-        if self._type in ['animated', 'animated_once']:
+        if self._type in ['animated', 'animated_once', 'animated2']:
             self.loadAnimated() # all animated image loaded
 
         # for chestboxes
@@ -37,17 +43,28 @@ class Object(pygame.sprite.Sprite):
         # Optimizing rendering objects - rendering the object when the object is in the display
         # if x position is greater than the negative side of the object and if x position is less than the size of the width of the screen and y position is greater than the size of the object and y position is less than the height of the screen then render the image of tile
 
-        if self._type in ['other', 'other2', 'bg_image']:
+        if self._type == 'practice':
+            if self.life <= 0:
+                self.life = 100
+            if self.attacked:
+                screen.blit(self.hit, self.rect)
+                self.attacked = False
+            else:
+                screen.blit(self.nonAnimated, self.rect)
+            pygame.draw.rect(screen, (255,0,0), (self.rect.x-(self.width/2), self.rect.y-20, self.width*2, 5))
+            pygame.draw.rect(screen, (0,200,10), (self.rect.x-(self.width/2), self.rect.y-20, (self.life / 100) * (self.width*2), 5))
+
+        if self._type in ['other', 'other2', 'bg_image', 'image_only']:
             if self.rect.x > -self.rect.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.nonAnimated, self.rect)
 
-        elif self._type == 'animated':
+        elif self._type in ['animated', 'animated2']:
             if self.rect.x > -self.rect.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 self.animate(screen) # auto animating if the object is animated(note animated_once)
 
         # for debuging or testing
-        # else:
-        #     pygame.draw.rect(screen, (255,0,0), self.rect, 1)
+        else:
+            pygame.draw.rect(screen, (255,0,0), self.rect, 1)
 
         # pygame.draw.rect(screen, (255,255,255), self.rect, 1)
 
@@ -77,6 +94,12 @@ class Object(pygame.sprite.Sprite):
         if self._type in ['other', 'other2']:
             image = pygame.image.load(f'characters/objects/{self.name}.png')
             self.nonAnimated = pygame.transform.scale(image, (self.width, self.height))
+
+        elif self._type == 'practice':
+            image = pygame.image.load(f'characters/objects/{self.name}.png')
+            image2 = pygame.image.load(f'characters/objects/{self.name}_hit.png')
+            self.nonAnimated = pygame.transform.scale(image, (self.width, self.height))
+            self.hit = pygame.transform.scale(image2, (self.width, self.height))
 
         elif self._type == 'bg_image':
             image = pygame.image.load(f'characters/objects/{self.name}.jpg')

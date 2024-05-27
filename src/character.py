@@ -13,7 +13,11 @@ class Player(pygame.sprite.Sprite):
 
         # Fonts
         self.font = pygame.font.SysFont('consolas', 15)
+        self.messageFont = pygame.font.SysFont('consolas', 15)
+
+        # timers
         self.timer = timer.Timer(30) # fps = 30
+        self.messageTimer = timer.Timer(30)
 
         # player life
         self.defaultLife = 100
@@ -27,6 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.equiped2 = None
         self.potion = None
         self.shield = None
+        self.level = 1
 
         # skills
         self.skills = None
@@ -62,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         self.chestBoxes = []
         self.inventories = []
         self.viewInventory = False
-        self.viewChestBox = False
+        self.viewVaultBox = False
         self.craft = False
 
         # handling location
@@ -72,6 +77,10 @@ class Player(pygame.sprite.Sprite):
         self.nav = False
         self.MapObjects = {}
         self.respawn = 'base'
+
+        # messages or notification
+        self.showMessage = False
+        self.message = None
 
     def draw(self, screen, allObj):
 
@@ -222,7 +231,10 @@ class Player(pygame.sprite.Sprite):
                 elif obj._type in ['other', 'hidden', 'animated', 'animated_once']: # with y-sorting objects
                     # check if item is chestbox
                     if obj.name in ['box_1', 'box_2', 'box_3'] and obj.loaded:
-                        self.pick(obj) # pick the item with space bar
+                        for item in obj.loaded:
+                            self.pick(item, obj) # pick the item with space bar
+                        if len(obj.loaded) < 1:
+                            self.viewVaultBox = True
                     elif obj.name in ['vault_box']:
                         self.openChestBox()
 
@@ -271,11 +283,11 @@ class Player(pygame.sprite.Sprite):
 
             elif obj.name == 'map4':
                 self.nav = True
-                self.right, self.left, self.up, self.down, = False, False, False, True
+                self.right, self.left, self.up, self.down, = True, False, False, False
                 self.respawn = self.location
                 self.location = obj.name
 
-            self.walk = 0
+            # self.walk = 0
 
     def navigate(self): # place the player to navigation / pointer object
         if self.nav:
@@ -283,21 +295,42 @@ class Player(pygame.sprite.Sprite):
         
         self.nav = False
 
-    # for picking items and opening a chestboxes
-    def pick(self, obj):
+    # # for picking items and opening a chestboxes
+    # def pick(self, obj):
 
-        # click space bar to pick the object or open the object
+    #     # click space bar to pick the object or open the object
+    #     keys = pygame.key.get_pressed()
+
+    #     if keys[pygame.K_SPACE]:
+    #         for item in obj.loaded:
+    #             print(item)
+    #             if len(self.myWeapons) < 8:
+    #                 self.myWeapons.append(item)
+    #                 obj.loaded.remove(item) # remove the item from the chestbox
+    #                 self.viewVaultBox = True
+    #             else:
+    #                 print(f'Inventory is full - remain {len(obj.loaded)}')
+
+    def pick(self, item, obj):
         keys = pygame.key.get_pressed()
-
         if keys[pygame.K_SPACE]:
-            for item in obj.loaded:
-                if len(self.myWeapons) < 8:
-                    self.myWeapons.append(item)
-                    obj.loaded.remove(item) # remove the item from the chestbox
-                    self.viewChestBox = True
-                else:
-                    print(f'Inventory is full - remain {len(obj.loaded)}')
-                    print(obj.loaded)
+            if len(self.myWeapons) < 8:
+                self.myWeapons.append(item)
+                obj.loaded.remove(item)
+            else:
+                self.showMessage = True
+                self.message = 'Inventory is already full'
+                self.viewVaultBox = True
+                print(f'Inventory is full - remain {len(item.name)}')
+
+    def Message(self, screen):
+        if self.showMessage:
+            text = self.messageFont.render(self.message, True, (208, 2, 235))
+            if not self.messageTimer.coolDown(5):
+                screen.blit(text, (25, (500 - text.get_height()) / 2, text.get_width(), text.get_height()))
+            else:
+                self.showMessage = False
+
                     
     def openChestBox(self):
         keys = pygame.key.get_just_pressed()
@@ -367,12 +400,13 @@ class Enemy(pygame.sprite.Sprite):
         # rect
         self.rect = pygame.Rect((x, y), (self.width, self.height))
 
-        self.speed = random.choice([2.5, 3, 3.5])
+        self.speed = None
         self.attacked = False # attacked by the player
         self.defaultLife = 20
         self.life = 0
         self.push = 0
         self.pushed = False
+        self.level = 1
 
         self.canFollow = True
 
@@ -451,19 +485,19 @@ class Enemy(pygame.sprite.Sprite):
                 self.up = False
                 self.down = False
                 self.move_x(self.speed * -1)
-            if self.rect.x < player.rect.x - 35:
+            elif self.rect.x < player.rect.x - 35:
                 self.left = False
                 self.right = True
                 self.up = False
                 self.down = False
                 self.move_x(self.speed)
-            if self.rect.y > player.rect.y + 35:
+            elif self.rect.y > player.rect.y + 35:
                 self.left = False
                 self.right = False
                 self.up = True
                 self.down = False
                 self.move_y(self.speed * -1)
-            if self.rect.y < player.rect.y - 35:
+            elif self.rect.y < player.rect.y - 35:
                 self.left = False
                 self.right = False
                 self.up = False

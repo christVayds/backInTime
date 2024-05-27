@@ -27,6 +27,9 @@ class Weapon:
         self.absorb = 0 # sheild absorb
         self.mana = 0.2
 
+        self.weaponData = None
+        self.LoadData()
+
         # get mouse positions
         self.mouse = False
         self.mouseDirection = pygame.Vector2(0,0)
@@ -63,6 +66,10 @@ class Weapon:
     def decreaseMana(self):
         if self.player.mana > 1:
             self.player.mana -= self.mana
+
+    def LoadData(self):
+        with open('Data/weapons.json') as file:
+            self.weaponData = json.load(file)
 
     def loadNoneAnimated(self):
         if self._type == 'weapon':
@@ -122,13 +129,13 @@ class Weapon:
     def move_y(self, direction):
         self.rect.y += direction
 
-class Sheild(Weapon): # regular shield
+class Shield(Weapon): # regular shield
 
-    def __init__(self, player, screen, scale, name='sheild', animated=True, _type='shield'):
+    def __init__(self, player, screen, scale, name='shield', animated=True, _type='shield'):
         super().__init__(player, screen, scale, name, animated, _type)
-        self.duration = 120
-        self.absorb = 5
-        self.mana = 0.01
+        self.duration = self.weaponData[self.name]['duration']
+        self.absorb = self.weaponData[self.name]['absorb']
+        self.mana = self.weaponData[self.name]['mana']
 
     def weapon(self, enemies=[]):
         if self.c_triggered and self.duration > 0:
@@ -137,9 +144,10 @@ class Sheild(Weapon): # regular shield
             self.draw()
             self.duration -= 1
             self.decreaseMana()
+            print(self.player.mana)
         else:
             self.c_triggered = False
-            self.duration = 120
+            self.duration = self.weaponData[self.name]['duration']
 
 class BoomShield(Weapon): # combination of weapon and shield
 
@@ -372,39 +380,33 @@ class Potions(Weapon):
 
     def __init__(self, player, screen, scale, name, animated=False, _type='potion'):
         super().__init__(player, screen, scale, name, animated, _type)
-        self.potionData = {}
         self.applyMana = False
-        self.LoadData()
+
+        self.damage = self.weaponData[self.name]['damage']
+        self.absorb = self.weaponData[self.name]['shield-support']
 
     def Use(self):
         if self.player.life < self.player.defaultLife:
-            self.player.life += self.potionData[self.name]['support']
+            self.player.life += self.weaponData[self.name]['support']
         if self.player.mana < self.player.defaultMana:
-            self.player.mana += self.potionData[self.name]['plus-mana']
+            self.player.mana += self.weaponData[self.name]['plus-mana']
 
     def Apply(self, weapon):
-        weapon.damage += self.potionData[self.name]['damage']
-        self.player.speed += self.potionData[self.name]['speed'] # add to your speed
-        if weapon.mana > self.potionData[self.name]['weapon-support']:
+        weapon.damage += self.weaponData[self.name]['damage']
+        self.player.speed += self.weaponData[self.name]['speed'] # add to your speed
+        if weapon.mana > self.weaponData[self.name]['weapon-support']:
             self.applyMana = True
-            weapon.mana = round(weapon.mana - self.potionData[self.name]['weapon-support'], 2)
+            weapon.mana = round(weapon.mana - self.weaponData[self.name]['weapon-support'], 2)
         else:
             self.applyMana = False
 
         print(f'name: {weapon.name} damage: {weapon.damage} - mana: {weapon.mana}') # for testing and debuging
 
     def Remove(self, weapon):
-        weapon.damage = round(weapon.damage - self.potionData[self.name]['damage'], 2)
-        self.player.speed -= self.potionData[self.name]['speed']
+        weapon.damage = round(weapon.damage - self.weaponData[self.name]['damage'], 2)
+        self.player.speed -= self.weaponData[self.name]['speed']
         if self.applyMana:
-            weapon.mana += self.potionData[self.name]['weapon-support'] # theres something wrong with this
-
-    def LoadData(self):
-        with open('Data/weapons.json') as file:
-            self.potionData = json.load(file)
-
-        self.damage = self.potionData[self.name]['damage']
-        self.absorb = self.potionData[self.name]['shield-support']
+            weapon.mana += self.weaponData[self.name]['weapon-support'] # theres something wrong with this
 
 class Items(Weapon):
 
@@ -431,13 +433,14 @@ class Items(Weapon):
         except KeyError:
             return False
 
-class Effects:
+class Effects(pygame.sprite.Sprite):
 
     def __init__(self, screen):
         self.screen = screen
         self.weapons = None # the weapons
 
         self.loaded = []
+        self.rect = None
 
     def effects(self):
         if self.weapons.effect: # if the weapon effects is true or the weapon is ready to effects
@@ -448,8 +451,18 @@ class Effects:
         if (self.weapons.bframe + 1) >= 20:
             self.weapons.bframe = 0
 
-        self.screen.blit(self.loaded[self.weapons.bframe], (self.weapons.rect.x + ((self.weapons.rect.width - 100) / 2), self.weapons.rect.y + (self.weapons.rect.height - 100) / 2))
+        self.screen.blit(self.loaded[self.weapons.bframe], (self.weapons.rect.x + ((self.weapons.rect.width - 100) / 2), self.weapons.rect.y + (self.weapons.rect.height - 100) / 2, self.loaded[0].get_width(), self.loaded[0].get_height()))
         self.weapons.bframe+=1
+
+        # pygame.draw.rect(self.screen, (255,0,0), (self.weapons.rect.x + ((self.weapons.rect.width - 100) / 2), self.weapons.rect.y + (self.weapons.rect.height - 100) / 2, self.loaded[0].get_width(), self.loaded[0].get_height()), 2)
+
+    def Hit(self, objs):
+        if self.weapons.effect:
+            for chars in objs:
+                if chars.rect.colliderect((self.weapons.rect.x + ((self.weapons.rect.width - 100) / 2), self.weapons.rect.y + (self.weapons.rect.height - 100) / 2, self.loaded[0].get_width(), self.loaded[0].get_height())):
+                    if chars.name in ['zombies']:
+                        chars.attacked = True
+                    chars.life -= self.weapons.damage
 
     def loadEffects(self, equiped):
         self.weapons = equiped
@@ -460,6 +473,8 @@ class Effects:
                 image = pygame.image.load(image)
                 image = pygame.transform.scale(image, (100, 100))
                 self.loaded.append(image)
+
+            self.rect = pygame.Rect(self.weapons.rect.x + ((self.weapons.rect.width - 100) / 2), self.weapons.rect.y + (self.weapons.rect.height - 100) / 2, self.loaded[0].get_width(), self.loaded[0].get_height())
 
         except FileNotFoundError:
             print(f'{self.weapons.name} no effects')
