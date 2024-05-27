@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.defaultMana = 100
         self.life = self.defaultLife
         self.mana = self.defaultMana
-        self.sheildPower = 0
+        self.shieldPower = 0
         self.power = 10
         self.myWeapons = [] # for weapons
         self.equiped1 = None
@@ -217,7 +217,7 @@ class Player(pygame.sprite.Sprite):
                 # chest boxes and craftbox
                 if obj._type in ['hidden2', 'other2']: # no y-sorting objects
                     if obj.name in ['crafting_table']:
-                        self.openCraftBox()
+                        self.openCraftBox() # open a crafting table
 
                     # other collisions
                     if self.left:
@@ -295,22 +295,6 @@ class Player(pygame.sprite.Sprite):
         
         self.nav = False
 
-    # # for picking items and opening a chestboxes
-    # def pick(self, obj):
-
-    #     # click space bar to pick the object or open the object
-    #     keys = pygame.key.get_pressed()
-
-    #     if keys[pygame.K_SPACE]:
-    #         for item in obj.loaded:
-    #             print(item)
-    #             if len(self.myWeapons) < 8:
-    #                 self.myWeapons.append(item)
-    #                 obj.loaded.remove(item) # remove the item from the chestbox
-    #                 self.viewVaultBox = True
-    #             else:
-    #                 print(f'Inventory is full - remain {len(obj.loaded)}')
-
     def pick(self, item, obj):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
@@ -370,6 +354,12 @@ class Player(pygame.sprite.Sprite):
             if self.timer.coolDown(self.skills.skill_cooldown):
                 self.skill_cooldown = self.skills.skill_cooldown
 
+    def Attacked(self, enemy):
+        if self.shieldPower > 0:
+            self.shieldPower -= enemy.damage
+        else:
+            self.life -= enemy.damage
+
     def initSkill(self, screen):
         if self.name == 'johny':
             self.skills = skills.Boomerang(self, screen, (30,30))
@@ -403,6 +393,8 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = None
         self.attacked = False # attacked by the player
         self.defaultLife = 20
+        self.shieldPower = 0
+        self.damage = 0.5
         self.life = 0
         self.push = 0
         self.pushed = False
@@ -503,6 +495,10 @@ class Enemy(pygame.sprite.Sprite):
                 self.up = False
                 self.down = True
                 self.move_y(self.speed)
+
+    def Attack(self, player):
+        if pygame.sprite.collide_rect(self, player):
+            player.Attacked(self)
 
     # load enemies image
     def loadImages(self):

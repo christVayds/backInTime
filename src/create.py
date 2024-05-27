@@ -123,3 +123,4 @@ class Create:
                     self.listEnemies.remove(enemy)
             enemy.draw(self.screen, objects)
             enemy.follow(self.player) # follow the player
+            enemy.Attack(self.player)

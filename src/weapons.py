@@ -137,17 +137,32 @@ class Shield(Weapon): # regular shield
         self.absorb = self.weaponData[self.name]['absorb']
         self.mana = self.weaponData[self.name]['mana']
 
+        self.tempShield = 0
+
     def weapon(self, enemies=[]):
         if self.c_triggered and self.duration > 0:
             self.rect.x = self.player.rect.x + (self.player.width - self.rect.width) / 2
             self.rect.y = self.player.rect.y + (self.player.height - self.rect.height) / 2
             self.draw()
-            self.duration -= 1
+            self.Use()
             self.decreaseMana()
-            print(self.player.mana)
+            if self.player.shieldPower <= 0:
+                self.c_triggered = False
+            self.duration -= 1
         else:
             self.c_triggered = False
+            if self.duration <= 0:
+                self.Remove()
             self.duration = self.weaponData[self.name]['duration']
+
+    def Use(self):
+        if self.duration >= self.weaponData[self.name]['duration']:
+            self.tempShield = self.player.shieldPower
+            self.player.shieldPower += self.absorb
+
+    def Remove(self):
+        self.player.shieldPower = self.tempShield
+        self.tempShield = 0
 
 class BoomShield(Weapon): # combination of weapon and shield
 

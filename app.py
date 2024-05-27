@@ -196,6 +196,7 @@ def draw_base():
     create_base.draw()
     pause = create_base.pauseGame() # if player click esc - pause
     openWeapons = create_base.openWeapons()
+    player.Message(window)
 
     # draw player
     player.potion.Use() # use the potion
@@ -208,7 +209,6 @@ def draw_base():
     player.navigate()
     player.handleDefense()
     player.TriggerSkills()
-    player.Message(window)
 
     player.barLife(window)
     for guis in listGUIs:
@@ -257,7 +257,7 @@ def draw_map2():
     player.Message(window)
 
     # enemies
-    enemies_map2.draw_enemy(create_map2.listofObjects[1:]) # uncomment later
+    enemies_map2.draw_enemy(create_map2.listofObjects[1:])
 
     # draw player
     player.draw(window, create_map2.listofObjects[1:])
@@ -266,6 +266,7 @@ def draw_map2():
     effects_2.Hit([player]+enemies_map2.listEnemies)
     effects_1.Hit([player]+enemies_map2.listEnemies)
     player.navigate()
+    player.handleDefense()
     player.TriggerSkills(enemies_map2.listEnemies)
 
     player.barLife(window)
