@@ -4,10 +4,7 @@
         {"name": "book_shelf", "type": "other", "rect": "(535, 30, 70, 90)"},
         {"name": "book_shelf", "type": "other", "rect": "(470, 30, 70, 90)"},
         {"name": "monitor_1", "type": "other", "rect": "(400, 45, 70, 70)"},
-        {"name": "box_1", "type": "other", "rect": "(300, 60, 60, 55)", "items": ["icon14_01"]},
-        {"name": "box_1", "type": "other", "rect": "(240, 60, 60, 55)", "items": ["icon14_03"]},
-        {"name": "table_1", "type": "other", "rect": "(600, 150, 60, 60)"},
-        {"name": "book_1", "type": "other", "rect": "(615, 150, 30, 30)"},
+        {"name": "vault_box", "type": "other", "rect": "(250, 60, 128, 64)"},
 
         {"name": "crafting_table", "type": "other2", "rect": "(25, 275, 64, 128)"},
         {"name": "keyboard_1", "type": "other2", "rect": "(160, 340, 60, 60)"},
@@ -44,8 +41,8 @@
         {"name": "painting_1", "type": "other", "rect": "(400, 225, 50, 50)"},
         {"name": "painting_2", "type": "other", "rect": "(470, 225, 50, 50)"},
         {"name": "painting_3", "type": "other", "rect": "(540, 225, 50, 50)"},
-        {"name": "box_2", "type": "other", "rect": "(590, 250, 50, 50)"},
-        {"name": "box_2", "type": "other", "rect": "(650, 250, 50, 50)"},
+        {"name": "box_2", "type": "other", "rect": "(590, 250, 50, 50)", "items": ["icon14_01", "icon14_09"]},
+        {"name": "box_2", "type": "other", "rect": "(650, 250, 50, 50)", "items": ["icon14_03"]},
         {"name": "dnt_items", "type": "other", "rect": "(500, 400, 192, 48)"},
         {"name": "table_2", "type": "other2", "rect": "(325, 350, 100, 100)"},
         {"name": "table_3", "type": "other2", "rect": "(200, 350, 100, 100)"},
@@ -58,20 +55,47 @@
 
         {"name": "hidden", "type": "hidden2", "rect": "(0, 50, 25, 150)"},
         {"name": "hidden", "type": "hidden2", "rect": "(400, 200, 300, 25)"},
-        {"name": "hidden", "type": "hidden2", "rect": "(700, 150, 25, 250)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(700, 100, 25, 350)"},
         {"name": "hidden", "type": "hidden2", "rect": "(300, 200, 25, 150)"},
-        {"name": "hidden", "type": "hidden2", "rect": "(610, 25, 84, 75)", "comment": "for machine"}
+        {"name": "hidden", "type": "hidden2", "rect": "(610, 25, 84, 75)", "comment": "for machine"},
+        {"name": "hidden", "type": "hidden2", "rect": "(75, 450, 25, 75)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(200, 450, 25, 75)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(100, 525, 100, 25)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(400, 450, 25, 75)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(500, 450, 25, 75)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(425, 525, 100, 25)"}
     ],
 
     "Map3": [
+        {"name": "door_1", "type": "other", "rect": "(25, 25, 50, 75)"},
+        {"name": "outside", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "outside_map3"},
+        {"name": "painting_1", "type": "other", "rect": "(100, 25, 50, 50)"},
         {"name": "base", "type": "navigation", "rect": "(50, 375, 75, 50)", "distination": "base_map3"},
+        {"name": "machine_2", "type": "other", "rect": "(190, 50, 256, 64)"},
         {"name": "teleportation_cables", "type": "animated", "rect": "(475, 25, 115, 74)"},
         {"name": "power_generator_1", "type": "animated", "rect": "(590, 25, 85, 74)"},
-        {"name": "teleport_machine", "type": "animated", "rect": "(525, 100, 96, 96)"}
+        {"name": "teleport_machine", "type": "animated2", "rect": "(525, 100, 96, 96)"},
+
+        {"name": "hidden", "type": "hidden2", "rect": "(75, 25, 100, 28)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(190, 25, 25, 48)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(25, 375, 25, 75)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(125, 375, 25, 75)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(175, 375, 500, 25)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(675, 75, 25, 300)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(450, 75, 25, 150)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(50, 450, 75, 25)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(0, 0, 25, 400)"}
     ],
 
     "Map4": [
-        {"name": "map2", "type": "navigation", "rect": "(25, 100, 50, 80)", "distination": "map2_map4"}
+        {"name": "door_1", "type": "other", "rect": "(25, 25, 50, 75)"},
+        {"name": "map2", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "map2_map4"},
+        {"name": "vault_box", "type": "other", "rect": "(325, 50, 128, 64)"},
+        {"name": "practice", "type": "practice", "rect": "(225, 150, 32, 64)"},
+
+        {"name": "hidden", "type": "hidden2", "rect": "(0, 0, 25, 400)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(25, 375, 425, 25)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(450, 0, 25, 400)"}
     ],
 
     "SelectPlayer": [
@@ -84,8 +108,8 @@
     ],
 
     "Enemies_m2": [
-        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2.5", "default_life": "20"},
-        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "2", "default_life": "50"},
-        {"name": "goblin", "rect": "(300, 150, 50, 50)", "speed": "3.5", "default_life": "30"}
+        {"name": "zombies", "rect": "(300, 150, 50, 50)", "speed": 2.5, "default_life": "20", "level": 1},
+        {"name": "zombies", "rect": "(300, 150, 50, 50)", "speed": 2, "default_life": "50", "level": 1},
+        {"name": "zombies", "rect": "(300, 150, 50, 50)", "speed": 3.5, "default_life": "30", "level": 1}
     ]
 }

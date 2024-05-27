@@ -13,20 +13,25 @@ class Player(pygame.sprite.Sprite):
 
         # Fonts
         self.font = pygame.font.SysFont('consolas', 15)
+        self.messageFont = pygame.font.SysFont('consolas', 15)
+
+        # timers
         self.timer = timer.Timer(30) # fps = 30
+        self.messageTimer = timer.Timer(30)
 
         # player life
         self.defaultLife = 100
         self.defaultMana = 100
         self.life = self.defaultLife
         self.mana = self.defaultMana
-        self.sheildPower = 0
+        self.shieldPower = 0
         self.power = 10
         self.myWeapons = [] # for weapons
         self.equiped1 = None
         self.equiped2 = None
         self.potion = None
         self.shield = None
+        self.level = 1
 
         # skills
         self.skills = None
@@ -62,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         self.chestBoxes = []
         self.inventories = []
         self.viewInventory = False
-        self.viewChestBox = False
+        self.viewVaultBox = False
         self.craft = False
 
         # handling location
@@ -72,6 +77,10 @@ class Player(pygame.sprite.Sprite):
         self.nav = False
         self.MapObjects = {}
         self.respawn = 'base'
+
+        # messages or notification
+        self.showMessage = False
+        self.message = None
 
     def draw(self, screen, allObj):
 
@@ -207,10 +216,8 @@ class Player(pygame.sprite.Sprite):
             if pygame.sprite.collide_rect(self, obj):
                 # chest boxes and craftbox
                 if obj._type in ['hidden2', 'other2']: # no y-sorting objects
-                    if obj.name in ['vault_1']:
-                        self.openChestBox()
-                    elif obj.name in ['crafting_table']:
-                        self.openCraftBox()
+                    if obj.name in ['crafting_table']:
+                        self.openCraftBox() # open a crafting table
 
                     # other collisions
                     if self.left:
@@ -223,8 +230,13 @@ class Player(pygame.sprite.Sprite):
                         self.rect.bottom = obj.rect.top
                 elif obj._type in ['other', 'hidden', 'animated', 'animated_once']: # with y-sorting objects
                     # check if item is chestbox
-                    if obj.name in ['box_1'] and obj.loaded:
-                        self.pick(obj) # pick the item with space bar
+                    if obj.name in ['box_1', 'box_2', 'box_3'] and obj.loaded:
+                        for item in obj.loaded:
+                            self.pick(item, obj) # pick the item with space bar
+                        if len(obj.loaded) < 1:
+                            self.viewVaultBox = True
+                    elif obj.name in ['vault_box']:
+                        self.openChestBox()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -271,11 +283,11 @@ class Player(pygame.sprite.Sprite):
 
             elif obj.name == 'map4':
                 self.nav = True
-                self.right, self.left, self.up, self.down, = False, False, False, True
+                self.right, self.left, self.up, self.down, = True, False, False, False
                 self.respawn = self.location
                 self.location = obj.name
 
-            self.walk = 0
+            # self.walk = 0
 
     def navigate(self): # place the player to navigation / pointer object
         if self.nav:
@@ -283,21 +295,26 @@ class Player(pygame.sprite.Sprite):
         
         self.nav = False
 
-    # for picking items and opening a chestboxes
-    def pick(self, obj):
-
-        # click space bar to pick the object or open the object
+    def pick(self, item, obj):
         keys = pygame.key.get_pressed()
-
         if keys[pygame.K_SPACE]:
-            for item in obj.loaded:
-                if len(self.myWeapons) < 8:
-                    self.myWeapons.append(item)
-                    obj.loaded.remove(item) # remove the item from the chestbox
-                    self.viewChestBox = True
-                else:
-                    print(f'Inventory is full - remain {len(obj.loaded)}')
-                    print(obj.loaded)
+            if len(self.myWeapons) < 8:
+                self.myWeapons.append(item)
+                obj.loaded.remove(item)
+            else:
+                self.showMessage = True
+                self.message = 'Inventory is already full'
+                self.viewVaultBox = True
+                print(f'Inventory is full - remain {len(item.name)}')
+
+    def Message(self, screen):
+        if self.showMessage:
+            text = self.messageFont.render(self.message, True, (208, 2, 235))
+            if not self.messageTimer.coolDown(5):
+                screen.blit(text, (25, (500 - text.get_height()) / 2, text.get_width(), text.get_height()))
+            else:
+                self.showMessage = False
+
                     
     def openChestBox(self):
         keys = pygame.key.get_just_pressed()
@@ -337,13 +354,18 @@ class Player(pygame.sprite.Sprite):
             if self.timer.coolDown(self.skills.skill_cooldown):
                 self.skill_cooldown = self.skills.skill_cooldown
 
+    def Attacked(self, enemy):
+        if self.shieldPower > 0:
+            self.shieldPower -= enemy.damage
+        else:
+            self.life -= enemy.damage
+
     def initSkill(self, screen):
         if self.name == 'johny':
             self.skills = skills.Boomerang(self, screen, (30,30))
             self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'ricky':
-            # self.skills = skills.Clone(self, screen)
-            self.skills = skills.Shield(self, screen, (80, 80))
+            self.skills = skills.Copy(self, screen, (80, 80))
             self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'jp':
             self.skills = skills.Shield(self, screen, (80, 80))
@@ -366,14 +388,16 @@ class Enemy(pygame.sprite.Sprite):
 
         # rect
         self.rect = pygame.Rect((x, y), (self.width, self.height))
-        # self.image = pygame.Surface((self.width, self.height))
 
-        self.speed = random.choice([2.5, 3, 3.5])
+        self.speed = None
         self.attacked = False # attacked by the player
         self.defaultLife = 20
+        self.shieldPower = 0
+        self.damage = 0.5
         self.life = 0
         self.push = 0
         self.pushed = False
+        self.level = 1
 
         self.canFollow = True
 
@@ -389,6 +413,7 @@ class Enemy(pygame.sprite.Sprite):
         self.e_right = []
         self.e_down = []
         self.e_up = []
+
         # load and flip image
         self.loadImages()
         self.flipImage()
@@ -469,8 +494,10 @@ class Enemy(pygame.sprite.Sprite):
                 self.up = False
                 self.down = True
                 self.move_y(self.speed)
-            else:
-                self.walk = 0
+
+    def Attack(self, player):
+        if pygame.sprite.collide_rect(self, player):
+            player.Attacked(self)
 
     # load enemies image
     def loadImages(self):

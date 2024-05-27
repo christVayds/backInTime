@@ -2,15 +2,15 @@
     "power": {
         "damage": 1,
         "plus-mana": 0.2,
-        "support": 0.2,
+        "support": 0.02,
         "shield-support": 1,
         "weapon-support": 0.1,
         "speed": 0
     },
     "durability": {
-        "damage": 0.6,
+        "damage": 0.5,
         "plus-mana": 0.1,
-        "support": 0.3,
+        "support": 0.01,
         "shield-support": 5,
         "weapon-support": 0.1,
         "speed": 0
@@ -18,17 +18,27 @@
     "weaponize": {
         "damage": 0.9,
         "plus-mana": 0.9,
-        "support": 0.1,
+        "support": 0.3,
         "shield-support": 6,
         "weapon-support": 0.06,
         "speed": 0
     },
     "speed": {
         "damage": 0.1,
-        "plus-mana": 0.1,
+        "plus-mana": 0.04,
         "support": 0.1,
         "shield-support": 1,
         "weapon-support": 0,
         "speed": 1
+    },
+    "shield": {
+        "duration": 120,
+        "absorb": 80,
+        "mana": 0.4
+    },
+    "protektor": {
+        "duration": 500,
+        "absorb": 100,
+        "mana": 0.4
     }
 }

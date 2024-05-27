@@ -15,6 +15,7 @@ class Create:
         self.listEnemies = [] # for enemies
         self.selectors = [] # for selectors
         self.listUIs = [] # for UI
+        self.practice = None
 
         self.selected = 0
 
@@ -28,8 +29,10 @@ class Create:
     def create(self):
         for obj in self.list_obj:
             object = Object(obj['rect'][0], obj['rect'][1], obj['rect'][2], obj['rect'][3], obj['type'], obj['name'])
-            if obj['name'] in ['box_1']:
+            if obj['name'] in ['box_1', 'box_2', 'box_3']:
                 object.loadChestBox(obj['items'], self.player, self.screen)
+            if object._type == 'practice':
+                self.practice = object
             if obj['type'] == 'navigation':
                 self.player.MapObjects[obj['distination']] = object
             self.listofObjects.append(object)
@@ -120,3 +123,4 @@ class Create:
                     self.listEnemies.remove(enemy)
             enemy.draw(self.screen, objects)
             enemy.follow(self.player) # follow the player
+            enemy.Attack(self.player)

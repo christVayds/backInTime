@@ -1,4 +1,5 @@
 import pygame
+import random
 # Skills = speed, boomerang, shield, Copy - other shield(back to enemy its own attack), ice spike, lightning bolt, mana drain(steal mana)
 
 class Skills:
@@ -140,7 +141,7 @@ class Shield(Skills):
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
-            self.c_shield = self.player.sheildPower
+            self.c_shield = self.player.shieldPower
             self.player.shieldPower = self.temporarySheild
 
             self.rect.x = self.player.rect.x + (self.player.width - self.rect.width) / 2
@@ -164,3 +165,36 @@ class Copy(Skills): # random other 3 Skills
     def __init__(self, player, screen, scale, animated='animated'):
         super().__init__(player, screen, scale, animated)
         self.mana = 1.5
+        self.randSkills = [
+            Shield(player, screen, scale, animated),
+            Boomerang(player, screen, scale),
+            Speed(player, screen)
+        ]
+        self.used = None
+        self.skill_cooldown = 25
+
+        self.loadImage()
+        self.randSkills[0].animated = self.animated
+        self.randSkills[1].image = self.image
+
+    def skill(self, enemies):
+        if self.triggered:
+            self.used = random.choice(self.randSkills)
+            self.used.triggered = True
+            self.triggered = False
+        if self.used != None:
+            self.used.skill(enemies)
+
+    def loadImage(self):
+        # for boomerang
+        image = f'characters/Skills/johny/skill.png'
+        image = pygame.image.load(image)
+        image = pygame.transform.scale(image, (30, 30))
+        self.image = image
+
+        # for animation - jp skill
+        for count in range(7):
+            image = f'characters/Skills/jp/skill_{count}.png'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+            self.animatedImage.append(image)
