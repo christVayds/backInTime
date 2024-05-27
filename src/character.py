@@ -365,8 +365,7 @@ class Player(pygame.sprite.Sprite):
             self.skills = skills.Boomerang(self, screen, (30,30))
             self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'ricky':
-            # self.skills = skills.Clone(self, screen)
-            self.skills = skills.Shield(self, screen, (80, 80))
+            self.skills = skills.Copy(self, screen, (80, 80))
             self.skill_cooldown = self.skills.skill_cooldown
         elif self.name == 'jp':
             self.skills = skills.Shield(self, screen, (80, 80))
