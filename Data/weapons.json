@@ -44,6 +44,6 @@
     "armored": {
         "duration": 500,
         "absorb": 200,
-        "mana": 0.2
+        "mana": 0.9
     }
 }
