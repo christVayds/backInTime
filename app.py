@@ -13,6 +13,7 @@ Date submited:
 """
 
 import pygame
+from src.game import Game
 from src.character import *
 from src.object import *
 from src.create import Create
@@ -31,6 +32,9 @@ from src import inventories
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
+
+# Game State
+game = Game()
 
 # screen
 windowSize = {'width': 700, 'height': 500} # size of the display
@@ -87,15 +91,19 @@ listGUIs = [playerIcon] # list contain: healthbar
 
 ##### PAUSE MENU #####
 pause_menu = GUI(254, 58, (192, 384), window, 'pause_game', sfx=[select_item, selected_item])
+pause_menu.game = game
 
 ##### MAIN MENU #####
 main_menu = GUI(254, 58, (192, 384), window, 'main_menu', sfx=[select_item, selected_item])
+main_menu.game = game
 
 ##### SETTINGS #####
 settings_menu = GUI(254, 58, (192, 384), window, 'settings_menu', sfx=[select_item, selected_item])
+settings_menu.game = game
 
 ##### CREDITS #####
 credits_menu = GUI(254, 58, (192, 384), window, 'credits', sfx=[select_item, selected_item])
+credits_menu.game = game
 
 ############# PLAYER #####################
 
@@ -486,20 +494,30 @@ def mainMenu():
 
     main_menu.draw()
     selected = main_menu.Select()
-    if selected == 0:
-        if player.name != "":
+    if not game.play: # if the game program just started
+        if selected == 0:
+            currentPage = pages[4]
+            create_selectPlayer.create_UI() # go to select player
+        elif selected == 1:
+            currentPage = pages[2] # settings
+        elif selected == 2:
+            currentPage = pages[3] # credits
+        elif selected == 3:
+            currentPage = pages[-1] # exit
+    else: # if the game program already started
+        if selected == 0:
             currentPage = pages[5]
             music.switch = True
             music.toPlay = 0
-        else:
+        elif selected == 1:
             currentPage = pages[4]
-            create_selectPlayer.create_UI()
-    elif selected == 1:
-        currentPage = pages[2] # settings
-    elif selected == 2:
-        currentPage = pages[3] # credits
-    elif selected == 3:
-        currentPage = pages[-1] # exit
+            create_selectPlayer.create_UI() # fix this
+        elif selected == 2:
+            currentPage = pages[2]
+        elif selected == 3:
+            currentPage = pages[3]
+        elif selected == 4:
+            currentPage = pages[-1]
 
     pygame.display.flip()
 
@@ -584,6 +602,10 @@ def selectPlayer():
 
         effects_1.loadEffects(player.equiped1) # load effects - no effects yet to equiped 1(boomerang)
         effects_2.loadEffects(player.equiped2) # load effects
+
+        # game start
+        game.play = True
+        game.location = player.location # get the location
 
         currentPage = pages[5] # navigate to game page
         create_selectPlayer.destory_UI() # destroy this page

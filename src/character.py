@@ -240,6 +240,8 @@ class Player(pygame.sprite.Sprite):
                         self.openChestBox()
                     elif obj.name == 'machine_2':
                         self.openCollectable()
+                    elif obj.name == 'monitor_1':
+                        self.showGuide()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -336,6 +338,17 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             self.collectables = True
+
+    def showGuide(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_SPACE]:
+            for weapon in self.myWeapons:
+                if weapon.code == 'icon14_09':
+                    print('fount')
+            else:
+                self.message = 'No Memory Card'
+                self.showMessage = True
 
     def handleFight(self, enemies=[]):
         # equiped 1
