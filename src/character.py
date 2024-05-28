@@ -42,7 +42,6 @@ class Player(pygame.sprite.Sprite):
 
         # rect and surface
         self.rect = pygame.Rect((x, y), (self.width, self.height)) # for player rect
-        # self.image = pygame.Surface((self.width, self.height)).convert() # surface
 
         # facing
         self.left = False
@@ -55,12 +54,6 @@ class Player(pygame.sprite.Sprite):
         self.c_right = []
         self.c_up = []
         self.c_down = []
-        self.sword = [
-            pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)),
-            pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)),
-            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/sway_top.png'), (80, 80)), False, True),
-            pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'characters/objects/right_sway.png'), (80, 80)), True, False)
-        ]
 
         # inventories / items list
         # self.chestBoxes = []
@@ -83,7 +76,13 @@ class Player(pygame.sprite.Sprite):
         self.showMessage = False
         self.message = None
 
+        self.walkSfx = None
+        self.chestBoxSfx = pygame.mixer.Sound('audio/openChest.mp3')
+        self.walkSfx_timer = 0
+
     def draw(self, screen, allObj):
+        if self.walkSfx_timer > 0:
+            self.walkSfx_timer -= 1
 
         # handle collision
         self.handleCollision(allObj)
@@ -197,10 +196,16 @@ class Player(pygame.sprite.Sprite):
     
     # [direction] positive number going to right, negative going to left
     def move_x(self, direction):
+        if self.walkSfx_timer == 0:
+            self.walkSfx_timer = 25
+            self.walkSfx.play()
         self.rect.x += direction
 
     # [direction] positive number going down, negative going up
     def move_y(self, direction):
+        if self.walkSfx_timer == 0:
+            self.walkSfx_timer = 25
+            self.walkSfx.play()
         self.rect.y += direction
 
     def handleCollision(self, objects):
@@ -302,7 +307,9 @@ class Player(pygame.sprite.Sprite):
 
     def pick(self, item, obj):
         keys = pygame.key.get_pressed()
+
         if keys[pygame.K_SPACE]:
+            self.chestBoxSfx.play()
             if len(self.myWeapons) < 8:
                 self.myWeapons.append(item)
                 obj.loaded.remove(item)
@@ -324,6 +331,7 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_SPACE]:
+            self.chestBoxSfx.play()
             self.viewInventory = True
 
     def openCraftBox(self):
@@ -331,12 +339,14 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_SPACE]:
+            self.chestBoxSfx.play()
             self.craft = True
 
     def openCollectable(self):
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_SPACE]:
+            self.chestBoxSfx.play()
             self.collectables = True
 
     def showGuide(self):
@@ -397,6 +407,50 @@ class Player(pygame.sprite.Sprite):
         else:
             # raise error if player not found
             raise KeyError
+        
+    def Reset(self):
+        self.c_right = []
+        self.c_left = []
+        self.c_down = []
+        self.c_up = []
+
+        self.life = self.defaultLife
+        self.mana = self.defaultMana
+
+        self.skills = None
+        self.skill_cooldown = None
+
+        # speed
+        self.speed = 7
+        self.walk = 0
+
+        self.shieldPower = 0
+        self.power = 10
+        self.myWeapons = [] # for weapons
+        self.equiped1 = None
+        self.equiped2 = None
+        self.potion = None
+        self.shield = None
+        self.level = 1
+
+        self.inventories = []
+        self.collectedItems = []
+        self.viewInventory = False
+        self.viewVaultBox = False
+        self.craft = False
+        self.collectables = False
+
+        # handling location
+        self.location = 'base'
+
+        # map objects
+        self.nav = False
+        # self.MapObjects = {}
+        self.respawn = 'base'
+
+        # messages or notification
+        self.showMessage = False
+        self.message = None
 
 # enemy variant 1
 class Enemy(pygame.sprite.Sprite):
@@ -434,6 +488,7 @@ class Enemy(pygame.sprite.Sprite):
         self.e_right = []
         self.e_down = []
         self.e_up = []
+        self.e_hit = None
 
         # load and flip image
         self.loadImages()
@@ -443,14 +498,19 @@ class Enemy(pygame.sprite.Sprite):
     def draw(self, screen, objects):
 
         # handle collision
-        self.hit()
+        # self.hit()
         self.handlePushed()
         self.handleCollision(objects)
         
         if (self.walk + 1) >= 9:
             self.walk = 0
 
-        if self.left:
+        if self.attacked:
+            screen.blit(self.e_hit, self.rect)
+            self.hit()
+            self.walk = 0
+
+        elif self.left:
             if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.e_left[self.walk//3], (self.rect.x, self.rect.y))
             self.walk += 1
@@ -534,6 +594,12 @@ class Enemy(pygame.sprite.Sprite):
                     self.e_up.append(image)
                 elif side == sides[2]:
                     self.e_right.append(image)
+
+        # load the hit animation
+        image = f'characters/zombies/hit.png'
+        image = pygame.image.load(image)
+        image = pygame.transform.scale(image, (self.width, self.height))
+        self.e_hit = image
 
     # flip the image of enemy
     def flipImage(self):

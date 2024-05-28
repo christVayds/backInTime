@@ -58,7 +58,7 @@ class Create:
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_f]:
-            self.seletedItems.play()
+            self.player.chestBoxSfx.play()
             return True
 
     #  FOR USER INTERFACE

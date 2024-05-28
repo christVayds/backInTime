@@ -29,8 +29,8 @@ from src import weapons
 from src import inventories
 
 # initialize pygame
+pygame.mixer.pre_init()
 pygame.init()
-pygame.mixer.init()
 pygame.font.init()
 
 # Game State
@@ -64,6 +64,7 @@ music = Music() # load music inside MUSIC CLASS
 
 select_item = pygame.mixer.Sound('audio/select.wav') # for selecting items, etc.
 selected_item = pygame.mixer.Sound('audio/selected.wav') # selected items, etc.
+walkSfx = pygame.mixer.Sound('audio/walk_1.mp3')
 
 # TImer
 timer = Timer(fps)
@@ -108,6 +109,8 @@ credits_menu.game = game
 ############# PLAYER #####################
 
 player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
+game.player = player # add the player to the game class
+player.walkSfx = walkSfx
 
 # read object data from json file data
 readData = Read('Data/data.json')
@@ -570,6 +573,7 @@ def selectPlayer():
             raise Exception('Player not found')
         
         # player's other initializations here
+        player.Reset()
         player.loadImages() # load the image of the player
         player.initSkill(window) # initialized skills
         player.myWeapons = [

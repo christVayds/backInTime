@@ -235,16 +235,19 @@ class Boomerang(Weapon):
             self.throw = self.range
 
     def follow(self):
-        playerPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
-        boomerangPos = pygame.Vector2(self.rect.x, self.rect.y)
-        direction = (playerPos - boomerangPos).normalize()
-        boomerangPos += direction * self.speed
-        self.rect.x = boomerangPos.x
-        self.rect.y = boomerangPos.y
+        try:
+            playerPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
+            boomerangPos = pygame.Vector2(self.rect.x, self.rect.y)
+            direction = (playerPos - boomerangPos).normalize()
+            boomerangPos += direction * self.speed
+            self.rect.x = boomerangPos.x
+            self.rect.y = boomerangPos.y
 
-        # check for collision
-        if self.rect.colliderect(self.player.rect):
-            return True
+            # check for collision
+            if self.rect.colliderect(self.player.rect):
+                return True
+        except ValueError:
+            print('Cant normalized vector of length Zero')
         
         return False
 
@@ -366,16 +369,19 @@ class Mjolnir(Weapon):
             self.angle = 0
 
     def follow(self):
-        playerPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
-        boomerangPos = pygame.Vector2(self.rect.x, self.rect.y)
-        direction = (playerPos - boomerangPos).normalize()
-        boomerangPos += direction * self.speed
-        self.rect.x = boomerangPos.x
-        self.rect.y = boomerangPos.y
+        try:
+            playerPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
+            boomerangPos = pygame.Vector2(self.rect.x, self.rect.y)
+            direction = (playerPos - boomerangPos).normalize()
+            boomerangPos += direction * self.speed
+            self.rect.x = boomerangPos.x
+            self.rect.y = boomerangPos.y
 
-        # check for collision
-        if self.rect.colliderect(self.player.rect):
-            return True
+            # check for collision
+            if self.rect.colliderect(self.player.rect):
+                return True
+        except ValueError:
+            print('cant normalized length of Zero')
         
         return False
     

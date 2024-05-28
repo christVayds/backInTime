@@ -12,7 +12,8 @@ class Music:
         ]
         
         self.toPlay = 1
-        pygame.mixer.music.load(self.listMusics[self.toPlay]) # NAKA AUTO LOAD NA SIYA :) NO NEED TO LOAD MUSIC BG OKAY?
+        pygame.mixer.music.load(self.listMusics[self.toPlay])
+        pygame.mixer.music.set_volume(0.2)
 
     def Play(self, loop=-1): ######## -1 means ilolop ang music, else hindi
         pygame.mixer.music.play(loop)
@@ -26,10 +27,8 @@ class Music:
             self.Stop()
             pygame.mixer.music.load(self.listMusics[self.toPlay])
             self.Play()
-            self.switch = False 
+            self.switch = False
 
-class SoundEffects: # GAWIN MO SOUND EFFECTS DITO
-
-    def __init__(self):
-        self.swicth = False
-        self.listMusics = []
+    def Change_Volume(self, amount):
+        if amount > 0 and amount <= 1:
+            pygame.mixer.music.set_volume(amount)
