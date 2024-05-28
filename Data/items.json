@@ -38,6 +38,33 @@
         {"result": "icon14_40", "combination": ["icon14_36", "icon14_01"]},
         {"result": "icon14_08", "combination": ["icon14_07", "icon14_14"]},
         {"result": "icon14_28", "combination": ["icon14_23", "icon14_35", "icon14_24"]},
-        {"result": "icon14_28", "combination": ["icon14_03", "icon14_01"]}
+        {"result": "icon14_28", "combination": ["icon14_03", "icon14_01"], "code": "debugging"}
+    ],
+    "Collectables": [
+        {"level": 1, "collect": [
+           "icon14_05",
+           "icon14_06",
+           "icon14_18",
+           "icon14_10",
+           "icon14_38"
+        ], "name": "bossfight-one"},
+        {"level": 2, "collect": [
+            "icon14_21",
+            "icon14_19",
+            "icon14_30",
+            "icon14_28",
+            "icon14_37"
+        ], "name": "bossfight-two"},
+        {"level": 3, "collect": [
+            "icon14_02",
+            "icon14_03",
+            "icon14_08",
+            "icon14_16",
+            "icon14_17",
+            "icon14_26",
+            "icon14_32",
+            "icon14_33",
+            "icon14_40"
+        ], "name": "bossfight-three"}
     ]
 }

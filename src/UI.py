@@ -91,11 +91,13 @@ class GUI:
         
         self.bg_image = None
         self.selections = []
+        self.selections2 = []
         self.loadImages()
         self.loadBg()
         self.selected = 0
 
         self.sfx = sfx # sound effects
+        self.game = None
  
     def draw(self):
         # draw the bg image
@@ -103,7 +105,10 @@ class GUI:
             self.screen.blit(self.bg_image, (0,0))
 
         # draw the gui
-        self.screen.blit(self.selections[self.selected], (self.x, self.y))
+        if self.name == 'main_menu' and self.game.play:
+            self.screen.blit(self.selections2[self.selected], (self.x, self.y))
+        else:
+            self.screen.blit(self.selections[self.selected], (self.x, self.y))
 
     def Select(self):
         keys = pygame.key.get_just_pressed()
@@ -113,13 +118,20 @@ class GUI:
             self.selected -= 1
 
             if self.selected < 0:
-                self.selected = len(self.selections) -1
+                if self.name == 'main_menu' and self.game.play:
+                    self.selected = len(self.selections2) -1
+                else:
+                    self.selected = len(self.selections) -1
         elif keys[pygame.K_DOWN]:
             self.sfx[0].play()
             self.selected += 1
 
-            if self.selected > len(self.selections) -1:
-                self.selected = 0
+            if self.name == 'main_menu' and self.game.play:
+                if self.selected > len(self.selections2) -1:
+                    self.selected = 0
+            else:
+                if self.selected > len(self.selections) -1:
+                    self.selected = 0
         
         elif keys[pygame.K_SPACE]:
             self.sfx[1].play()
@@ -136,6 +148,19 @@ class GUI:
                     self.selections.append(image)
                 except pygame.error:
                     print('File not found:', image_path)
+
+        # only for main menu
+        if self.name == 'main_menu':
+            path = f'characters/GUI/main2_menu'
+            for filename in os.listdir(path):
+                if filename.endswith('.png'):
+                    image_path = os.path.join(path, filename)
+                    try:
+                        image = pygame.image.load(image_path)
+                        image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
+                        self.selections2.append(image)
+                    except pygame.error:
+                        print('File not found:', image_path)
 
     def loadBg(self):
         image = f'characters/objects/{self.bg}.jpg'

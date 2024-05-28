@@ -69,7 +69,7 @@ class Skills:
             if pygame.sprite.collide_rect(self, enemy):
                 if delay <= 0:
                     enemy.attacked = True
-                    enemy.life -= damage
+                    enemy.life -= (damage + enemy.damage)
 
     def decreaseMana(self):
         if self.player.mana > 1:
@@ -132,18 +132,16 @@ class Shield(Skills):
     def __init__(self, player, screen, scale, animated='animated'):
         super().__init__(player, screen, scale, animated=animated)
         self.cooldown = 150
-        self.temporarySheild = 500 # not implemented yet
-        self.c_shield = None
-        self.delay = 30 # slowdown enemies
-        self.damage = 0.5 # damage of enemies
+        self.temporarySheild = 600
+        self.c_shield = 0
+        self.delay = 30 # delay the attack of enemies
+        self.damage = 0.5 # damage
         self.mana = 0.8
         self.skill_cooldown = 25
 
     def skill(self, enemies=[]):
         if self.triggered and self.cooldown > 0:
-            self.c_shield = self.player.shieldPower
-            self.player.shieldPower = self.temporarySheild
-
+            self.Use()
             self.rect.x = self.player.rect.x + (self.player.width - self.rect.width) / 2
             self.rect.y = self.player.rect.y + (self.player.height - self.rect.height) / 2
             self.draw()
@@ -156,9 +154,20 @@ class Shield(Skills):
             self.cooldown -= 1
             self.decreaseMana()
         else:
-            self.cooldown = 120
+            if self.cooldown <= 0:
+                self.Remove()
             self.triggered = False
+            self.cooldown = 150
             self.player.sheildPower = self.c_shield
+
+    def Use(self):
+        if self.cooldown >= 150:
+            self.c_shield = self.player.shieldPower
+            self.player.shieldPower += self.temporarySheild
+
+    def Remove(self):
+        self.player.shieldPower = self.c_shield
+        self.c_shield = 0
 
 class Copy(Skills): # random other 3 Skills
 

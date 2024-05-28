@@ -62,11 +62,7 @@ Keys:
 Keys for selecting weapons to equiped:
   1. Tab or Right: select increment
   2. Left: select decrement
-  3. Q: Select weapon for left mouse key
-  4. W: Select weapon for right mouse key
-  5. F: Exit weapons Inventory GUI
-  6. S: Select sheild
-  7. A: select potions
+  3. SPACE - Select items
 
 Keys for inventories:
   1. Tab: change from Items chestbox inventory to weapons inventory, vise versa

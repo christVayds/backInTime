@@ -51,6 +51,66 @@ class Inventory:
             text = self.font.render(f'Name: Empty\nLevel: 0\nDamage: 0\nAbsorb: 0', True, (255,255,255))
         self.screen.blit(text, (210,110))
 
+class Collectables(Inventory):
+
+    def __init__(self, player, screen, scale, pos, name='collect'):
+        super().__init__(player, screen, scale, pos, name)
+        self.collectedGrid = []
+        self.collectedItems = []
+        self.collectedItemsCode = []
+        self.column = 55
+        self.row = 200
+        self.createGrid()
+        self.level = 1
+
+        self.dataWeapons = None
+        self.openData()
+
+    def draw(self):
+        self.checkItems() # check for all collectable items in your inventories
+        self.screen.blit(self.guis[0], self.rect)
+
+        self.Message()
+        self.screen.blit(self.message, (450, 200))
+        self.drawCollected()
+
+    def Message(self):
+        self.message = f'Level: {self.level}\nCollected: {len(self.collectedItems)}'
+        self.message = self.font.render(self.message, True, (255,255,255))
+
+    def createGrid(self):
+        for _ in range(2):
+            for _ in range(6):
+                self.collectedGrid.append((self.column, self.row))
+                self.column += 65
+            self.column = 55
+            self.row += 65
+
+    def checkItems(self):
+        for data in self.dataWeapons:
+            if data['level'] == self.level:
+                for weapon in self.player.myWeapons:
+                    if weapon.code in data['collect'] and weapon.code not in self.collectedItemsCode:
+                        self.collectedItems.append(weapon)
+                        self.collectedItemsCode.append(weapon.code)
+
+    def openData(self):
+        with open('data/items.json') as file:
+            self.dataWeapons = json.load(file)
+
+        self.dataWeapons = self.dataWeapons['Collectables']
+
+    def Close(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_SPACE] or keys[pygame.K_f] or keys[pygame.K_ESCAPE]:
+            return True
+
+    def drawCollected(self):
+        for i, weapon in enumerate(self.collectedItems):
+            image = pygame.transform.scale(weapon.icon, (40, 40))
+            self.screen.blit(image, self.collectedGrid[i])
+
 class Items(Inventory):
 
     def __init__(self, player, screen, scale, pos, name='items_gui'):
@@ -201,6 +261,8 @@ class Weapon(Inventory):
             ]
         self.equiped = [(360, 195), (443, 195), (443, 108), (360, 108)] # for weapons equiped - 4 items
 
+        self.switch = 0
+
     def Select(self):
         keys = pygame.key.get_just_pressed()
 
@@ -252,9 +314,11 @@ class Weapon(Inventory):
 
         try:
             # weapons
-            if keys[pygame.K_q]:
+            if keys[pygame.K_SPACE]:
                 self.sfx[1].play() # play sfx
-                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item']:
+
+                # weapon one
+                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item'] and not self.switch:
                     if self.player.myWeapons[self.selected] != self.player.equiped2:
                         self.player.equiped1.effect = False # reset the effect
                         temp = self.player.equiped1
@@ -264,13 +328,11 @@ class Weapon(Inventory):
                         self.player.potion.Apply(self.player.equiped1)
                     else:
                         self.message = 'You can\'t use \nalready equiped\nweapon'
-                else:
-                    self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a weapon'
 
-            # weapons 2
-            elif keys[pygame.K_w]:
-                self.sfx[1].play()
-                if self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item']:
+                    self.switch = 1
+
+                # weapon two
+                elif self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item'] and self.switch: 
                     if self.player.myWeapons[self.selected] != self.player.equiped1:
                         self.player.equiped2.effect = False # reset the effect
                         temp = self.player.equiped2
@@ -280,13 +342,11 @@ class Weapon(Inventory):
                         self.player.potion.Apply(self.player.equiped2)
                     else:
                         self.message = 'You can\'t use \nalready equiped\nweapon'
-                else:
-                    self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a weapon'
-            
-            # potions
-            elif keys[pygame.K_a]:
-                self.sfx[1].play()
-                if self.player.myWeapons[self.selected]._type not in ['shield', 'weapon', 'weapon-shield', 'item']:
+
+                    self.switch = 0
+
+                # potion
+                elif self.player.myWeapons[self.selected]._type not in ['shield', 'weapon', 'weapon-shield', 'item']:
                     self.player.potion.effect = False # reset the effect
                     temp = self.player.potion
                     self.player.potion.Remove(self.player.equiped1) # reset
@@ -297,21 +357,15 @@ class Weapon(Inventory):
                     self.player.potion.Apply(self.player.equiped1) # apply
                     self.player.potion.Apply(self.player.equiped2) # apply
                     self.player.potion.Apply(self.player.shield) # apply
-                else:
-                    self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a potion'
 
-            # shield
-            elif keys[pygame.K_s]:
-                self.sfx[1].play()
-                if self.player.myWeapons[self.selected]._type not in ['potion', 'weapon', 'item']:
+                # shield
+                elif self.player.myWeapons[self.selected]._type not in ['potion', 'weapon', 'item']:
                     self.player.shield.effect = False # reset the effect
                     temp = self.player.shield
                     self.player.potion.Remove(temp)
                     self.player.shield = self.player.myWeapons[self.selected]
                     self.player.myWeapons[self.selected] = temp
                     self.player.potion.Apply(self.player.shield)
-                else:
-                    self.message = f'You can\'t use \n{self.player.myWeapons[self.selected]._type}\nas a shield'
 
         except IndexError:
             print('select empty')

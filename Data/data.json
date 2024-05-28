@@ -68,13 +68,14 @@
 
     "Map3": [
         {"name": "door_1", "type": "other", "rect": "(25, 25, 50, 75)"},
-        {"name": "outside", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "outside_map3"},
         {"name": "painting_1", "type": "other", "rect": "(100, 25, 50, 50)"},
-        {"name": "base", "type": "navigation", "rect": "(50, 375, 75, 50)", "distination": "base_map3"},
         {"name": "machine_2", "type": "other", "rect": "(190, 50, 256, 64)"},
         {"name": "teleportation_cables", "type": "animated", "rect": "(475, 25, 115, 74)"},
         {"name": "power_generator_1", "type": "animated", "rect": "(590, 25, 85, 74)"},
         {"name": "teleport_machine", "type": "animated2", "rect": "(525, 100, 96, 96)"},
+
+        {"name": "outside", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "outside_map3"},
+        {"name": "base", "type": "navigation", "rect": "(50, 375, 75, 50)", "distination": "base_map3"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(75, 25, 100, 28)"},
         {"name": "hidden", "type": "hidden2", "rect": "(190, 25, 25, 48)"},
