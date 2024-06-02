@@ -40,6 +40,14 @@
         {"result": "icon14_28", "combination": ["icon14_23", "icon14_35", "icon14_24"]},
         {"result": "icon14_28", "combination": ["icon14_03", "icon14_01"], "code": "debugging"}
     ],
+    "craftItems":[
+        "icon14_32",
+        "icon14_26",
+        "icon14_40",
+        "icon14_08",
+        "icon14_28",
+        "icon14_28"
+    ],
     "Collectables": [
         {"level": 1, "collect": [
            "icon14_05",

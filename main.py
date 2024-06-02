@@ -19,11 +19,12 @@ from src.object import *
 from src.create import Create
 from src.camera import Camera
 from Data.read import Read
-from src.UI import UI, GUI
+from src.UI import UI, GUI, CraftingBook
 from src.timer import Timer
 
 # IMPORT MAPS
-from Maps import baseMap, Map_2, Map_3, Map_4
+# from Maps import baseMap, Map_2, Map_3, Map_4
+from Maps import baseMap, Map_2, Map_3, Map_4, Battleground_1
 from src.music import Music
 from src import weapons
 from src import inventories
@@ -33,9 +34,6 @@ pygame.mixer.pre_init()
 pygame.init()
 pygame.font.init()
 
-# Game State
-game = Game()
-
 # screen
 windowSize = {'width': 700, 'height': 500} # size of the display
 window = pygame.display.set_mode((windowSize['width'], windowSize['height']))
@@ -44,6 +42,9 @@ pygame.display.set_caption('Back In Time')
 # clock and FPS - frame per second
 clock = pygame.time.Clock()
 fps = 30 # 30 frames per second
+
+# Game State
+game = Game(window)
 
 showFPS = pygame.font.SysFont('arial', 20)
 
@@ -72,7 +73,7 @@ timer = Timer(fps)
 # Program pages
 pages = [
     'intro', 'main-menu', 'settings', 'credits', 
-    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'vaultbox', 'craftbox', 'collectable' 'outro', 
+    'selectPlayer', 'in-game', 'pause-game', 'weapons', 'vaultbox', 'craftbox', 'collectable', 'monitor', 'craftingBook', 'game-over', 'outro', 
     'error_message', 'exit']
 
 currentPage = pages[0]
@@ -82,6 +83,9 @@ base = baseMap.TileMap(25, 0, 0)
 map_2 = Map_2.TileMap(25, 0, 0)
 map_3 = Map_3.TileMap(25, 0, 0)
 map_4 = Map_4.TileMap(25, 0, 0)
+
+# battle grounds
+battleG1 = Battleground_1.TileMap(25, 0, 0)
 
 #################### GUI #######################
 
@@ -106,27 +110,27 @@ settings_menu.game = game
 credits_menu = GUI(254, 58, (192, 384), window, 'credits', sfx=[select_item, selected_item])
 credits_menu.game = game
 
+##### MONITOR #####
+monitor_ui = GUI((windowSize['width'] - 320) / 2, (windowSize['height'] - 320) / 2, (320, 320), window, 'monitor', None, [select_item, selected_item])
+monitor_ui.game = game
+
 ############# PLAYER #####################
 
 player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2), 50, 50)
 game.player = player # add the player to the game class
-player.walkSfx = walkSfx
+player.walkSfx = walkSfx # walk sound effects
+player.sfx = [select_item, selected_item] # other sound effects
 
 # read object data from json file data
 readData = Read('Data/data.json')
 readData.read() # read all data
 
-readData.strToTuple('Base')# make all string tuple in Map1 to tuple
-readData.strToTuple('Map2')
-readData.strToTuple('Map3')
-readData.strToTuple('Map4')
-readData.strToTuple('Enemies_m2')# read the tuple(positions) of the enemies
-# Other page
-readData.strToTuple('SelectPlayer')
+# get the data to game
+game.readData = readData
 
 # CREATIONS
 
-# for loading screen / intro
+# for intro screen
 title = [
     Object(0, 0, 700, 700, 'bg_image', 'test_bg'),
     Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_3'),
@@ -155,24 +159,19 @@ create_map3.create()
 create_map4 = Create(window, player, readData.data['Map4'], select_item, selected_item)
 create_map4.create()
 
+######## CREATE MAPS (BATTLE GROUNDS) #########
+
+createBattleG1 = Create(window, player, readData.data['BattleGround1'], select_item, selected_item)
+createBattleG1.create()
+
 ######## CREATE ENEMIES #########
 
 # enemies for map 2
-enemies_map2 = Create(window, player, readData.data['Enemies_m2'], select_item, selected_item)
-enemies_map2.create_enemies()
+enemy_bg1 = Create(window, player, readData.data['Enemies_m2'], select_item, selected_item)
+enemy_bg1.create_enemies()
 
 # camera
 camera = Camera(player, windowSize)
-
-# Listed all objects, maps and enemies for camera tracking
-allObjects1 = create_base.listofObjects+[base]
-allObjects2 = create_map2.listofObjects+[map_2]+enemies_map2.listEnemies
-allObjects3 = create_map3.listofObjects+[map_3]
-allObjects4 = create_map4.listofObjects+[map_4]
-
-# create.listofObjects is a list of all objecst
-# listenemies is a list of all enemies
-# listOfMap is a list of map tiles
 
 # initialized effects fo equiped weapons
 effects_1 = weapons.Effects(window)
@@ -194,11 +193,16 @@ crafting_table.sfx = inventory.sfx
 collectable_table = inventories.Collectables(player, window, (640, 160), (30, 170))
 collectable_table.sfx = inventory.sfx
 
+# crafting Book
+crafting_Book = CraftingBook((windowSize['width'] - 448) / 2, (windowSize['height'] - 224) / 2, 448, 224, window)
+crafting_Book.sfx = inventory.sfx
+
 # draw base map function
 def draw_base():
     global currentPage
 
     window.fill((10, 10, 10))
+    game.Reset(False, base, create_base)
 
     # map for the base map
     base.drawMap(window)
@@ -206,7 +210,7 @@ def draw_base():
     # draw object
     create_base.draw()
     pause = create_base.pauseGame() # if player click esc - pause
-    openWeapons = create_base.openWeapons()
+    openWeapons = create_base.openWeapons() # handling event for opening a weapon
     player.Message(window)
 
     # draw player
@@ -240,11 +244,16 @@ def draw_base():
 
     elif player.collectables:
         currentPage = pages[10] # open collectable table
+    
+    elif player.openMonitor:
+        currentPage = pages[11]
 
     showfps()
 
     # camera
-    camera.move(allObjects1+[player.equiped1, player.equiped2])
+    camera.move(create_base.listofObjects+[base]+[player.equiped1, player.equiped2])
+
+    player.loading_nav(window) # for transition in navigation
 
     pygame.display.flip()
 
@@ -253,9 +262,10 @@ def draw_map2():
     global currentPage
 
     window.fill((10, 10, 10))
+    game.Reset(False, map_2, create_map2)
 
     # camera for map 2
-    camera.move(allObjects2+[player.equiped1, player.equiped2])
+    camera.move(create_map2.listofObjects+[map_2]+[player.equiped1, player.equiped2])
 
     # draw map 2
     map_2.drawMap(window)
@@ -267,21 +277,18 @@ def draw_map2():
 
     # drop or display weapons
     player.potion.Use()
-    player.handleFight(enemies_map2.listEnemies)
+    player.handleFight([])
     player.Message(window)
-
-    # enemies
-    enemies_map2.draw_enemy(create_map2.listofObjects[1:])
 
     # draw player
     player.draw(window, create_map2.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
-    effects_2.Hit([player]+enemies_map2.listEnemies)
-    effects_1.Hit([player]+enemies_map2.listEnemies)
+    effects_2.Hit([player])
+    effects_1.Hit([player])
     player.navigate()
     player.handleDefense()
-    player.TriggerSkills(enemies_map2.listEnemies)
+    player.TriggerSkills([])
 
     player.barLife(window)
     for guis in listGUIs:
@@ -300,7 +307,12 @@ def draw_map2():
     elif player.craft:
         currentPage = pages[9] # open craftbox
 
+    elif player.openbook:
+        currentPage = pages[12] # read the book
+
     showfps()
+
+    player.loading_nav(window) # for transition in navigation
 
     pygame.display.flip()
 
@@ -309,9 +321,10 @@ def draw_map3():
     global currentPage
 
     window.fill((10, 10, 10))
+    game.Reset(False, map_3, create_map3)
 
     # camera fot map 3
-    camera.move(allObjects3+[player.equiped1, player.equiped2])
+    camera.move(create_map3.listofObjects+[map_3]+[player.equiped1, player.equiped2])
 
     map_3.drawMap(window)
 
@@ -325,6 +338,9 @@ def draw_map3():
     player.draw(window, create_map3.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
+    effects_2.Hit([player])
+    effects_1.Hit([player])
+    player.handleDefense()
     player.navigate()
     player.Message(window)
 
@@ -350,14 +366,17 @@ def draw_map3():
 
     showfps()
 
+    player.loading_nav(window) # for transition in navigation
+
     pygame.display.flip()
 
 def draw_map4():
     global currentPage
 
     window.fill((10, 10, 10))
+    game.Reset(False, map_4, create_map4)
 
-    camera.move(allObjects4+[player.equiped1, player.equiped2])
+    camera.move(create_map4.listofObjects+[map_4]+[player.equiped1, player.equiped2])
 
     # draw the map
     map_4.drawMap(window)
@@ -371,8 +390,11 @@ def draw_map4():
     player.draw(window, create_map4.listofObjects[1:])
     effects_1.effects() # effets for equiped weapon 1
     effects_2.effects() # effets for equiped weapon 2
+    effects_2.Hit([player]+[create_map4.practice])
+    effects_1.Hit([player]+[create_map4.practice])
     player.navigate()
     player.TriggerSkills([create_map4.practice])
+    player.handleDefense()
     player.Message(window)
 
     player.barLife(window)
@@ -393,13 +415,93 @@ def draw_map4():
 
     showfps()
 
+    player.loading_nav(window) # for transition in navigation
+
     pygame.display.flip()
 
+def draw_btg1():
+    global currentPage
+
+    window.fill((10, 10, 10))
+    game.Reset(True, battleG1, createBattleG1) # reset the map width enemies
+    game.ResetMap(battleG1, createBattleG1)
+
+    camera.move(createBattleG1.listofObjects+[battleG1]+game.Enemies+[player.equiped1, player.equiped2]+game.items)
+
+    # draw the map
+    battleG1.drawMap(window)
+    player.handleFight(game.Enemies)
+
+    createBattleG1.draw() # objects
+    pause = createBattleG1.pauseGame()
+    openWeapons = create_base.openWeapons()
+    
+    # draw the items from enemies in game class
+    game.drawItems()
+
+    # draw enemies
+    for enemy in game.Enemies:
+        if enemy.life <= 0: # enemy die
+            enemy.hit_effects(window)
+            if enemy.out:
+                for item in enemy.items:
+                    item.x = enemy.rect.x
+                    item.y = enemy.rect.y
+                    game.items.append(item) # append the items and the x and y pos of the enemy
+                game.Enemies.remove(enemy)
+        enemy.draw(window, createBattleG1.listofObjects[1:])
+        enemy.follow(player)
+        enemy.Attack(player)
+
+    player.potion.Use()
+    player.draw(window, createBattleG1.listofObjects[1:]) # draw player
+    player.pickItems(game.items)
+
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
+    effects_2.Hit([player]+game.Enemies)
+    effects_1.Hit([player]+game.Enemies)
+
+    player.navigate() # for naviagtion
+    player.TriggerSkills(game.Enemies) # skills
+    player.handleDefense() # shield
+    player.Message(window) # notification or message
+
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
+
+    if pause:
+        currentPage = pages[6] # game menu / pause
+
+    elif openWeapons or player.viewVaultBox:
+        currentPage = pages[7] # weapons inventory
+    
+    # check if game over
+    if game.gameover:
+        currentPage = pages[13] # game over window / page
+
+    showfps()
+    player.loading_nav(window) # for transition in navigation
+
+    pygame.display.flip()
+
+count = 120
+def draw_gameOver():
+    global currentPage, count
+    window.fill((0,0,0))
+    count -= 1
+
+    if count <= 0:
+        currentPage = pages[1]
+
+    pygame.display.flip()
 # for weapons
 def draw_weapons():
     global currentPage
 
     player.potion.Use()
+    player.handleDefense()
     inventory.draw()
     inventory.drawWeapons()
     player.Message(window)
@@ -420,6 +522,7 @@ def draw_vaultbox():
     global currentPage
 
     player.potion.Use()
+    player.handleDefense()
     vaultbox.draw()
     vaultbox.drawInventories()
     player.Message(window)
@@ -440,6 +543,7 @@ def draw_craftbox():
     global currentPage
 
     player.potion.Use()
+    player.handleDefense()
     crafting_table.draw()
     crafting_table.drawItems()
     player.Message(window)
@@ -460,7 +564,9 @@ def draw_collectables():
     global currentPage
 
     player.potion.Use()
+    player.handleDefense()
     collectable_table.draw()
+    player.Message(window)
 
     if collectable_table.Close():
         currentPage = pages[5] # return to game
@@ -474,10 +580,52 @@ def draw_collectables():
 
     pygame.display.flip()
 
+def draw_Monitor():
+    global currentPage
+
+    player.potion.Use()
+    player.handleDefense()
+    player.Message(window)
+    monitor_ui.draw()
+    game.showMonitor_message((monitor_ui.x, monitor_ui.y), window)
+
+    select = monitor_ui.Select()
+    if select == 0:
+        currentPage = pages[5] # return to game
+        player.openMonitor = False
+
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
+
+    showfps()
+    pygame.display.flip()
+
+# crafting book draw
+def draw_craftingBook():
+    global currentPage
+
+    player.potion.Use()
+    player.handleDefense()
+    player.Message(window)
+    crafting_Book.draw()
+
+    if crafting_Book.Actions():
+        player.openbook = False
+        crafting_Book.page = 0
+        currentPage = pages[5] # return to game
+
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
+
+    showfps()
+
+    pygame.display.flip()
+
 # pause the game
 def PauseGame():
     global currentPage
-    # window.fill((10, 10, 10))
 
     pause_menu.draw()
     selected = pause_menu.Select()
@@ -678,6 +826,8 @@ def main():
                 draw_map3()
             elif player.location == 'map4':
                 draw_map4()
+            elif player.location == 'BattleGround1':
+                draw_btg1()
 
         elif currentPage == pages[6]:
             PauseGame()
@@ -689,6 +839,12 @@ def main():
             draw_craftbox()
         elif currentPage == pages[10]:
             draw_collectables()
+        elif currentPage == pages[11]: # open the monitor
+            draw_Monitor()
+        elif currentPage == pages[12]: # craftingtable
+            draw_craftingBook()
+        elif currentPage == pages[13]:
+            draw_gameOver()
         elif currentPage == pages[-1]: # exit game
             run = False
 

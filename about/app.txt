@@ -7,6 +7,8 @@ run the vanilla python version of this game:
 run the cythonized version of this game:
     python run.py
 
+# JUNK CODES
+
 # create chest box
 {"name": "box_1", "type": "other", "rect": "(300, 60, 60, 55)", "items": ["icon14_01"]},
 {"name": "box_1", "type": "other", "rect": "(240, 60, 60, 55)", "items": ["icon14_03"]},
@@ -54,3 +56,46 @@ run the cythonized version of this game:
         else:
             self.attacking = 3
             self.attack = False
+
+# enemy hit 
+def hit(self):
+        if self.attacked and self.push > 0:
+            if self.down:
+                self.up = True
+                self.down = False
+            elif self.up:
+                self.up = False
+                self.down = True
+            elif self.right:
+                self.right = False
+                self.left = True
+            elif self.left:
+                self.left = False
+                self.right = True
+            self.pushed = True
+        self.attacked = False
+
+    def handlePushed(self):
+        if self.pushed and self.push > 0:
+            if self.up:
+                self.move_y(-15)
+            elif self.down:
+                self.move_y(15)
+            elif self.left:
+                self.move_x(-15)
+            elif self.right:
+                self.move_x(15)
+            self.push -= 1
+        else:
+            self.pushed = False
+
+# reading data
+
+readData.strToTuple('Base')# make all string tuple in Map1 to tuple
+readData.strToTuple('Map2')
+readData.strToTuple('Map3')
+readData.strToTuple('Map4')
+readData.strToTuple('BattleGround1')
+readData.strToTuple('Enemies_m2')# read the tuple(positions) of the enemies
+# Other page
+readData.strToTuple('SelectPlayer')

@@ -63,9 +63,17 @@ class Player(pygame.sprite.Sprite):
         self.viewVaultBox = False
         self.craft = False
         self.collectables = False
+        self.openMonitor = False
+        self.openbook = False
 
         # handling location
         self.location = 'base'
+        self.loading = False
+        self.loading_timer_max = 90
+        self.loading_timer = 0
+        self.can_move = True
+        self.nextMap = False
+        self.can_teleport = False
 
         # map objects
         self.nav = False
@@ -76,9 +84,15 @@ class Player(pygame.sprite.Sprite):
         self.showMessage = False
         self.message = None
 
+        # sound effects
         self.walkSfx = None
         self.chestBoxSfx = pygame.mixer.Sound('audio/openChest.mp3')
+        self.sfx = []
         self.walkSfx_timer = 0
+        self.hit_sfx = pygame.mixer.Sound('audio/hit.mp3')
+        self.sfx_timer = 0
+        self.pickItem_sfx = pygame.mixer.Sound('audio/pickItem.mp3')
+        self.door = pygame.mixer.Sound('audio/door.mp3')
 
     def draw(self, screen, allObj):
         if self.walkSfx_timer > 0:
@@ -95,38 +109,42 @@ class Player(pygame.sprite.Sprite):
 
         # left
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.left = True
-            self.right = False
-            self.up = False
-            self.down = False
+            if self.can_move:
+                self.left = True
+                self.right = False
+                self.up = False
+                self.down = False
 
-            self.move_x((self.speed * -1))
+                self.move_x((self.speed * -1))
 
         # right
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.left = False
-            self.right = True
-            self.up = False
-            self.down = False
+            if self.can_move:
+                self.left = False
+                self.right = True
+                self.up = False
+                self.down = False
 
-            self.move_x(self.speed)
+                self.move_x(self.speed)
 
         # up
         elif keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.left = False
-            self.right = False
-            self.up = True
-            self.down = False
+            if self.can_move:
+                self.left = False
+                self.right = False
+                self.up = True
+                self.down = False
 
-            self.move_y((self.speed * -1))
+                self.move_y((self.speed * -1))
 
         elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.left = False
-            self.right = False
-            self.up = False
-            self.down = True
+            if self.can_move:
+                self.left = False
+                self.right = False
+                self.up = False
+                self.down = True
 
-            self.move_y(self.speed)
+                self.move_y(self.speed)
         else: 
             self.walk = 0
 
@@ -247,6 +265,8 @@ class Player(pygame.sprite.Sprite):
                         self.openCollectable()
                     elif obj.name == 'monitor_1':
                         self.showGuide()
+                    elif obj.name == 'book_1':
+                        self.openBook()
 
                     # handle facing and collision for object - with y-sorting
                     if self.left:
@@ -273,39 +293,77 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_SPACE]:
-            if obj.name == 'base':
-                self.nav = True
-                self.right, self.left, self.up, self.down, = False, True, False, False
-                self.respawn = self.location
-                self.location = obj.name
+            self.loading = True
 
-            elif obj.name == 'map2':
-                self.nav = True
-                self.right, self.left, self.up, self.down, = False, False, True, False
-                self.respawn = self.location
-                self.location = obj.name
+            if self.loading_timer <= 0:
+                if obj.name == 'base':
+                    self.nav = True
+                    self.right, self.left, self.up, self.down, = False, True, False, False
+                    self.respawn = self.location
+                    self.location = obj.name
 
-            elif obj.name == 'map3':
-                self.nav = True
-                self.right, self.left, self.up, self.down, = False, False, True, False
-                self.respawn = self.location
-                self.location = obj.name
+                elif obj.name == 'map2':
+                    self.nav = True
+                    self.right, self.left, self.up, self.down, = False, False, True, False
+                    self.respawn = self.location
+                    self.location = obj.name
 
-            elif obj.name == 'map4':
-                self.nav = True
-                self.right, self.left, self.up, self.down, = True, False, False, False
-                self.respawn = self.location
-                self.location = obj.name
+                elif obj.name == 'map3':
+                    self.nav = True
+                    self.right, self.left, self.up, self.down, = False, False, True, False
+                    self.respawn = self.location
+                    self.location = obj.name
+
+                elif obj.name == 'map4':
+                    self.nav = True
+                    self.right, self.left, self.up, self.down, = True, False, False, False
+                    self.respawn = self.location
+                    self.location = obj.name
+
+                elif obj.name == 'BattleGround1':
+                    self.nav = True
+                    self.right, self.left, self.up, self.down = True, False, False, False
+                    self.respawn = self.location
+                    self.location = obj.name
+                    self.nextMap = True
+
+                elif obj.name == 'NextBattleMap':
+                    self.nextMap = True
+
+                elif obj.name == 'BossFight': # normal navigation for boss fight
+                    if self.can_teleport:
+                        self.nav = True
+                        self.right, self.left, self.up, self.down = True, False, False, False
+                        self.respawn = self.location
+                        self.location = obj.name
+
+            # reset the timer for transition in navigation
+            if self.nav:
+                self.loading_timer = self.loading_timer_max
 
             # self.walk = 0
 
     def navigate(self): # place the player to navigation / pointer object
         if self.nav:
-            self.rect.x, self.rect.y = self.MapObjects[f'{self.respawn}_{self.location}'].rect.x, self.MapObjects[f'{self.respawn}_{self.location}'].rect.y
-        
+            self.equiped1.duration = 0
+            self.equiped2.duration = 0
+            try:
+                self.door.play()
+                self.rect.x, self.rect.y = self.MapObjects[f'{self.respawn}_{self.location}'].rect.x, self.MapObjects[f'{self.respawn}_{self.location}'].rect.y
+            except KeyError:
+                self.rect.x, self.rect.y = 325, 225
         self.nav = False
 
-    def pick(self, item, obj):
+    def loading_nav(self, screen):
+        if self.loading and self.loading_timer > 0:
+            self.can_move = False # avoid player to move during navigating to other map
+            self.loading_timer -= 5
+            pygame.draw.rect(screen, (0,0,0), (0, 0, 700, 500))
+        else:
+            self.can_move = True # make player can move again
+            self.loading = False
+
+    def pick(self, item, obj): # pick items from the chestBox
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_SPACE]:
@@ -318,6 +376,14 @@ class Player(pygame.sprite.Sprite):
                 self.message = 'Inventory is already full'
                 self.viewVaultBox = True
                 print(f'Inventory is full - remain {len(item.name)}')
+
+    def pickItems(self, items):
+        for item in items:
+            if self.rect.colliderect(item.x, item.y, 20, 20):
+                if len(self.myWeapons) < 8:
+                    self.pickItem_sfx.play()
+                    self.myWeapons.append(item)
+                    items.remove(item)
 
     def Message(self, screen):
         if self.showMessage:
@@ -349,16 +415,28 @@ class Player(pygame.sprite.Sprite):
             self.chestBoxSfx.play()
             self.collectables = True
 
-    def showGuide(self):
+    def showGuide(self): # view the guide from the monitor 1
+        keys = pygame.key.get_just_pressed()
+        foundKey = False
+
+        if keys[pygame.K_SPACE]:
+            self.sfx[0].play()
+            for weapon in self.myWeapons:
+                if weapon.code == 'icon14_09':
+                    foundKey = True
+                    self.openMonitor = True
+                    break # break the loop
+
+            if not foundKey:
+                self.message = 'No Memory Card'
+                self.showMessage = True
+
+    def openBook(self):
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_SPACE]:
-            for weapon in self.myWeapons:
-                if weapon.code == 'icon14_09':
-                    print('fount')
-            else:
-                self.message = 'No Memory Card'
-                self.showMessage = True
+            self.sfx[0].play()
+            self.openbook = True
 
     def handleFight(self, enemies=[]):
         # equiped 1
@@ -466,11 +544,12 @@ class Enemy(pygame.sprite.Sprite):
 
         self.speed = None
         self.attacked = False # attacked by the player
-        self.defaultLife = 20
+        self.defaultLife = None
+        self.life = 0
         self.shieldPower = 0
         self.damage = 0.5
-        self.life = 0
         self.push = 0
+        self.out = False
         self.pushed = False
         self.level = 1
 
@@ -489,25 +568,34 @@ class Enemy(pygame.sprite.Sprite):
         self.e_down = []
         self.e_up = []
         self.e_hit = None
+        self.radius = 10
 
         # load and flip image
         self.loadImages()
         self.flipImage()
 
+        # items
+        self.items = []
+
+        # sfx
+        self.sfx = pygame.mixer.Sound('audio/hit.mp3')
+        self.sfx_timer = 0
+
     # draw the enemy
     def draw(self, screen, objects):
 
         # handle collision
-        # self.hit()
-        self.handlePushed()
         self.handleCollision(objects)
+
+        if self.sfx_timer > 0:
+            self.sfx_timer -= 1
         
         if (self.walk + 1) >= 9:
             self.walk = 0
 
         if self.attacked:
             screen.blit(self.e_hit, self.rect)
-            self.hit()
+            self.attacked = False
             self.walk = 0
 
         elif self.left:
@@ -548,6 +636,14 @@ class Enemy(pygame.sprite.Sprite):
     def move_y(self, direction):
         self.rect.y += direction
 
+    def hit_effects(self, screen):
+        if self.radius <= 90:
+            pygame.draw.circle(screen, (255,255,255, 20), self.rect.center, float(self.radius))
+            self.radius += 30
+        else:
+            self.radius = 10
+            self.out = True
+
     # enemy follow player until player's life is 0
     def follow(self, player):
         if player.life > 0 and not(self.pushed) and self.canFollow:
@@ -579,6 +675,11 @@ class Enemy(pygame.sprite.Sprite):
     def Attack(self, player):
         if pygame.sprite.collide_rect(self, player):
             player.Attacked(self)
+            if player.sfx_timer == 0:
+                player.sfx_timer = 50
+                player.hit_sfx.play()
+        if player.sfx_timer > 0:
+            player.sfx_timer -= 1
 
     # load enemies image
     def loadImages(self):
@@ -639,37 +740,6 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect.top = object.rect.bottom
                     elif self.down:
                         self.rect.bottom = object.rect.top
-                        
-    def hit(self):
-        if self.attacked and self.push > 0:
-            if self.down:
-                self.up = True
-                self.down = False
-            elif self.up:
-                self.up = False
-                self.down = True
-            elif self.right:
-                self.right = False
-                self.left = True
-            elif self.left:
-                self.left = False
-                self.right = True
-            self.pushed = True
-        self.attacked = False
-
-    def handlePushed(self):
-        if self.pushed and self.push > 0:
-            if self.up:
-                self.move_y(-15)
-            elif self.down:
-                self.move_y(15)
-            elif self.left:
-                self.move_x(-15)
-            elif self.right:
-                self.move_x(15)
-            self.push -= 1
-        else:
-            self.pushed = False
 
 class Slime(Enemy): # for slimes
 

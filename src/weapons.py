@@ -26,6 +26,7 @@ class Weapon:
         self.speed = 5 # default speed
         self.absorb = 0 # sheild absorb
         self.mana = 0.2
+        self.slow = 0
 
         self.weaponData = None
         self.LoadData()
@@ -33,6 +34,9 @@ class Weapon:
         # get mouse positions
         self.mouse = False
         self.mouseDirection = pygame.Vector2(0,0)
+
+        self.sfx = None
+        self.sfx_timer = 0
 
         self.noneAnimated = None
         self.Animated = []
@@ -60,6 +64,11 @@ class Weapon:
             if self.rect.colliderect(enemy.rect):
                 enemy.attacked = True
                 enemy.life -= self.damage
+                if enemy.speed > 2:
+                    enemy.speed -= self.slow
+                if enemy.sfx_timer == 0:
+                    enemy.sfx_timer = 20
+                    enemy.sfx.play()
                 return True
         return False
     
@@ -94,11 +103,21 @@ class Weapon:
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_c] and self.player.mana > 5:
+            if self.sfx != None:
+                if self.sfx_timer == 0:
+                    self.sfx_timer = 20
+                    self.sfx.play()
             self.c_triggered = True
+        if self.sfx_timer > 0:
+            self.sfx_timer -= 1
 
     def Trigger_mouse(self):
         mouse = pygame.mouse.get_pressed()
         if mouse[0] and self.player.mana > 5:
+            if self.sfx != None:
+                if self.sfx_timer == 0:
+                    self.sfx_timer = 1
+                    self.sfx.play()
             self.mouse = True
             self.triggered = True
             mx, my = pygame.mouse.get_pos()
@@ -107,13 +126,17 @@ class Weapon:
     def Trigger_mouse2(self):
         mouse = pygame.mouse.get_pressed()
         if mouse[2] and self.player.mana > 5:
+            if self.sfx != None:
+                if self.sfx_timer == 0:
+                    self.sfx_timer = 1
+                    self.sfx.play()
             self.mouse = True
             self.triggered = True
             mx, my = pygame.mouse.get_pos()
             self.mouseDirection = pygame.Vector2(mx, my)
 
     def Throw(self, range):
-        if self.throw >= range:
+        if self.duration >= range:
             self.vectorPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
             self.direction = (self.mouseDirection - self.vectorPos).normalize()
         self.vectorPos += self.direction * self.speed
@@ -138,6 +161,8 @@ class Shield(Weapon): # regular shield
         self.mana = self.weaponData[self.name]['mana']
 
         self.tempShield = 0
+
+        self.sfx = pygame.mixer.Sound('audio/shield_2.mp3')
 
     def weapon(self, enemies=[]):
         if self.c_triggered and self.duration > 0:
@@ -164,12 +189,6 @@ class Shield(Weapon): # regular shield
         self.player.shieldPower = self.tempShield
         self.tempShield = 0
 
-class BoomShield(Weapon): # combination of weapon and shield
-
-    def __init__(self, player, screen, scale, name='Boomerang sheild', animated=False, _type='weapon-sheild'):
-        super().__init__(player, screen, scale, name, animated, _type)
-        self.mana = 1
-
 class Bomb(Weapon):
 
     def __init__(self, player, screen, scale, name='bomb', animated=True):
@@ -180,9 +199,15 @@ class Bomb(Weapon):
         self.bframe = 0
         self.mana = 0.5
 
+        self.effectSfx = pygame.mixer.Sound('audio/bomb.mp3')
+        pygame.mixer.fadeout(10)
+
     def weapon(self, enemies=[]):
         if self.triggered and self.duration:
             if self.duration <= 20:
+                if self.sfx_timer == 0:
+                    self.sfx_timer = 10
+                    self.effectSfx.play()
                 self.effect = True
             else:
                 self.Throw()
@@ -199,6 +224,9 @@ class Bomb(Weapon):
             self.bframe = 0
             self.effect = False
 
+            if self.sfx_timer > 0:
+                    self.sfx_timer -= 1
+
     def Throw(self):
         if self.far >= 3:
             self.vecPos = pygame.Vector2(self.player.rect.x, self.player.rect.y)
@@ -213,26 +241,32 @@ class Boomerang(Weapon):
     def __init__(self, player, screen, scale, name='boomerang', animated=True):
         super().__init__(player, screen, scale, name, animated)
         self.range = 20
-        self.throw = self.range
+        self.duration = self.range
         self.speed = 20
         self.damage = 1
         self.mana = 0.6
 
+        self.sfx = pygame.mixer.Sound('audio/boomerang.mp3')
+
     def weapon(self, enemies=[]):
         if self.triggered and self.mouse:
-            if self.throw >= 10:
+            if self.duration >= 10:
                 self.Throw(self.range)
             else:
                 if self.follow():
                     self.triggered = False
+                    self.sfx.stop() # stop sfx
             self.draw()
             self.Hit(enemies)
             self.decreaseMana()
-            self.throw -= 1
+            self.duration -= 1
         else:
             self.triggered = False
             self.mouse = False
-            self.throw = self.range
+            self.duration = self.range
+            
+            if self.sfx_timer > 0:
+                self.sfx_timer -= 1
 
     def follow(self):
         try:
@@ -256,47 +290,58 @@ class SnowBall(Weapon):
     def __init__(self, player, screen, scale, name='snowball', animated=False):
         super().__init__(player, screen=screen, scale=scale, name=name, animated=animated)
         self.range = 10
-        self.throw = self.range
+        self.duration = self.range
         self.speed = 20
         self.damage = 0.8
         self.mana = 0.09
+        self.slow = 0.5
+
+        self.sfx = pygame.mixer.Sound('audio/snowball.mp3')
 
     def weapon(self, enemies=[]):
-        if self.triggered and self.throw:
+        if self.triggered and self.duration:
             self.Throw(self.range)
             self.draw()
             if self.Hit(enemies):
                 self.triggered = False
             self.decreaseMana()
-            self.throw -= 1
+            self.duration -= 1
         else:
             # reset
             self.triggered = False
             self.mouse = False
-            self.throw = self.range
+            self.duration = self.range
+
+            if self.sfx_timer > 0:
+                self.sfx_timer -= 1
 
 class Trident(Weapon):
 
     def __init__(self, player, screen, scale, name='trident', animated=False):
         super().__init__(player, screen, scale, name, animated)
         self.range = 15
-        self.throw = self.range
-        self.damage = 1.5
+        self.duration = self.range
+        self.damage = 2.5
         self.speed = 23
         self.mana = 0.9
 
+        self.sfx = pygame.mixer.Sound('audio/trident.mp3')
+
     def weapon(self, enemies):
-        if self.triggered and self.throw:
+        if self.triggered and self.duration:
             self.Throw(self.range)
             self.rotate()
             self.Hit(enemies)
             self.decreaseMana()
-            self.throw -= 1
+            self.duration -= 1
         else:
             #reset
             self.triggered = False
             self.mouse = False
-            self.throw = self.range
+            self.duration = self.range
+
+            if self.sfx_timer > 0:
+                self.sfx_timer -= 1
 
     def rotate(self):
         dis_x, dis_y = self.mouseDirection.x - self.player.rect.x, self.mouseDirection.y - self.player.rect.y
@@ -310,23 +355,27 @@ class Shuriken(Weapon):
     def __init__(self, player, screen, scale, name='shuriken', animated=False):
         super().__init__(player, screen, scale, name, animated)
         self.range = 20
-        self.throw = self.range
+        self.duration = self.range
         self.damage = 0.9
         self.speed = 20
         self.mana = 2
 
+        self.sfx = pygame.mixer.Sound('audio/shuriken.mp3')
+
     def weapon(self, enemies):
-        if self.triggered and self.throw:
+        if self.triggered and self.duration:
             self.Throw(self.range)
             self.rotate()
             if self.Hit(enemies):
                 self.decreaseMana()
                 self.triggered = False
-            self.throw -= 1
+            self.duration -= 1
         else:
             self.triggered = False
             self.mouse = False
-            self.throw = self.range
+            self.duration = self.range
+
+            if self.sfx_timer > 0: self.sfx_timer -= 1
 
     def rotate(self):
         dis_x, dis_y = self.mouseDirection.x - self.player.rect.x, self.mouseDirection.y - self.player.rect.y
@@ -340,33 +389,38 @@ class Mjolnir(Weapon):
     def __init__(self, player, screen, scale, name='mjolnir', animated=True):
         super().__init__(player, screen, scale, name, animated)
         self.range = 30
-        self.throw = self.range
-        self.damage = 2
+        self.duration = self.range
+        self.damage = 2.5
         self.speed = 25
         self.return_radius = 150
         self.angle = 0
         self.mana = 1
 
+        self.sfx = pygame.mixer.Sound('audio/throw_mjolnir.mp3')
+
     def weapon(self, enemies):
         if self.triggered:
-            if self.throw >= self.range / 2:
+            if self.duration >= self.range / 2:
                 self.Throw(self.range)
             else:
                 # if self.Rotate():
                 #     self.triggered = False
                 if self.follow(): # temporary use the follow function
-                    self.throw = 0
+                    self.duration = 0
                     self.triggered = False
             self.decreaseMana()
             self.draw()
             self.Hit(enemies)
-            self.throw -= 1
+            self.duration -= 1
         else:
             #reset
             self.triggered = False
             self.mouse = False
-            self.throw = self.range
+            self.duration = self.range
             self.angle = 0
+
+            if self.sfx_timer > 0:
+                self.sfx_timer -= 1
 
     def follow(self):
         try:
@@ -435,6 +489,8 @@ class Items(Weapon):
         super().__init__(player, screen, scale, name, animated, _type)
         self.code = None
         self.openData()
+        self.x = None
+        self.y = None
 
     def loadNoneAnimated(self):
         image = f'characters/icons/{self.name}.png'
@@ -453,6 +509,12 @@ class Items(Weapon):
             return True
         except KeyError:
             return False
+        
+    def move_x(self, direction):
+        self.x += direction
+    
+    def move_y(self, direction):
+        self.y += direction
 
 class Effects(pygame.sprite.Sprite):
 

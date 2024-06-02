@@ -47,6 +47,8 @@
         {"name": "table_2", "type": "other2", "rect": "(325, 350, 100, 100)"},
         {"name": "table_3", "type": "other2", "rect": "(200, 350, 100, 100)"},
         {"name": "table_4", "type": "other2", "rect": "(25, 200, 60, 252)"},
+        {"name": "chair_2", "type": "other", "rect": "(150, 100, 96, 48)"},
+        {"name": "book_1", "type": "other", "rect": "(180, 90, 30, 30)"},
 
         {"name": "machine_1", "type": "animated", "rect": "(610, 25, 84, 120)", "comment": "animated"},
 
@@ -74,7 +76,8 @@
         {"name": "power_generator_1", "type": "animated", "rect": "(590, 25, 85, 74)"},
         {"name": "teleport_machine", "type": "animated2", "rect": "(525, 100, 96, 96)"},
 
-        {"name": "outside", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "outside_map3"},
+        {"name": "bossFight", "type": "navigation", "rect": "(525, 100, 96, 46)", "distination": "BossFight_map3"},
+        {"name": "BattleGround1", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "BattleGround1_map3"},
         {"name": "base", "type": "navigation", "rect": "(50, 375, 75, 50)", "distination": "base_map3"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(75, 25, 100, 28)"},
@@ -97,6 +100,11 @@
         {"name": "hidden", "type": "hidden2", "rect": "(0, 0, 25, 400)"},
         {"name": "hidden", "type": "hidden2", "rect": "(25, 375, 425, 25)"},
         {"name": "hidden", "type": "hidden2", "rect": "(450, 0, 25, 400)"}
+    ],
+    
+    "BattleGround1": [
+        {"name": "map3", "type": "navigation", "rect": "(0, 150, 50, 75)", "distination": "map3_BattleGround1"},
+        {"name": "NextBattleMap", "type": "navigation", "rect": "(675, 200, 50, 75)", "distination": "BattleMap"}
     ],
 
     "SelectPlayer": [

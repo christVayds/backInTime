@@ -2,6 +2,7 @@ import pygame
 import os
 import json
 from . import weapons
+import random
 
 class Inventory:
 
@@ -21,6 +22,7 @@ class Inventory:
 
         # sfx
         self.sfx = []
+        self.inv_sfx = None # for other sfx
 
         self.font = pygame.font.SysFont('arial', 15)
         self.message = None
@@ -67,6 +69,7 @@ class Collectables(Inventory):
         self.openData()
 
     def draw(self):
+        self.checkCollected() # check if all collectable items are already collected
         self.checkItems() # check for all collectable items in your inventories
         self.screen.blit(self.guis[0], self.rect)
 
@@ -74,9 +77,19 @@ class Collectables(Inventory):
         self.screen.blit(self.message, (450, 200))
         self.drawCollected()
 
+    def checkCollected(self): # if the player collected all the collectable items
+        for data in self.dataWeapons:
+            if data['level'] == self.level:
+                if len(self.collectedItems) == len(data['collect']):
+                    self.player.can_teleport = True # player can now teleport
+                    return True
+        return False
+
     def Message(self):
-        self.message = f'Level: {self.level}\nCollected: {len(self.collectedItems)}'
-        self.message = self.font.render(self.message, True, (255,255,255))
+        for data in self.dataWeapons:
+            if data['level'] == self.level:
+                self.message = f'Level: {self.level}\nCollected: {len(self.collectedItems)}\nRemaining: {len(data['collect']) - len(self.collectedItems)}'
+                self.message = self.font.render(self.message, True, (255,255,255))
 
     def createGrid(self):
         for _ in range(2):
@@ -93,6 +106,7 @@ class Collectables(Inventory):
                     if weapon.code in data['collect'] and weapon.code not in self.collectedItemsCode:
                         self.collectedItems.append(weapon)
                         self.collectedItemsCode.append(weapon.code)
+                        self.player.myWeapons.remove(weapon)
 
     def openData(self):
         with open('data/items.json') as file:
@@ -263,6 +277,9 @@ class Weapon(Inventory):
 
         self.switch = 0
 
+        self.destroy_sfx = pygame.mixer.Sound('audio/destroy_item.mp3')
+        self.sfx_timer = 0
+
     def Select(self):
         keys = pygame.key.get_just_pressed()
 
@@ -367,6 +384,23 @@ class Weapon(Inventory):
                     self.player.myWeapons[self.selected] = temp
                     self.player.potion.Apply(self.player.shield)
 
+            # remove item
+            elif keys[pygame.K_d]:
+                self.destroy_sfx.play()
+                addLife = random.choice([5,10,15,20,25,30])
+
+                # if the item is a weapon or not
+                if self.player.myWeapons[self.selected]._type in ['weapon', 'shield', 'potion']:
+                    self.player.life = self.player.defaultLife
+                else:
+                    if self.player.life <= (self.player.defaultLife - addLife):
+                        self.player.life += addLife
+                    else:
+                        self.player.life = self.player.defaultLife
+
+                self.message = f'{self.player.myWeapons[self.selected].name.title()} removed\nHealth: +{addLife}'
+                self.player.myWeapons.remove(self.player.myWeapons[self.selected])
+
         except IndexError:
             print('select empty')
     
@@ -406,6 +440,9 @@ class CraftingTable(Inventory):
 
         self.dataCombination = []
         self.getCombinationData()
+
+        self.inv_sfx = pygame.mixer.Sound('audio/crafted.mp3')
+        self.sfx_timer = 0
 
     def Select(self):
         keys = pygame.key.get_just_pressed()
@@ -514,6 +551,7 @@ class CraftingTable(Inventory):
 
             if self.result != None:
                 self.screen.blit(self.result.icon, self.resultGrid)
+                
         except IndexError:
             print('empty')
 
@@ -533,9 +571,14 @@ class CraftingTable(Inventory):
     def Craft(self):
         for data in self.dataCombination['combination']:
             if self.placed_code == data['combination']:
+                if self.sfx_timer == 0:
+                    self.sfx_timer = 10
+                    self.inv_sfx.play()
                 self.build(data['result'])
                 self.placed_code = []
                 self.placed = []
+        if self.sfx_timer > 0:
+            self.sfx_timer -= 1
 
     def getCombinationData(self):
         with open('data/items.json') as file:
