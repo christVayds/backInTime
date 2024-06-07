@@ -45,8 +45,12 @@ class Inventory:
     def showLabel(self):
         try:
             if self.message == '' or self.message ==  None:
-                text = self.player.myWeapons[self.selected]
-                text = self.font.render(f'Name: {text.name.title()}\nLevel: {text.level}\nDamage: {text.damage}\nAbsorb: {text.absorb}', True, (255, 255, 255))
+                if self.player.myWeapons[self.selected].player == None:
+                    text = 'You are not the\nowner of this\nweapon'
+                    text = self.font.render(text, True, (255,255,255))
+                else:
+                    text = self.player.myWeapons[self.selected]
+                    text = self.font.render(f'Name: {text.name.title()}\nLevel: {text.level}\nDamage: {text.damage}\nAbsorb: {text.absorb}', True, (255, 255, 255))
             else: 
                 text = self.font.render(self.message, True, (255,255,255))
         except IndexError:
@@ -58,12 +62,14 @@ class Collectables(Inventory):
     def __init__(self, player, screen, scale, pos, name='collect'):
         super().__init__(player, screen, scale, pos, name)
         self.collectedGrid = []
+
         self.collectedItems = []
         self.collectedItemsCode = []
+        
         self.column = 55
         self.row = 200
         self.createGrid()
-        self.level = 1
+        self.level = None
 
         self.dataWeapons = None
         self.openData()
@@ -82,6 +88,8 @@ class Collectables(Inventory):
             if data['level'] == self.level:
                 if len(self.collectedItems) == len(data['collect']):
                     self.player.can_teleport = True # player can now teleport
+                    if self.player.level > self.player.bossCount:
+                        self.player.endgame = True
                     return True
         return False
 
@@ -277,7 +285,7 @@ class Weapon(Inventory):
 
         self.switch = 0
 
-        self.destroy_sfx = pygame.mixer.Sound('audio/destroy_item.mp3')
+        self.destroy_sfx = pygame.mixer.Sound('audio/shield_1.mp3')
         self.sfx_timer = 0
 
     def Select(self):
@@ -336,7 +344,9 @@ class Weapon(Inventory):
 
                 # weapon one
                 if self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item'] and not self.switch:
-                    if self.player.myWeapons[self.selected] != self.player.equiped2:
+                    if self.player.myWeapons[self.selected].player == None:
+                        self.message = f'You are not the\nowner of {self.player.myWeapons[self.selected].name}'
+                    elif self.player.myWeapons[self.selected] != self.player.equiped2:
                         self.player.equiped1.effect = False # reset the effect
                         temp = self.player.equiped1
                         self.player.potion.Remove(temp)
@@ -350,7 +360,9 @@ class Weapon(Inventory):
 
                 # weapon two
                 elif self.player.myWeapons[self.selected]._type not in ['potion', 'shield', 'item'] and self.switch: 
-                    if self.player.myWeapons[self.selected] != self.player.equiped1:
+                    if self.player.myWeapons[self.selected].player == None:
+                        self.message = f'You are not the\nowner of {self.player.myWeapons[self.selected].name}'
+                    elif self.player.myWeapons[self.selected] != self.player.equiped1:
                         self.player.equiped2.effect = False # reset the effect
                         temp = self.player.equiped2
                         self.player.potion.Remove(temp)
@@ -385,7 +397,7 @@ class Weapon(Inventory):
                     self.player.potion.Apply(self.player.shield)
 
             # remove item
-            elif keys[pygame.K_d]:
+            elif keys[pygame.K_r]:
                 self.destroy_sfx.play()
                 addLife = random.choice([5,10,15,20,25,30])
 
@@ -550,7 +562,8 @@ class CraftingTable(Inventory):
                 self.screen.blit(image, self.craftGrid[i])
 
             if self.result != None:
-                self.screen.blit(self.result.icon, self.resultGrid)
+                image = pygame.transform.scale(self.result.icon, (40,40))
+                self.screen.blit(image, self.resultGrid)
                 
         except IndexError:
             print('empty')
@@ -569,14 +582,19 @@ class CraftingTable(Inventory):
             self.weaponsgui.append(image)
 
     def Craft(self):
-        for data in self.dataCombination['combination']:
-            if self.placed_code == data['combination']:
+        for data in self.dataCombination['combination']: # load all combination data
+            if self.placed_code == data['combination']: # if the items in placed items math in combination data
+                # play the sfx 
                 if self.sfx_timer == 0:
                     self.sfx_timer = 10
                     self.inv_sfx.play()
-                self.build(data['result'])
+
+                # build the item
+                self.build(data['result'], data['type'])
                 self.placed_code = []
                 self.placed = []
+        
+        # sfx timer
         if self.sfx_timer > 0:
             self.sfx_timer -= 1
 
@@ -584,8 +602,20 @@ class CraftingTable(Inventory):
         with open('data/items.json') as file:
             self.dataCombination = json.load(file)
 
-    def build(self, name):
-        item = weapons.Items(self.player, self.screen, (40, 40), name)
-        if item.checkItem():
-            self.player.myWeapons.append(item)
-            self.result = item
+    def build(self, name, _type='item'):
+        # weapon = None
+        if _type == 'weapon':
+            if name == 'boomerang':
+                weapon = weapons.Boomerang(self.player, self.screen, (30,30))
+            elif name == 'bomb':
+                weapon = weapons.Bomb(self.player, self.screen, (30,30))
+            self.player.myWeapons.append(weapon)
+            self.result = weapon
+        else:
+            # create item
+            item = weapons.Items(self.player, self.screen, (40, 40), name)
+
+            # check the item
+            if item.checkItem():
+                self.player.myWeapons.append(item)
+                self.result = item

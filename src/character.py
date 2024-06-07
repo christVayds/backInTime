@@ -1,6 +1,7 @@
 import pygame
 from . import skills # Speed, Boomerang, shield, copy
 from . import timer
+import random
 
 class Player(pygame.sprite.Sprite):
 
@@ -18,71 +19,14 @@ class Player(pygame.sprite.Sprite):
         self.timer = timer.Timer(30) # fps = 30
         self.messageTimer = timer.Timer(30)
 
-        # player life
-        self.defaultLife = 100
-        self.defaultMana = 100
-        self.life = self.defaultLife
-        self.mana = self.defaultMana
-        self.shieldPower = 0
-        self.power = 10
-        self.myWeapons = [] # for weapons
-        self.equiped1 = None
-        self.equiped2 = None
-        self.potion = None
-        self.shield = None
-        self.level = 1
-
-        # skills
-        self.skills = None
-        self.skill_cooldown = None
-
-        # speed
-        self.speed = 7
-        self.walk = 0
-
         # rect and surface
         self.rect = pygame.Rect((x, y), (self.width, self.height)) # for player rect
 
-        # facing
-        self.left = False
-        self.right = True
-        self.up = False
-        self.down = False
-
-        # image and animation
-        self.c_left = []
-        self.c_right = []
-        self.c_up = []
-        self.c_down = []
-
-        # inventories / items list
-        # self.chestBoxes = []
-        self.inventories = []
-        self.collectedItems = []
-        self.viewInventory = False
-        self.viewVaultBox = False
-        self.craft = False
-        self.collectables = False
-        self.openMonitor = False
-        self.openbook = False
-
-        # handling location
-        self.location = 'base'
-        self.loading = False
-        self.loading_timer_max = 90
-        self.loading_timer = 0
-        self.can_move = True
-        self.nextMap = False
-        self.can_teleport = False
+        # self.Init(x, y) # initialize all
+        self.bossCount = 0 # number of boss
 
         # map objects
-        self.nav = False
         self.MapObjects = {}
-        self.respawn = 'base'
-
-        # messages or notification
-        self.showMessage = False
-        self.message = None
 
         # sound effects
         self.walkSfx = None
@@ -149,6 +93,7 @@ class Player(pygame.sprite.Sprite):
             self.walk = 0
 
         self.Facing(screen)
+        self.masterWeapon()
         
         # player rect
         # pygame.draw.rect(screen, (255,255,10), self.rect, 1)
@@ -284,7 +229,10 @@ class Player(pygame.sprite.Sprite):
 
                 # example door or the time machine
                 elif obj._type == 'navigation':
-                    self.checkLocation(obj)
+                    if obj.name == 'NextBattleMap':
+                        self.nextMap = True
+                    else:
+                        self.checkLocation(obj)
     
     # handling navigating to other location
     def checkLocation(self, obj):
@@ -309,10 +257,11 @@ class Player(pygame.sprite.Sprite):
                     self.location = obj.name
 
                 elif obj.name == 'map3':
-                    self.nav = True
-                    self.right, self.left, self.up, self.down, = False, False, True, False
-                    self.respawn = self.location
-                    self.location = obj.name
+                    if self.can_return:
+                        self.nav = True
+                        self.right, self.left, self.up, self.down, = False, False, True, False
+                        self.respawn = self.location
+                        self.location = obj.name
 
                 elif obj.name == 'map4':
                     self.nav = True
@@ -330,12 +279,28 @@ class Player(pygame.sprite.Sprite):
                 elif obj.name == 'NextBattleMap':
                     self.nextMap = True
 
-                elif obj.name == 'BossFight': # normal navigation for boss fight
-                    if self.can_teleport:
+                elif obj.name == 'bossFight': # normal navigation for boss fight
+                    if self.can_teleport and self.level <= self.bossCount:
                         self.nav = True
-                        self.right, self.left, self.up, self.down = True, False, False, False
+                        self.right, self.left, self.up, self.down = False, False, False, True
                         self.respawn = self.location
                         self.location = obj.name
+                        self.can_return = False
+                        self.can_teleport = False
+                    elif self.endgame:
+                        self.showMessage = True
+                        self.message = 'Time to Back in time!'
+                    else:
+                        self.showMessage = True
+                        self.message = 'Not now'
+
+                elif obj.name == 'past':
+                    if self.level > self.bossCount and self.endgame:
+                        self.can_teleport = False
+                        self.timeMachine = True
+                    else:
+                        self.showMessage = True
+                        self.message = 'Not now'
 
             # reset the timer for transition in navigation
             if self.nav:
@@ -387,7 +352,7 @@ class Player(pygame.sprite.Sprite):
 
     def Message(self, screen):
         if self.showMessage:
-            text = self.messageFont.render(self.message, True, (208, 2, 235))
+            text = self.messageFont.render(self.message, True, (255,0,0))
             if not self.messageTimer.coolDown(5):
                 screen.blit(text, (25, (500 - text.get_height()) / 2, text.get_width(), text.get_height()))
             else:
@@ -428,7 +393,7 @@ class Player(pygame.sprite.Sprite):
                     break # break the loop
 
             if not foundKey:
-                self.message = 'No Memory Card'
+                self.message = 'No Memory Card - find the memory card'
                 self.showMessage = True
 
     def openBook(self):
@@ -438,14 +403,24 @@ class Player(pygame.sprite.Sprite):
             self.sfx[0].play()
             self.openbook = True
 
+    def timeTravel(self):
+        if self.timeMachine:
+            return True
+
     def handleFight(self, enemies=[]):
         # equiped 1
         self.equiped1.Trigger_mouse()
         self.equiped1.weapon(enemies)
-
+        
         # equiped 2
         self.equiped2.Trigger_mouse2()
         self.equiped2.weapon(enemies)
+
+    def masterWeapon(self):
+        # if the player reach the score, the weapon that is from the other player recognize the player as its player
+        for weapon in self.myWeapons:
+            if not weapon.player:
+                weapon.Master(self)
 
     def handleDefense(self, enemies=[]):
         # for sheild and other
@@ -486,22 +461,12 @@ class Player(pygame.sprite.Sprite):
             # raise error if player not found
             raise KeyError
         
-    def Reset(self):
-        self.c_right = []
-        self.c_left = []
-        self.c_down = []
-        self.c_up = []
-
+    def Init(self, x, y):
+        # player life
+        self.defaultLife = 100
+        self.defaultMana = 100
         self.life = self.defaultLife
         self.mana = self.defaultMana
-
-        self.skills = None
-        self.skill_cooldown = None
-
-        # speed
-        self.speed = 7
-        self.walk = 0
-
         self.shieldPower = 0
         self.power = 10
         self.myWeapons = [] # for weapons
@@ -509,21 +474,56 @@ class Player(pygame.sprite.Sprite):
         self.equiped2 = None
         self.potion = None
         self.shield = None
-        self.level = 1
+        self.level = 3 # debugging
+        self.score = 0
 
+        # skills
+        self.skills = None
+        self.skill_cooldown = None
+
+        # speed
+        self.speed = 7
+        self.walk = 0
+
+        # rect and surface
+        self.rect = pygame.Rect((x, y), (self.width, self.height)) # for player rect
+
+        # facing
+        self.left = False
+        self.right = True
+        self.up = False
+        self.down = False
+
+        # image and animation
+        self.c_left = []
+        self.c_right = []
+        self.c_up = []
+        self.c_down = []
+
+        # inventories / items list
         self.inventories = []
         self.collectedItems = []
         self.viewInventory = False
         self.viewVaultBox = False
         self.craft = False
         self.collectables = False
+        self.openMonitor = False
+        self.openbook = False
 
         # handling location
         self.location = 'base'
+        self.loading = False
+        self.loading_timer_max = 90
+        self.loading_timer = 0
+        self.can_move = True
+        self.nextMap = False
+        self.can_teleport = True # debugging
+        self.can_return = True # for after navigating to boss fight map
+        self.endgame = True # debugging
+        self.timeMachine = False
 
-        # map objects
+        # # map objects
         self.nav = False
-        # self.MapObjects = {}
         self.respawn = 'base'
 
         # messages or notification
@@ -579,13 +579,25 @@ class Enemy(pygame.sprite.Sprite):
 
         # sfx
         self.sfx = pygame.mixer.Sound('audio/hit.mp3')
+        self.attack_sfx = pygame.mixer.Sound('audio/e_attack.mp3')
         self.sfx_timer = 0
+        self.rawr_sfx = pygame.mixer.Sound('audio/e_sound.mp3')
+        self.rawr_sfx_timer = 0
 
     # draw the enemy
     def draw(self, screen, objects):
 
         # handle collision
         self.handleCollision(objects)
+
+        # for sound of enemies
+        effect = random.choice(range(500))
+        if effect == 0:
+            if self.rawr_sfx_timer == 0:
+                self.rawr_sfx_timer = 20
+                self.rawr_sfx.play()
+        if self.rawr_sfx_timer > 0:
+            self.rawr_sfx_timer -= 1
 
         if self.sfx_timer > 0:
             self.sfx_timer -= 1
@@ -606,7 +618,7 @@ class Enemy(pygame.sprite.Sprite):
             if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.e_up[self.walk//3], (self.rect.x, self.rect.y))
             self.walk += 1
-        elif self.right or self.down:
+        elif self.right:
             if self.rect.x > -self.width and self.rect.x < 700 and self.rect.y > -self.height and self.rect.y < 500:
                 screen.blit(self.e_right[self.walk//3], (self.rect.x, self.rect.y))
             self.walk += 1
@@ -645,7 +657,7 @@ class Enemy(pygame.sprite.Sprite):
             self.out = True
 
     # enemy follow player until player's life is 0
-    def follow(self, player):
+    def follow(self, player): # for zombies and slimes
         if player.life > 0 and not(self.pushed) and self.canFollow:
             if self.rect.x > player.rect.x + 35:
                 self.left = True
@@ -675,11 +687,11 @@ class Enemy(pygame.sprite.Sprite):
     def Attack(self, player):
         if pygame.sprite.collide_rect(self, player):
             player.Attacked(self)
-            if player.sfx_timer == 0:
-                player.sfx_timer = 50
-                player.hit_sfx.play()
-        if player.sfx_timer > 0:
-            player.sfx_timer -= 1
+            if self.sfx_timer == 0:
+                self.sfx_timer = 50
+                self.attack_sfx.play()
+        if self.sfx_timer > 0:
+            self.sfx_timer -= 1
 
     # load enemies image
     def loadImages(self):
@@ -710,7 +722,7 @@ class Enemy(pygame.sprite.Sprite):
     # enemies collision
     def handleCollision(self, objects):
         for object in objects:
-            if object._type not in ['hidden2', 'other2']:
+            if object._type not in ['hidden2', 'other2', 'navigation', 'animated2']:
                 if self.left or self.right:
                     if self.rect.y > object.rect.y:
                         object.e_front.append(self)
@@ -718,7 +730,7 @@ class Enemy(pygame.sprite.Sprite):
                         if self in object.e_front:
                             object.e_front.remove(self)
             if pygame.sprite.collide_rect(self, object):
-                if object._type not in ['hidden2', 'other2']:
+                if object._type not in ['hidden2', 'other2', 'navigation', 'animated2']:
                     if self.left:
                         if self.rect.y <= object.rect.y:
                             self.rect.left = object.rect.right
@@ -732,18 +744,30 @@ class Enemy(pygame.sprite.Sprite):
                     elif self.down and self not in object.e_front:
                         self.rect.bottom = object.rect.top
                 else:
-                    if self.right:
-                        self.rect.right = object.rect.left
-                    elif self.left:
-                        self.rect.left = object.rect.right
-                    elif self.up:
-                        self.rect.top = object.rect.bottom
-                    elif self.down:
-                        self.rect.bottom = object.rect.top
+                    if object._type not in ['navigation', 'other2', 'animated2']:
+                        if self.right:
+                            self.rect.right = object.rect.left
+                        elif self.left:
+                            self.rect.left = object.rect.right
+                        elif self.up:
+                            self.rect.top = object.rect.bottom
+                        elif self.down:
+                            self.rect.bottom = object.rect.top
 
-class Slime(Enemy): # for slimes
+# types of Enemies
+class Zombie(Enemy):
+
+    def __init__(self, x, y, width, height, name='zombie'):
+        super().__init__(x, y, width, height, name)
+
+class Slime(Enemy):
 
     def __init__(self, x, y, width, height, name='slime'):
+        super().__init__(x, y, width, height, name)
+
+class Robot(Enemy):
+
+    def __init__(self, x, y, width, height, name='robots'):
         super().__init__(x, y, width, height, name)
 
 class NPC(pygame.sprite.Sprite):

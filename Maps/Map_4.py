@@ -41,3 +41,7 @@ class TileMap():
 
     def move_y(self, direction):
         self.y += direction
+
+    def Reset(self):
+        self.x = 0
+        self.y = 0

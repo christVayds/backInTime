@@ -89,6 +89,10 @@ class GUI:
         self.screen = screen
         self.name = name
         self.bg = bg
+
+        # font
+        self.font = pygame.font.SysFont('consolas', 13)
+        self.text = None
         
         self.bg_image = None
         self.selections = []
@@ -171,6 +175,11 @@ class GUI:
             image = pygame.transform.scale(image, (700, 700))
             self.bg_image = image
 
+    def drawText(self, x, y):
+        if self.text:
+            text = self.font.render(self.text.title(), True, (102,255,227))
+            self.screen.blit(text, (x, y, text.get_width(), text.get_height()))
+
 class CraftingBook:
 
     def __init__(self, x, y, width, height, screen):
@@ -242,7 +251,10 @@ class CraftingBook:
         data = {}
         comItems = []
         for item in self.data:
-            image = pygame.image.load(f'characters/icons/{item['result']}.png')
+            if item['result'] in ['boomerang', 'bomb']:
+                image = pygame.image.load(f'characters/weapons/{item['result']}/weapon.png')
+            else:
+                image = pygame.image.load(f'characters/icons/{item['result']}.png')
             image = pygame.transform.scale(image, (75, 75))
             data['result'] = image
             for comItem in item['combination']:

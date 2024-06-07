@@ -19,6 +19,7 @@ class Object(pygame.sprite.Sprite):
 
         # for practice
         self.attacked = False
+        self.damage = 0
         self.life = 100
         self.practice = None
         self.hit = None

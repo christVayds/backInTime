@@ -5,7 +5,7 @@ class TileMap():
         pygame.init()
         self.tilesize = tilesize
         self.images = []
-        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/border_1.png"), (self.tilesize, self.tilesize)))
+        self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/wall_2.png"), (self.tilesize, self.tilesize)))
         self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/wall_4.png"), (self.tilesize, self.tilesize)))
         self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/wall_3.png"), (self.tilesize, self.tilesize)))
         self.images.append(pygame.transform.scale(pygame.image.load("C:/Users/Admin/OneDrive/Documents/backInTime/characters/objects/floor_1.png"), (self.tilesize, self.tilesize)))
@@ -27,7 +27,9 @@ class TileMap():
 [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
 [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
 [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]]
     def drawMap(self, surface, location):
             for i,row in enumerate(self.array):
                 for j,tile in enumerate(row):

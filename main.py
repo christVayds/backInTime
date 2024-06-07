@@ -21,10 +21,11 @@ from src.camera import Camera
 from Data.read import Read
 from src.UI import UI, GUI, CraftingBook
 from src.timer import Timer
+from src.boss import Ethan, Aeron
 
 # IMPORT MAPS
 # from Maps import baseMap, Map_2, Map_3, Map_4
-from Maps import baseMap, Map_2, Map_3, Map_4, Battleground_1
+from Maps import Battleground_1, baseMap, Map_2, Map_3, Map_4, Boss1
 from src.music import Music
 from src import weapons
 from src import inventories
@@ -48,18 +49,9 @@ game = Game(window)
 
 showFPS = pygame.font.SysFont('arial', 20)
 
-#function for fps / for testing the fps
-def showfps():
-    getfps = round(clock.get_fps(), 2)
-    ftext = showFPS.render(f'FPS: {getfps}', True, (255,255,255))
-    if getfps < float(29.50):
-        pygame.draw.rect(window, (255,0,0), (600, 10, 100, 30))
-    else:
-        pygame.draw.rect(window, (0,0,0), (600, 10, 100, 30))
-    window.blit(ftext, (600, 15))
-
 ####################### audios / sfx / bg musics ####################### AERON
 music = Music() # load music inside MUSIC CLASS
+game.music = music
 
 ####################### SOUND EFFECTS (SFX) HERE ####################### AERON
 
@@ -86,13 +78,9 @@ map_4 = Map_4.TileMap(25, 0, 0)
 
 # battle grounds
 battleG1 = Battleground_1.TileMap(25, 0, 0)
+boss1 = Boss1.TileMap(25, 0, 0) # map for boss fight 1
 
-#################### GUI #######################
-
-# player Icon and health bar
-playerIcon = UI(10, 10, 256, 64, 'player_frame')
-
-listGUIs = [playerIcon] # list contain: healthbar
+listMaps = [base, map_2, map_3, map_4, battleG1, boss1]
 
 ##### PAUSE MENU #####
 pause_menu = GUI(254, 58, (192, 384), window, 'pause_game', sfx=[select_item, selected_item])
@@ -109,6 +97,7 @@ settings_menu.game = game
 ##### CREDITS #####
 credits_menu = GUI(254, 58, (192, 384), window, 'credits', sfx=[select_item, selected_item])
 credits_menu.game = game
+credits_menu.text = game.credits 
 
 ##### MONITOR #####
 monitor_ui = GUI((windowSize['width'] - 320) / 2, (windowSize['height'] - 320) / 2, (320, 320), window, 'monitor', None, [select_item, selected_item])
@@ -120,6 +109,17 @@ player = Player(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) /
 game.player = player # add the player to the game class
 player.walkSfx = walkSfx # walk sound effects
 player.sfx = [select_item, selected_item] # other sound effects
+
+#################### GUI #######################
+
+listGUIs = [] # list contain: healthbar
+
+############# BOSS #####################
+boss = [
+    Ethan(100, 100, 50, 50, screen=window),
+    Aeron(100, 100, 50, 50, screen=window),
+]
+player.bossCount = len(boss)
 
 # read object data from json file data
 readData = Read('Data/data.json')
@@ -133,9 +133,17 @@ game.readData = readData
 # for intro screen
 title = [
     Object(0, 0, 700, 700, 'bg_image', 'test_bg'),
-    Object((windowSize['width'] - 200) / 2, (windowSize['height'] - 350) / 2, 200, 200, 'animated', 'title_3'),
+    Object((windowSize['width'] - 563) / 2, (windowSize['height'] - 61) / 2, 563, 61, 'other', 'title_1'),
     Object(508, 0, 192, 48, 'other', 'credits'),
     Object(254, 350, 192, 24, 'animated', 'enter_game')
+]
+
+game_over = [
+    Object((windowSize['width'] - 653) / 2, (windowSize['height'] - 87) / 2, 653, 87, 'other', 'game_over'),
+]
+
+end_game = [
+    Object((windowSize['width'] - 212) / 2, (windowSize['height'] - 17) / 2, 212, 17, 'other', 'endgame'),
 ]
 
 ######## CREATE SELECT PLAYER #########
@@ -164,11 +172,12 @@ create_map4.create()
 createBattleG1 = Create(window, player, readData.data['BattleGround1'], select_item, selected_item)
 createBattleG1.create()
 
-######## CREATE ENEMIES #########
+# Boss Fight
+createBoss1 = Create(window, player, readData.data['boss1'], select_item, selected_item)
+createBoss1.create()
 
-# enemies for map 2
-enemy_bg1 = Create(window, player, readData.data['Enemies_m2'], select_item, selected_item)
-enemy_bg1.create_enemies()
+# list of all creations
+listCreated = [create_selectPlayer, create_base, create_map2, create_map3, create_map4, createBattleG1, createBoss1]
 
 # camera
 camera = Camera(player, windowSize)
@@ -192,6 +201,7 @@ crafting_table.sfx = inventory.sfx
 # collectables
 collectable_table = inventories.Collectables(player, window, (640, 160), (30, 170))
 collectable_table.sfx = inventory.sfx
+# game.collectables = collectable_table
 
 # crafting Book
 crafting_Book = CraftingBook((windowSize['width'] - 448) / 2, (windowSize['height'] - 224) / 2, 448, 224, window)
@@ -247,8 +257,6 @@ def draw_base():
     
     elif player.openMonitor:
         currentPage = pages[11]
-
-    showfps()
 
     # camera
     camera.move(create_base.listofObjects+[base]+[player.equiped1, player.equiped2])
@@ -310,8 +318,6 @@ def draw_map2():
     elif player.openbook:
         currentPage = pages[12] # read the book
 
-    showfps()
-
     player.loading_nav(window) # for transition in navigation
 
     pygame.display.flip()
@@ -348,6 +354,10 @@ def draw_map3():
     for guis in listGUIs:
         guis.draw(window)
 
+    # entrance transition
+    if game.end_transition:
+        game.boss_transition() # end transistion
+
     # temporary
     if pause:
         currentPage = pages[6] # game menu / pause
@@ -364,7 +374,11 @@ def draw_map3():
     elif player.collectables:
         currentPage = pages[10] # open collectable table
 
-    showfps()
+    elif player.timeTravel():
+        game.play = False
+        music.switch = True
+        music.toPlay = 4
+        currentPage = pages[14] # end game
 
     player.loading_nav(window) # for transition in navigation
 
@@ -413,8 +427,6 @@ def draw_map4():
     elif player.craft:
         currentPage = pages[9] # open craftbox
 
-    showfps()
-
     player.loading_nav(window) # for transition in navigation
 
     pygame.display.flip()
@@ -449,9 +461,11 @@ def draw_btg1():
                     item.y = enemy.rect.y
                     game.items.append(item) # append the items and the x and y pos of the enemy
                 game.Enemies.remove(enemy)
+                player.score += 1
         enemy.draw(window, createBattleG1.listofObjects[1:])
-        enemy.follow(player)
-        enemy.Attack(player)
+        if enemy.name in ['zombie', 'slime']: # only zombies and slime
+            enemy.follow(player)
+            enemy.Attack(player)
 
     player.potion.Use()
     player.draw(window, createBattleG1.listofObjects[1:]) # draw player
@@ -481,21 +495,120 @@ def draw_btg1():
     if game.gameover:
         currentPage = pages[13] # game over window / page
 
-    showfps()
     player.loading_nav(window) # for transition in navigation
 
     pygame.display.flip()
 
-count = 120
-def draw_gameOver():
-    global currentPage, count
+def draw_boss1():
+    global currentPage
     window.fill((0,0,0))
-    count -= 1
 
-    if count <= 0:
+    boss[player.level-1].toFocus = player # focus the boss to player
+
+    game.Reset_bossFight(boss1, createBoss1, boss[player.level-1]) # reset the map with boss
+
+    # camera.move(createBoss1.listofObjects+[boss1]+game.Enemies+[player.equiped1, player.equiped2]+game.items+[ethan]+ethan.weapon)
+    
+    # draw the map
+    boss1.drawMap(window)
+
+    createBoss1.draw() # objects
+    pause = createBoss1.pauseGame()
+    openWeapons = create_base.openWeapons()
+
+    # draw the boss
+    if not game.transition:
+        boss[player.level-1].draw()
+
+    # draw the items from enemies in game class
+    game.drawItems()
+
+    # draw enemies
+    if not game.transition:
+        for enemy in game.Enemies:
+            if enemy.life <= 0: # enemy die
+                enemy.hit_effects(window)
+                if enemy.out:
+                    for item in enemy.items:
+                        item.x = enemy.rect.x
+                        item.y = enemy.rect.y
+                        game.items.append(item) # append the items and the x and y pos of the enemy
+                    game.Enemies.remove(enemy)
+                    player.score += 1
+            enemy.draw(window, createBoss1.listofObjects[1:])
+            if enemy.name in ['zombie', 'slime'] and not game.transition: # only zombies and slime
+                enemy.follow(player)
+                enemy.Attack(player)
+
+    player.potion.Use()
+    player.handleFight(game.Enemies+[boss[player.level-1]])
+    player.draw(window, createBoss1.listofObjects[1:]) # draw player
+    player.pickItems(game.items)
+
+    effects_1.effects() # effets for equiped weapon 1
+    effects_2.effects() # effets for equiped weapon 2
+    effects_2.Hit([player]+game.Enemies+[boss[player.level-1]])
+    effects_1.Hit([player]+game.Enemies+[boss[player.level-1]])
+
+    player.navigate() # for naviagtion
+    player.TriggerSkills(game.Enemies+[boss[player.level-1]]) # skills
+    player.handleDefense() # shield
+    player.Message(window) # notification or message
+
+    player.barLife(window)
+    for guis in listGUIs:
+        guis.draw(window)
+
+    game.CheckBossFight(boss) # check the health of the boss
+    game.addEnemies_BossFight()
+
+    # entrance transition
+    if game.transition:
+        game.boss_transition()
+
+    if pause:
+        currentPage = pages[6] # game menu / pause
+
+    elif openWeapons or player.viewVaultBox:
+        currentPage = pages[7] # weapons inventory
+
+    # check if game over
+    if game.gameover:
+        currentPage = pages[13] # game over window / page
+
+    if player.loading:
+        player.loading_nav(window) # for transition in navigation
+
+    pygame.display.flip()
+
+def endGame():
+    global currentPage
+    
+    window.fill((255,255,255))
+
+    # for gui in end_game:
+    #     gui.draw(window)
+
+    if game.endgameExit(end_game):
         currentPage = pages[1]
 
     pygame.display.flip()
+
+# page for game over
+def draw_gameOver():
+    global currentPage
+    window.fill((0,0,0))
+    game.gameover_transition_count -= 1
+
+    for gui in game_over:
+        gui.draw(window)
+
+    if game.gameover_transition_count <= 0:
+        currentPage = pages[1]
+        game.gameover_transition_count = 150
+
+    pygame.display.flip()
+
 # for weapons
 def draw_weapons():
     global currentPage
@@ -506,6 +619,9 @@ def draw_weapons():
     inventory.drawWeapons()
     player.Message(window)
 
+    effects_1.loadEffects(player.equiped1) # load effects - no effects yet to equiped 1(boomerang)
+    effects_2.loadEffects(player.equiped2) # load effects
+
     if inventory.Select():
         currentPage = pages[5]
         player.viewVaultBox = False
@@ -513,8 +629,6 @@ def draw_weapons():
     player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
-
-    showfps()
 
     pygame.display.flip()
 
@@ -535,8 +649,6 @@ def draw_vaultbox():
     for guis in listGUIs:
         guis.draw(window)
 
-    showfps()
-
     pygame.display.flip()
 
 def draw_craftbox():
@@ -556,8 +668,6 @@ def draw_craftbox():
     for guis in listGUIs:
         guis.draw(window)
 
-    showfps()
-
     pygame.display.flip()
 
 def draw_collectables():
@@ -575,8 +685,6 @@ def draw_collectables():
     player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
-
-    showfps()
 
     pygame.display.flip()
 
@@ -597,8 +705,6 @@ def draw_Monitor():
     player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
-
-    showfps()
     pygame.display.flip()
 
 # crafting book draw
@@ -613,13 +719,12 @@ def draw_craftingBook():
     if crafting_Book.Actions():
         player.openbook = False
         crafting_Book.page = 0
+        game.reading_page = 0
         currentPage = pages[5] # return to game
 
     player.barLife(window)
     for guis in listGUIs:
         guis.draw(window)
-
-    showfps()
 
     pygame.display.flip()
 
@@ -691,7 +796,9 @@ def credits():
     window.fill((10, 10, 10))
 
     credits_menu.draw()
+    credits_menu.drawText(265, 125)
     selected = credits_menu.Select()
+    
     if selected == 0:
         currentPage = pages[1]
 
@@ -721,30 +828,32 @@ def selectPlayer():
             raise Exception('Player not found')
         
         # player's other initializations here
-        player.Reset()
+        player.Init(((windowSize['width'] - 50) / 2), ((windowSize['height'] - 50) / 2)) # initialize player here
         player.loadImages() # load the image of the player
         player.initSkill(window) # initialized skills
-        player.myWeapons = [
-            weapons.SnowBall(player, window, (20, 20)),
-            weapons.Trident(player, window, (50, 50)),
-            weapons.Mjolnir(player, window, (30, 30)),
-            weapons.Shuriken(player, window, (30, 30)),
-            weapons.Potions(player, window, (25, 25), 'weaponize'),
-            weapons.Potions(player, window, (25, 25), 'speed'),
 
+        player.myWeapons = [
+            # weapons.Trident(player, window, (50, 50)),
+            # weapons.Mjolnir(player, window, (30, 30)),
+            # weapons.Potions(player, window, (25, 25), 'weaponize'),
+            # weapons.Potions(player, window, (25, 25), 'speed'),
+            # weapons.Bomb(player, window, (30, 30)),
+            # weapons.Boomerang(player, window, (30, 30))
         ]
 
         player.inventories = [
-            weapons.Potions(player, window, (25, 25), 'durability'),
-            weapons.Shield(player, window, (80, 80), 'protektor'),
-            weapons.Shield(player, window, (80, 80), 'armored'),
+            weapons.Potions(player, window, (25, 25), 'power'),
+            # weapons.Shield(player, window, (80, 80), 'protektor'), # to remove
+            # weapons.Shield(player, window, (80, 80), 'armored'), # to remove
             ] # load at least one item or weapon in inventory
 
         # give player equipment
-        player.equiped1 = weapons.Boomerang(player, window, (30, 30)) # equiped the weapon 1
-        player.equiped2 = weapons.Bomb(player, window, (30, 30)) # equiped the weapon 2
+        player.equiped1 = weapons.Shuriken(player, window, (30, 30))
+        player.equiped2 = weapons.SnowBall(player, window, (20, 20))
         player.shield = weapons.Shield(player, window, (80, 80)) # equiped the shield
-        player.potion = weapons.Potions(player, window, (25, 25), 'power')
+        player.potion = weapons.Potions(player, window, (25, 25), 'durability')
+        
+        # apply
         player.potion.Apply(player.equiped1)
         player.potion.Apply(player.equiped2)
         player.potion.Apply(player.shield)
@@ -756,11 +865,28 @@ def selectPlayer():
         effects_2.loadEffects(player.equiped2) # load effects
 
         # game start
+        game.init()
         game.play = True
         game.location = player.location # get the location
+        game.collectables = collectable_table
+        collectable_table.level = player.level
 
         currentPage = pages[5] # navigate to game page
         create_selectPlayer.destory_UI() # destroy this page
+
+        game.objects = [ # for the transition
+            Object(302, 202, 96, 96, 'animated2', 'teleport_machine', True), # the teleportation machine
+            Object(325, 225, 50, 50, 'other', player.name) # the player
+        ]
+
+        listGUIs.append(UI(10, 10, 256, 64, f'{player.name}_frame')) # load the GUIs
+
+        # reset the map
+        for map in listMaps:
+            map.Reset()
+
+        for create in listCreated:
+            create.Reset()
     
     elif keys[pygame.K_ESCAPE]:
         selected_item.play() # play audio selected
@@ -828,6 +954,8 @@ def main():
                 draw_map4()
             elif player.location == 'BattleGround1':
                 draw_btg1()
+            elif player.location == 'bossFight':
+                draw_boss1()
 
         elif currentPage == pages[6]:
             PauseGame()
@@ -843,8 +971,10 @@ def main():
             draw_Monitor()
         elif currentPage == pages[12]: # craftingtable
             draw_craftingBook()
-        elif currentPage == pages[13]:
+        elif currentPage == pages[13]: # game over
             draw_gameOver()
+        elif currentPage == pages[14]:
+            endGame()
         elif currentPage == pages[-1]: # exit game
             run = False
 
