@@ -62,12 +62,14 @@ Keys:
 Keys for selecting weapons to equiped:
   1. Tab or Right: select increment
   2. Left: select decrement
-  3. SPACE - Select items
+  3. SPACE: Select items
+  4. R: Delete/Remove items and add health
 
 Keys for inventories:
   1. Tab: change from Items chestbox inventory to weapons inventory, vise versa
   2. WADS: selecting items
   3. SPACE: move item
 
-- Player can hold 4 items in item bar
-- Player can only open inventory when you open chestbox at base
+- Player can hold 8 items in item bar and use 4 items/weapons
+- Player can destroy weapons or items to add health
+- To be tha player of the weapon(mjolnir or trident), the player need to reach the score

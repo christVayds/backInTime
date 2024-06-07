@@ -13,7 +13,7 @@ class Timer:
             self.countDown += 1
             self.wait = self.fps
 
-        if self.countDown == duration:
+        if self.countDown >= duration:
             self.countDown = 0
             return True
 

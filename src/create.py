@@ -5,7 +5,7 @@ import pygame
 
 class Create:
 
-    def __init__(self, screen, player, list_obj, selectItems, selectedItems):
+    def __init__(self, screen, player, list_obj, selectItems=None, selectedItems=None):
         self.screen = screen
         self.player = player
         self.list_obj = list_obj #list of objects for map
@@ -46,6 +46,10 @@ class Create:
             if obj != self.listofObjects[0]:
                 obj.draw(self.screen)
 
+    def Reset(self):
+        self.listofObjects = [self.player]
+        self.create()
+
     # UI - Pause menu
     def pauseGame(self):
          keys = pygame.key.get_just_pressed()
@@ -58,7 +62,7 @@ class Create:
         keys = pygame.key.get_just_pressed()
 
         if keys[pygame.K_f]:
-            self.seletedItems.play()
+            self.player.chestBoxSfx.play()
             return True
 
     #  FOR USER INTERFACE
@@ -119,8 +123,13 @@ class Create:
     def draw_enemy(self, objects):
         for enemy in self.listEnemies:
             if enemy.life <= 0:
-                if enemy.push == False:
+                enemy.hit_effects(self.screen)
+                if enemy.out:
                     self.listEnemies.remove(enemy)
             enemy.draw(self.screen, objects)
             enemy.follow(self.player) # follow the player
             enemy.Attack(self.player)
+
+    def resetEnemies(self):
+        self.listEnemies = []
+        self.create_enemies()

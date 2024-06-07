@@ -19,6 +19,7 @@ class Object(pygame.sprite.Sprite):
 
         # for practice
         self.attacked = False
+        self.damage = 0
         self.life = 100
         self.practice = None
         self.hit = None
@@ -65,9 +66,7 @@ class Object(pygame.sprite.Sprite):
         # for debuging or testing
         # else:
         #     pygame.draw.rect(screen, (255,0,0), self.rect, 1)
-
-        # pygame.draw.rect(screen, (255,255,255), self.rect, 1)
-
+            
     def move_x(self, direction):
         self.rect.x += direction
 

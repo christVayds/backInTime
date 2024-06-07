@@ -33,12 +33,21 @@
         "icon14_35": {"code": "icon14_35", "name": "PR97"}
     },
     "combination": [
-        {"result": "icon14_32", "combination": ["icon14_22", "icon14_29"]},
-        {"result": "icon14_26", "combination": ["icon14_31", "icon14_34"]},
-        {"result": "icon14_40", "combination": ["icon14_36", "icon14_01"]},
-        {"result": "icon14_08", "combination": ["icon14_07", "icon14_14"]},
-        {"result": "icon14_28", "combination": ["icon14_23", "icon14_35", "icon14_24"]},
-        {"result": "icon14_28", "combination": ["icon14_03", "icon14_01"], "code": "debugging"}
+        {"result": "icon14_32", "combination": ["icon14_22", "icon14_29"], "type": "item"},
+        {"result": "icon14_26", "combination": ["icon14_31", "icon14_34"], "type": "item"},
+        {"result": "icon14_40", "combination": ["icon14_36", "icon14_01"], "type": "item"},
+        {"result": "icon14_08", "combination": ["icon14_07", "icon14_14"], "type": "item"},
+        {"result": "icon14_28", "combination": ["icon14_23", "icon14_35", "icon14_24"], "type": "item"},
+        {"result": "boomerang", "combination": ["icon14_06", "icon14_37", "icon14_03"], "type": "weapon"},
+        {"result": "bomb", "combination": ["icon14_05", "icon14_26", "icon14_33"], "type": "weapon"}
+    ],
+    "craftItems":[
+        "icon14_32",
+        "icon14_26",
+        "icon14_40",
+        "icon14_08",
+        "icon14_28",
+        "boomerang"
     ],
     "Collectables": [
         {"level": 1, "collect": [

@@ -47,6 +47,8 @@
         {"name": "table_2", "type": "other2", "rect": "(325, 350, 100, 100)"},
         {"name": "table_3", "type": "other2", "rect": "(200, 350, 100, 100)"},
         {"name": "table_4", "type": "other2", "rect": "(25, 200, 60, 252)"},
+        {"name": "chair_2", "type": "other", "rect": "(150, 100, 96, 48)"},
+        {"name": "book_1", "type": "other", "rect": "(180, 90, 30, 30)"},
 
         {"name": "machine_1", "type": "animated", "rect": "(610, 25, 84, 120)", "comment": "animated"},
 
@@ -73,9 +75,12 @@
         {"name": "teleportation_cables", "type": "animated", "rect": "(475, 25, 115, 74)"},
         {"name": "power_generator_1", "type": "animated", "rect": "(590, 25, 85, 74)"},
         {"name": "teleport_machine", "type": "animated2", "rect": "(525, 100, 96, 96)"},
+        {"name": "timeMachine", "type": "animated2", "rect": "(200, 175, 100, 100)"},
 
-        {"name": "outside", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "outside_map3"},
+        {"name": "bossFight", "type": "navigation", "rect": "(525, 100, 96, 46)", "distination": "bossFight_map3"},
+        {"name": "BattleGround1", "type": "navigation", "rect": "(25, 100, 50, 50)", "distination": "BattleGround1_map3"},
         {"name": "base", "type": "navigation", "rect": "(50, 375, 75, 50)", "distination": "base_map3"},
+        {"name": "past", "type": "navigation", "rect": "(225, 200, 50, 25)", "distination": "past_map3"},
 
         {"name": "hidden", "type": "hidden2", "rect": "(75, 25, 100, 28)"},
         {"name": "hidden", "type": "hidden2", "rect": "(190, 25, 25, 48)"},
@@ -98,6 +103,25 @@
         {"name": "hidden", "type": "hidden2", "rect": "(25, 375, 425, 25)"},
         {"name": "hidden", "type": "hidden2", "rect": "(450, 0, 25, 400)"}
     ],
+    
+    "BattleGround1": [
+        {"name": "map3", "type": "navigation", "rect": "(0, 150, 50, 75)", "distination": "map3_BattleGround1"},
+        {"name": "NextBattleMap", "type": "navigation", "rect": "(700, 825, 50, 75)", "distination": "BattleMap"},
+
+        {"name": "hidden", "type": "hidden2", "rect": "(-25, 125, 25, 125)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(0, 0, 25, 125)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(0, 225, 25, 800)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(0, 1000, 700, 25)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(700, 900, 25, 150)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(700, 0, 25, 800)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(725, 800, 25, 100)"},
+        {"name": "hidden", "type": "hidden2", "rect": "(25, 0, 700, 75)"}
+    ],
+
+    "boss1": [
+        {"name": "teleport_machine", "type": "animated2", "rect": "(350, 300, 96, 96)"},
+        {"name": "map3", "type": "navigation", "rect": "(350, 300, 96, 46)", "distination": "map3_bossFight"}
+    ],
 
     "SelectPlayer": [
         {"name": "test_bg", "type": "bg_image", "rect": "(0, 0, 700, 700)", "comment": "This is bg image"},
@@ -106,11 +130,5 @@
         {"name": "ricky", "type": "selector", "rect": "(356, 50, 192, 192)", "selected": 1},
         {"name": "jp", "type": "selector", "rect": "(158, 250, 192, 192)", "selected": 1},
         {"name": "jayson", "type": "selector", "rect": "(356, 250, 192, 192)", "selected": 1}
-    ],
-
-    "Enemies_m2": [
-        {"name": "zombies", "rect": "(300, 150, 50, 50)", "speed": 2.5, "default_life": "20", "level": 1},
-        {"name": "zombies", "rect": "(300, 150, 50, 50)", "speed": 2, "default_life": "50", "level": 1},
-        {"name": "zombies", "rect": "(300, 150, 50, 50)", "speed": 3.5, "default_life": "30", "level": 1}
     ]
 }

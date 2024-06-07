@@ -1,5 +1,6 @@
 import pygame
 import os
+import json
 
 class UI(pygame.sprite.Sprite):
 
@@ -88,6 +89,10 @@ class GUI:
         self.screen = screen
         self.name = name
         self.bg = bg
+
+        # font
+        self.font = pygame.font.SysFont('consolas', 13)
+        self.text = None
         
         self.bg_image = None
         self.selections = []
@@ -138,6 +143,7 @@ class GUI:
             return self.selected
 
     def loadImages(self):
+
         path = f'characters/GUI/{self.name}'
         for filename in os.listdir(path):
             if filename.endswith('.png'):
@@ -163,7 +169,100 @@ class GUI:
                         print('File not found:', image_path)
 
     def loadBg(self):
-        image = f'characters/objects/{self.bg}.jpg'
-        image = pygame.image.load(image)
-        image = pygame.transform.scale(image, (700, 700))
-        self.bg_image = image
+        if self.bg != None:
+            image = f'characters/objects/{self.bg}.jpg'
+            image = pygame.image.load(image)
+            image = pygame.transform.scale(image, (700, 700))
+            self.bg_image = image
+
+    def drawText(self, x, y):
+        if self.text:
+            text = self.font.render(self.text.title(), True, (102,255,227))
+            self.screen.blit(text, (x, y, text.get_width(), text.get_height()))
+
+class CraftingBook:
+
+    def __init__(self, x, y, width, height, screen):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.screen = screen
+        self.page = 0
+        self.loadedDataImages = []
+        self.allItemsData = []
+        self.data = []
+        self.loadData()
+        self.loadDataImages()
+
+        self.image = pygame.transform.scale(pygame.image.load(f'characters/GUI/crafting_book/s_0.png'), (self.rect.width, self.rect.height))
+
+        self.grid1 = [(135, 265), (183, 265), (231, 265)]
+        self.grid2 = [(365, 265), (413, 265), (461, 265)]
+
+        # sfx
+        self.sfx = None
+        self.flip_sfx = pygame.mixer.Sound('audio/flip.mp3')
+        self.sfx_timer = 0
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+
+        self.draw_content()
+
+    def draw_content(self):
+        self.screen.blit(self.loadedDataImages[self.page]['result'], (140, 155))
+        for i, comItems in enumerate(self.loadedDataImages[self.page]['combination']):
+            self.screen.blit(comItems, self.grid1[i])
+
+        if (self.page +1) > len(self.data)-1:
+             self.screen.blit(self.loadedDataImages[0]['result'], (370, 155))
+             for i, comItems in enumerate(self.loadedDataImages[0]['combination']):
+                self.screen.blit(comItems, self.grid2[i])
+        else:
+            self.screen.blit(self.loadedDataImages[self.page+1]['result'], (370, 155))
+            for i, comItems in enumerate(self.loadedDataImages[self.page+1]['combination']):
+                self.screen.blit(comItems, self.grid2[i])
+
+    def Actions(self):
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_RIGHT]:
+            self.flip_sfx.play()
+            self.page += 1
+            if self.page > len(self.data) -1:
+                self.page = 0
+        
+        elif keys[pygame.K_LEFT]:
+            self.flip_sfx.play()
+            self.page -= 1
+            if self.page < 0:
+                self.page = len(self.loadedDataImages) -1
+        
+        elif keys[pygame.K_SPACE] or keys[pygame.K_f]:
+            self.flip_sfx.play()
+            return True
+
+    def loadData(self):
+        with open('Data/items.json') as file:
+            data = json.load(file)
+
+            self.data = data['combination']
+            self.allItemsData = data["Items"]
+
+    def loadDataImages(self):
+        data = {}
+        comItems = []
+        for item in self.data:
+            if item['result'] in ['boomerang', 'bomb']:
+                image = pygame.image.load(f'characters/weapons/{item['result']}/weapon.png')
+            else:
+                image = pygame.image.load(f'characters/icons/{item['result']}.png')
+            image = pygame.transform.scale(image, (75, 75))
+            data['result'] = image
+            for comItem in item['combination']:
+                cimage = pygame.image.load(f'characters/icons/{comItem}.png')
+                cimage = pygame.transform.scale(cimage, (40, 40))
+                comItems.append(cimage)
+            data['combination'] = comItems
+            self.loadedDataImages.append(data)
+            data = {}
+            comItems = []
+                
