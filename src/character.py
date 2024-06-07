@@ -474,7 +474,7 @@ class Player(pygame.sprite.Sprite):
         self.equiped2 = None
         self.potion = None
         self.shield = None
-        self.level = 3 # debugging
+        self.level = 1 # debugging
         self.score = 0
 
         # skills
@@ -517,9 +517,9 @@ class Player(pygame.sprite.Sprite):
         self.loading_timer = 0
         self.can_move = True
         self.nextMap = False
-        self.can_teleport = True # debugging
+        self.can_teleport = False # debugging
         self.can_return = True # for after navigating to boss fight map
-        self.endgame = True # debugging
+        self.endgame = False # debugging
         self.timeMachine = False
 
         # # map objects
