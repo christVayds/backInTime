@@ -229,7 +229,7 @@ class Game:
             self.screen.blit(itemImage, (item.x, item.y))
 
     def loadItemsData(self):
-        with open('Data/items.json') as file:
+        with open('data/items.json') as file:
             Data = json.load(file)
 
             craftItems = Data['craftItems']
@@ -239,7 +239,7 @@ class Game:
                     self.itemData.append(i)
 
     def loadCredits(self):
-        with open('Data/credits.json') as file:
+        with open('data/credits.json') as file:
             Data = json.load(file)
 
             contributers = Data['contributers']

@@ -241,7 +241,7 @@ class CraftingBook:
             return True
 
     def loadData(self):
-        with open('Data/items.json') as file:
+        with open('data/items.json') as file:
             data = json.load(file)
 
             self.data = data['combination']
@@ -254,11 +254,11 @@ class CraftingBook:
             if item['result'] in ['boomerang', 'bomb']:
                 image = pygame.image.load(f'characters/weapons/{item['result']}/weapon.png')
             else:
-                image = pygame.image.load(f'characters/icons/{item['result']}.png')
+                image = pygame.image.load(f'characters/icons/{item['result'].title()}.png')
             image = pygame.transform.scale(image, (75, 75))
             data['result'] = image
             for comItem in item['combination']:
-                cimage = pygame.image.load(f'characters/icons/{comItem}.png')
+                cimage = pygame.image.load(f'characters/icons/{comItem.title()}.png')
                 cimage = pygame.transform.scale(cimage, (40, 40))
                 comItems.append(cimage)
             data['combination'] = comItems

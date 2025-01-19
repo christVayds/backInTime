@@ -87,7 +87,7 @@ class Weapon:
             self.player.mana -= self.mana
 
     def LoadData(self):
-        with open('Data/weapons.json') as file:
+        with open('data/weapons.json') as file:
             self.weaponData = json.load(file)
 
     def loadNoneAnimated(self):
@@ -557,7 +557,7 @@ class Items(Weapon):
         self.y = None
 
     def loadNoneAnimated(self):
-        image = f'characters/icons/{self.name}.png'
+        image = f'characters/icons/{self.name.title()}.png'
         image = pygame.image.load(image)
         image = pygame.transform.scale(image, (self.scale[0], self.scale[1]))
         self.noneAnimated = image

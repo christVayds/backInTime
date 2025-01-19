@@ -18,7 +18,7 @@ from src.character import *
 from src.object import *
 from src.create import Create
 from src.camera import Camera
-from Data.read import Read
+from data.read import Read
 from src.UI import UI, GUI, CraftingBook
 from src.timer import Timer
 from src.boss import Ethan, Aeron
@@ -122,7 +122,7 @@ boss = [
 player.bossCount = len(boss)
 
 # read object data from json file data
-readData = Read('Data/data.json')
+readData = Read('data/data.json')
 readData.read() # read all data
 
 # get the data to game
